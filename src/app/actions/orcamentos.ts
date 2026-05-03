@@ -160,6 +160,38 @@ export async function getAgendamentos() {
         },
       },
     },
-    orderBy: [{ data: "asc" }, { hora: "asc" }],
   });
+}
+
+export async function getFinanceiro(periodo: string) {
+  const empresa = await getEmpresa();
+  if (!empresa) return { receita: 0, custos: 0, lucro: 0, margem: 0, total: 0 };
+
+  const agora = new Date();
+  let dataInicio = new Date();
+
+  if (periodo === "semana") dataInicio.setDate(agora.getDate() - 7);
+  else if (periodo === "mes") dataInicio.setMonth(agora.getMonth() - 1);
+  else if (periodo === "ano") dataInicio.setFullYear(agora.getFullYear() - 1);
+
+  const orcamentos = await prisma.orcamento.findMany({
+    where: {
+      empresaId: empresa.id,
+      status: "Entregue",
+      createdAt: { gte: dataInicio },
+    },
+  });
+
+  const receita = orcamentos.reduce((acc, o) => acc + o.valorFinal, 0);
+  const custos = orcamentos.reduce((acc, o) => acc + o.custoMateriais, 0);
+  const lucro = receita - custos;
+  const margem = receita > 0 ? (lucro / receita) * 100 : 0;
+
+  return {
+    receita,
+    custos,
+    lucro,
+    margem,
+    total: orcamentos.length,
+  };
 }
