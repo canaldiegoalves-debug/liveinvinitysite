@@ -29,13 +29,12 @@ export async function getOrcamentos() {
 
 export async function createOrcamento(data: {
   clienteId: string;
-  servicoIds: string[]; // Agora aceita um array de IDs
+  servicoIds: string[];
   observacoes?: string;
 }) {
   const empresa = await getEmpresa();
   if (!empresa) throw new Error("Não autorizado");
 
-  // Busca todos os serviços selecionados
   const servicosData = await prisma.servico.findMany({
     where: { 
       id: { in: data.servicoIds },
@@ -46,7 +45,6 @@ export async function createOrcamento(data: {
     }
   });
 
-  // Calcula os totais agregados
   let custoMateriais = 0;
   let valorMaoDeObra = 0;
 
@@ -60,8 +58,6 @@ export async function createOrcamento(data: {
   });
 
   const valorFinal = custoMateriais + valorMaoDeObra;
-
-  // Gera número do orçamento
   const count = await prisma.orcamento.count({ where: { empresaId: empresa.id } });
   const numero = `ORC-${(count + 1).toString().padStart(4, "0")}`;
 
@@ -75,7 +71,6 @@ export async function createOrcamento(data: {
       valorMaoDeObra,
       valorFinal,
       status: "Pendente",
-      // Cria os vínculos com múltiplos serviços
       servicos: {
         create: data.servicoIds.map(id => ({
           servicoId: id
@@ -113,9 +108,6 @@ export async function updateStatusOrcamento(id: string, status: string) {
 export async function agendarOrcamento(id: string, data: string, hora: string) {
   const empresa = await getEmpresa();
   if (!empresa) throw new Error("Não autorizado");
-
-  const orc = await prisma.orcamento.findUnique({ where: { id, empresaId: empresa.id } });
-  if (!orc) throw new Error("Não encontrado");
 
   await prisma.agendamento.upsert({
     where: { orcamentoId: id },
@@ -160,6 +152,7 @@ export async function getAgendamentos() {
         },
       },
     },
+    orderBy: [{ data: "asc" }, { hora: "asc" }],
   });
 }
 
