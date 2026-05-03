@@ -1,0 +1,404 @@
+.container {
+  min-height: 100vh;
+  background: #0f172a;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+/* Navbar */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 5%;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.logoIcon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #6b46c1, #805ad5);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.loginBtn {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.loginBtn:hover {
+  color: #f8fafc;
+}
+
+.ctaBtn {
+  background: #6b46c1;
+  color: #fff;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.ctaBtn:hover {
+  background: #805ad5;
+  transform: translateY(-1px);
+}
+
+/* Hero */
+.hero {
+  padding: 180px 5% 100px;
+  text-align: center;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(107, 70, 193, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(107, 70, 193, 0.1);
+  color: #a78bfa;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(107, 70, 193, 0.2);
+}
+
+.title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  letter-spacing: -0.04em;
+}
+
+.highlight {
+  background: linear-gradient(to right, #a78bfa, #6b46c1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  max-width: 650px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+.heroBtns {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mainCta {
+  background: #6b46c1;
+  color: #fff;
+  padding: 1.1rem 2.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s;
+  box-shadow: 0 10px 25px rgba(107, 70, 193, 0.3);
+}
+
+.mainCta:hover {
+  background: #805ad5;
+  transform: scale(1.02);
+  box-shadow: 0 15px 35px rgba(107, 70, 193, 0.4);
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s;
+}
+
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.freeNotice {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* Pain Points */
+.painPoints {
+  padding: 100px 5%;
+  background: #0f172a;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.sectionSubtitle {
+  color: #94a3b8;
+  font-size: 1.1rem;
+}
+
+.painGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.painCard {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2.5rem;
+  border-radius: 24px;
+  transition: transform 0.3s;
+}
+
+.painCard:hover {
+  transform: translateY(-10px);
+}
+
+.painIcon {
+  width: 56px;
+  height: 56px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.painCard h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.painCard p {
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* Benefits */
+.benefits {
+  padding: 100px 5%;
+  background: linear-gradient(to bottom, #0f172a, #1e293b);
+}
+
+.benefitsContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+  flex-wrap: wrap;
+}
+
+.benefitImage {
+  flex: 1;
+  min-width: 350px;
+}
+
+.mockup {
+  background: #0f172a;
+  border: 4px solid #334155;
+  border-radius: 16px;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.mockupHeader {
+  background: #1e293b;
+  padding: 0.75rem 1rem;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #475569; }
+
+.mockupContent {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mockupLine {
+  height: 8px;
+  background: #334155;
+  border-radius: 4px;
+}
+
+.mockupPrice {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #a78bfa;
+}
+
+.mockupTag {
+  align-self: flex-start;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.benefitText {
+  flex: 1;
+  min-width: 350px;
+}
+
+.benefitTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 3rem;
+}
+
+.benefitList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.benefitList li {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.check {
+  color: #a78bfa;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.benefitList strong {
+  display: block;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.benefitList div {
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* Final CTA */
+.finalCta {
+  padding: 100px 5%;
+  text-align: center;
+}
+
+.finalCard {
+  background: linear-gradient(135deg, #6b46c1, #4c1d95);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  border-radius: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.zapIcon {
+  color: rgba(255, 255, 255, 0.15);
+  margin-bottom: 2rem;
+}
+
+.finalCard h2 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.finalCard p {
+  font-size: 1.25rem;
+  color: #ddd6fe;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+/* Footer */
+.footer {
+  padding: 4rem 5%;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .navActions { display: none; }
+  .hero { padding-top: 140px; }
+  .benefitTitle { font-size: 2rem; }
+  .finalCard h2 { font-size: 2rem; }
+}

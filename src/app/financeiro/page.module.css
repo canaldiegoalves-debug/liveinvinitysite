@@ -1,0 +1,139 @@
+.container {
+  padding: 2rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--secondary-foreground);
+  font-size: 0.95rem;
+}
+
+.filterSelect {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--secondary);
+  font-size: 0.875rem;
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  outline: none;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.statCard {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.statHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statTitle {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--secondary-foreground);
+}
+
+.statIcon {
+  color: var(--primary);
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.statSubtitle {
+  font-size: 0.75rem;
+  color: var(--secondary-foreground);
+  margin-top: -0.5rem;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.chartCard {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 300px;
+}
+
+.chartTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.chartSubtitle {
+  font-size: 0.875rem;
+  color: var(--secondary-foreground);
+  margin-bottom: 1rem;
+}
+
+.chartArea {
+  flex: 1;
+  border-top: 1px dashed var(--secondary);
+  border-bottom: 1px dashed var(--secondary);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.metricBar {
+  flex: 1;
+  min-width: 200px;
+}
+
+.metricBarLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.barTrack {
+  height: 10px;
+  background: var(--secondary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+

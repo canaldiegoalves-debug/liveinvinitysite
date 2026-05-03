@@ -1,0 +1,16 @@
+node_modules
+.next
+.env
+.env.local
+.DS_Store
+dist
+build
+scratch
+*.log
+.gemini
+knowledge
+brain
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
