@@ -73,39 +73,45 @@ export async function saveEmpresa(data: {
   planoExpiresAt?: Date;
   metodoPagamento?: string;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) throw new Error("Não autorizado");
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return { error: "Não autorizado" };
 
-  await prisma.user.upsert({
-    where: { id: user.id },
-    update: {
-      email: user.email!,
-      nome: user.user_metadata?.full_name || "",
-    },
-    create: {
-      id: user.id,
-      email: user.email!,
-      nome: user.user_metadata?.full_name || "",
-    },
-  });
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: {
+        email: user.email || "",
+        nome: user.user_metadata?.full_name || "",
+      },
+      create: {
+        id: user.id,
+        email: user.email || "",
+        nome: user.user_metadata?.full_name || "",
+      },
+    });
 
-  await prisma.empresa.upsert({
-    where: { userId: user.id },
-    update: data,
-    create: { 
-      userId: user.id,
-      nome: data.nome || "Minha Empresa",
-      plano: data.plano || "free",
-      planoStatus: "active",
-      ...data, 
-    },
-  });
+    await prisma.empresa.upsert({
+      where: { userId: user.id },
+      update: data,
+      create: { 
+        userId: user.id,
+        nome: data.nome || "Minha Empresa",
+        plano: data.plano || "free",
+        planoStatus: "active",
+        ...data, 
+      },
+    });
 
-  revalidatePath("/");
-  revalidatePath("/configuracoes");
-  revalidatePath("/admin");
+    revalidatePath("/");
+    revalidatePath("/configuracoes");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err: any) {
+    console.error("ERRO NO SAVE EMPRESA:", err);
+    return { error: err.message || String(err) };
+  }
 }
 
 // ... (getAllEmpresasAdmin continua igual)

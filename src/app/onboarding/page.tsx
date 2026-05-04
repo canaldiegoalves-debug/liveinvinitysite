@@ -21,12 +21,17 @@ export default function OnboardingPage() {
     if (!nome || !nichoId) return;
     setIsLoading(true);
     try {
-      await saveEmpresa({ nome, nicho: nichoId, telefone, email });
+      const result = await saveEmpresa({ nome, nicho: nichoId, telefone, email });
+      if (result && result.error) {
+        alert("Erro ao configurar empresa: " + result.error);
+        setIsLoading(false);
+        return;
+      }
       router.push("/");
       router.refresh();
     } catch (error: any) {
       console.error(error);
-      alert("Erro ao configurar empresa: " + (error.message || "Erro desconhecido"));
+      alert("Erro crítico: " + (error.message || "Erro desconhecido"));
       setIsLoading(false);
     }
   };
