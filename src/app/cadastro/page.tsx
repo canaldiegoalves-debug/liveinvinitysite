@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
-import { Mail, Lock, User, ArrowRight, Github } from "lucide-react";
+import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import styles from "./auth.module.css";
 
