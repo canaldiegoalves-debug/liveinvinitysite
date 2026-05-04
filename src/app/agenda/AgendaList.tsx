@@ -73,7 +73,6 @@ export function AgendaList({ initialAgendamentos }: { initialAgendamentos: Agend
                         size={16}
                         className={styles.actionIcon}
                         style={{ color: "var(--success)" }}
-                        title="Marcar como entregue"
                         onClick={() => updateStatusOrcamento(a.orcamento.id, "Entregue")}
                       />
                     )}
@@ -82,7 +81,6 @@ export function AgendaList({ initialAgendamentos }: { initialAgendamentos: Agend
                         size={16}
                         className={styles.actionIcon}
                         style={{ color: "var(--primary)" }}
-                        title="Recuperar: reativar como agendado"
                         onClick={() => updateStatusOrcamento(a.orcamento.id, "Agendado")}
                       />
                     )}
@@ -90,7 +88,6 @@ export function AgendaList({ initialAgendamentos }: { initialAgendamentos: Agend
                       <XCircle
                         size={16}
                         className={`${styles.actionIcon} ${styles.actionDelete}`}
-                        title="Cancelar"
                         onClick={() => updateStatusOrcamento(a.orcamento.id, "Cancelado")}
                       />
                     )}
