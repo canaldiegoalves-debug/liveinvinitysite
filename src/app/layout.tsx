@@ -23,11 +23,17 @@ export default async function RootLayout({
   const headersList = await headers();
   const fullPath = headersList.get("x-invoke-path") || "";
   
-  // LÓGICA DE BLOQUEIO POR PAGAMENTO
+  // LÓGICA DE ACESSO E BLOQUEIO
+  const isPublicPage = fullPath === "/" || fullPath.includes("/login") || fullPath.includes("/cadastro") || fullPath.includes("/auth");
   const isExpired = empresa?.planoStatus === "expired";
-  const isPublicPage = fullPath.includes("/planos") || fullPath.includes("/bloqueado") || fullPath === "/";
   
-  if (isExpired && !isPublicPage) {
+  // 1. Se não estiver logado e tentar entrar em página privada -> Login
+  if (!empresa && !isPublicPage) {
+    redirect("/login");
+  }
+
+  // 2. Se o plano expirou -> Bloqueado
+  if (isExpired && !isPublicPage && !fullPath.includes("/bloqueado") && !fullPath.includes("/planos")) {
     redirect("/bloqueado");
   }
 
