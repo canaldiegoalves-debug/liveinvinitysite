@@ -19,18 +19,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const empresa = await getEmpresa();
-  
-  const isExpired = empresa?.planoStatus === "expired";
-  const hasNicho = !!empresa?.nicho;
-
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
         <ThemeProvider>
           <div className="app-container">
-            {hasNicho && !isExpired && <Navbar />}
-            <main className={hasNicho && !isExpired ? "main-content" : "full-content"}>
+            <main className="full-content">
               {children}
             </main>
           </div>
