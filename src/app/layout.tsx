@@ -19,7 +19,13 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        {children}
+        <ThemeProvider>
+          <div className="app-container">
+            <main className="full-content">
+              {children}
+            </main>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
