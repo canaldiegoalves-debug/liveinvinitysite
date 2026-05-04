@@ -127,14 +127,12 @@ export function ClientesList({ initialClientes }: { initialClientes: Cliente[] }
                         size={16}
                         className={styles.actionIcon}
                         style={{ color: "#25D366" }}
-                        title="Enviar WhatsApp"
                         onClick={() => handleWhatsApp(c.telefone, c.nome)}
                       />
-                      <Edit2 size={16} className={styles.actionIcon} title="Editar" onClick={() => openEdit(c)} />
+                      <Edit2 size={16} className={styles.actionIcon} onClick={() => openEdit(c)} />
                       <Trash2
                         size={16}
                         className={`${styles.actionIcon} ${styles.actionDelete}`}
-                        title="Excluir"
                         onClick={() => handleDelete(c.id)}
                       />
                     </div>
