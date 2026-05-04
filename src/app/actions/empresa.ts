@@ -78,6 +78,19 @@ export async function saveEmpresa(data: {
   
   if (!user) throw new Error("Não autorizado");
 
+  await prisma.user.upsert({
+    where: { id: user.id },
+    update: {
+      email: user.email!,
+      nome: user.user_metadata?.full_name || "",
+    },
+    create: {
+      id: user.id,
+      email: user.email!,
+      nome: user.user_metadata?.full_name || "",
+    },
+  });
+
   await prisma.empresa.upsert({
     where: { userId: user.id },
     update: data,
