@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-  const url = process.env.POOLER_URL || process.env.DATABASE_URL;
+  const url = process.env.POOLER_URL || "postgresql://postgres.aoifhzglajhnifjqcfqt:Valora2024SaaS!@aws-1-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true";
   console.log("PRISMA INITIALIZING WITH URL:", url ? url.split('@')[1] : "UNDEFINED");
   return new PrismaClient({
     datasources: {
