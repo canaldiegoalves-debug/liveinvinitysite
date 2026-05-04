@@ -1,10 +1,16 @@
 import { getClientes } from "@/app/actions/clientes";
+import { getEmpresa } from "@/app/actions/empresa";
 import { ClientesList } from "./ClientesList";
+import { redirect } from "next/navigation";
 
 export default async function ClientesPage() {
-  const data = await getClientes();
+  const [data, empresa] = await Promise.all([
+    getClientes(),
+    getEmpresa()
+  ]);
+
+  if (!empresa) redirect("/onboarding");
   
-  // Calcula o total gasto de cada cliente somando seus orçamentos
   const clientes = data.map(c => ({
     ...c,
     totalGasto: c.orcamentos.reduce((acc, o) => acc + o.valorFinal, 0)

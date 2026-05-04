@@ -3,6 +3,7 @@ import { getClientes } from "@/app/actions/clientes";
 import { getServicos } from "@/app/actions/servicos";
 import { getEmpresa } from "@/app/actions/empresa";
 import { OrcamentosList } from "./OrcamentosList";
+import { redirect } from "next/navigation";
 
 export default async function OrcamentosPage() {
   const [orcamentos, clientes, servicos, empresa] = await Promise.all([
@@ -11,6 +12,8 @@ export default async function OrcamentosPage() {
     getServicos(),
     getEmpresa(),
   ]);
+
+  if (!empresa) redirect("/onboarding");
 
   return (
     <OrcamentosList
