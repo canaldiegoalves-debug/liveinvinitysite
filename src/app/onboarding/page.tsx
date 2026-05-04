@@ -20,9 +20,15 @@ export default function OnboardingPage() {
   const handleFinish = async () => {
     if (!nome || !nichoId) return;
     setIsLoading(true);
-    await saveEmpresa({ nome, nicho: nichoId, telefone, email });
-    router.push("/");
-    router.refresh();
+    try {
+      await saveEmpresa({ nome, nicho: nichoId, telefone, email });
+      router.push("/");
+      router.refresh();
+    } catch (error: any) {
+      console.error(error);
+      alert("Erro ao configurar empresa: " + (error.message || "Erro desconhecido"));
+      setIsLoading(false);
+    }
   };
 
   return (
