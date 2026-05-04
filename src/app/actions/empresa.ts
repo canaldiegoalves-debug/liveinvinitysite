@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
+import { redirect } from "next/navigation";
 
 export async function getEmpresa() {
   try {
@@ -73,6 +74,7 @@ export async function saveEmpresa(data: {
   planoExpiresAt?: Date;
   metodoPagamento?: string;
 }) {
+  let success = false;
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -107,10 +109,14 @@ export async function saveEmpresa(data: {
     revalidatePath("/");
     revalidatePath("/configuracoes");
     revalidatePath("/admin");
-    return { success: true };
+    success = true;
   } catch (err: any) {
     console.error("ERRO NO SAVE EMPRESA:", err);
     return { error: err.message || String(err) };
+  }
+
+  if (success) {
+    redirect("/");
   }
 }
 

@@ -25,10 +25,7 @@ export default function OnboardingPage() {
       if (result && result.error) {
         alert("Erro ao configurar empresa: " + result.error);
         setIsLoading(false);
-        return;
       }
-      router.push("/");
-      router.refresh();
     } catch (error: any) {
       console.error(error);
       alert("Erro crítico: " + (error.message || "Erro desconhecido"));
