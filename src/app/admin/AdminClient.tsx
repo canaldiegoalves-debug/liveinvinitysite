@@ -18,6 +18,9 @@ type UserData = {
     nome: string;
     nicho: string;
     plano: string;
+    telefone: string | null;
+    metodoPagamento: string | null;
+    planoExpiresAt: Date | string | null;
     _count: {
       clientes: number;
       orcamentos: number;
