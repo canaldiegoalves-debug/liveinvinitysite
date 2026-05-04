@@ -5,65 +5,59 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase-server";
 
 export async function getEmpresa() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) return null;
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return null;
 
-  const dbUser = await prisma.user.upsert({
-    where: { id: user.id },
-    update: {
-      email: user.email!,
-      nome: user.user_metadata.full_name || "",
-    },
-    create: {
-      id: user.id,
-      email: user.email!,
-      nome: user.user_metadata.full_name || "",
-    },
-  });
-
-  let empresa = await prisma.empresa.findUnique({
-    where: { userId: user.id },
-  });
-
-  if (!empresa) {
-    empresa = await prisma.empresa.create({
-      data: {
-        userId: user.id,
-        nome: "Minha Empresa",
-        nicho: "",
-        plano: "free",
-        planoStatus: "active",
+    const dbUser = await prisma.user.upsert({
+      where: { id: user.id },
+      update: {
+        email: user.email!,
+        nome: user.user_metadata.full_name || "",
+      },
+      create: {
+        id: user.id,
+        email: user.email!,
+        nome: user.user_metadata.full_name || "",
       },
     });
-  }
 
-  // --- LÓGICA DE MONITORAMENTO FINANCEIRO ---
-  if (empresa.plano !== "free" && empresa.planoExpiresAt) {
-    const hoje = new Date();
-    const expiracao = new Date(empresa.planoExpiresAt);
+    let empresa = await prisma.empresa.findUnique({
+      where: { userId: user.id },
+    });
 
-    // 1. Verificação de Bloqueio (Vencimento)
-    if (hoje > expiracao && empresa.planoStatus !== "expired") {
-      empresa = await prisma.empresa.update({
-        where: { id: empresa.id },
-        data: { planoStatus: "expired" }
+    if (!empresa) {
+      empresa = await prisma.empresa.create({
+        data: {
+          userId: user.id,
+          nome: "Minha Empresa",
+          nicho: "",
+          plano: "free",
+          planoStatus: "active",
+        },
       });
     }
 
-    // 2. Verificação de Alerta (24h antes para PIX)
-    const umDiaEmMs = 24 * 60 * 60 * 1000;
-    const faltam24h = (expiracao.getTime() - hoje.getTime()) <= umDiaEmMs;
+    // --- LÓGICA DE MONITORAMENTO FINANCEIRO ---
+    if (empresa.plano !== "free" && empresa.planoExpiresAt) {
+      const hoje = new Date();
+      const expiracao = new Date(empresa.planoExpiresAt);
 
-    if (faltam24h && empresa.metodoPagamento === "pix" && hoje < expiracao) {
-      // Aqui o sistema sinaliza que precisa enviar o WhatsApp
-      // Em um ambiente real, dispararíamos o Webhook do WhatsApp aqui
-      console.log(`[ALERTA FINANCEIRO] Usuário ${dbUser.email} vence em 24h (PIX).`);
+      if (hoje > expiracao && empresa.planoStatus !== "expired") {
+        empresa = await prisma.empresa.update({
+          where: { id: empresa.id },
+          data: { planoStatus: "expired" }
+        });
+      }
     }
-  }
 
-  return empresa;
+    return empresa;
+  } catch (error) {
+    console.error("Erro ao buscar empresa:", error);
+    return null;
+  }
 }
 
 export async function saveEmpresa(data: {
