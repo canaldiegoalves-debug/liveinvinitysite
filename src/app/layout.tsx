@@ -4,6 +4,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Sidebar from "@/components/layout/Sidebar";
+import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase-server";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,12 +19,21 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let role = "user";
+  if (user) {
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+    role = dbUser?.role || "user";
+  }
+
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
         <ThemeProvider>
           <div className="app-container">
-            <Sidebar />
+            <Sidebar userRole={role} />
             <main className="full-content">
               {children}
             </main>

@@ -17,13 +17,14 @@ export default async function AdminPanel() {
       getAllUsersAdmin(),
       getDashboardStats()
     ]);
-  } catch (e) {
+  } catch (e: any) {
+    console.error("ERRO AO ACESSAR ADMIN:", e);
     return (
       <div className={styles.denied}>
         <ShieldCheck size={64} color="#ef4444" />
         <h1>Acesso Restrito</h1>
-        <p>Você não tem permissões administrativas para acessar esta área.</p>
-        <Link href="/" className="premium-button">Sair da Área Restrita</Link>
+        <p>Houve um erro ao verificar suas permissões ou ao carregar os dados: {e.message || "Erro desconhecido"}</p>
+        <Link href="/" className="premium-button">Voltar para o Início</Link>
       </div>
     );
   }

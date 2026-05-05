@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase";
 
 const hiddenRoutes = ["/landing", "/login", "/cadastro", "/onboarding", "/bloqueado"];
 
-export default function Sidebar() {
+export default function Sidebar({ userRole }: { userRole?: string }) {
   const pathname = usePathname();
 
   if (hiddenRoutes.includes(pathname)) {
@@ -61,6 +61,12 @@ export default function Sidebar() {
           <CreditCard size={20} />
           <span>Meu Plano</span>
         </Link>
+        {userRole === "admin" && (
+          <Link href="/admin" className={`${styles.navItem} ${pathname.startsWith("/admin") ? styles.active : ""}`} style={{ color: "#a78bfa" }}>
+            <ShieldCheck size={20} />
+            <span>Admin</span>
+          </Link>
+        )}
       </nav>
 
       <div className={styles.footer}>
