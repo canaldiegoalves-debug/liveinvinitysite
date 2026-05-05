@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { DollarSign, TrendingUp, Percent, Briefcase } from "lucide-react";
+import { DollarSign, TrendingUp, Percent, Briefcase, FileText } from "lucide-react";
 import fStyles from "./page.module.css";
 import { getFinanceiro } from "@/app/actions/orcamentos";
+import { Modal } from "@/components/ui/Modal";
 
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const fmtPct = (v: number) => `${v.toFixed(1)}%`;
+
+type ItemFinanceiro = { id: string; numero: string; cliente: string; valor: number; data: string | Date };
 
 type Dados = { 
   receita: number; 
@@ -15,7 +17,9 @@ type Dados = {
   margem: number; 
   total: number; 
   perdas: number; 
-  totalCancelados: number 
+  totalCancelados: number;
+  itensEntregues?: ItemFinanceiro[];
+  itensCancelados?: ItemFinanceiro[];
 };
 
 export default function FinanceiroPage() {
@@ -27,14 +31,25 @@ export default function FinanceiroPage() {
     margem: 0, 
     total: 0, 
     perdas: 0, 
-    totalCancelados: 0 
+    totalCancelados: 0,
+    itensEntregues: [],
+    itensCancelados: []
   });
   const [loading, setLoading] = useState(true);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalItems, setModalItems] = useState<ItemFinanceiro[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    getFinanceiro(periodo).then((d) => { setDados(d); setLoading(false); });
+    getFinanceiro(periodo).then((d) => { setDados(d as any); setLoading(false); });
   }, [periodo]);
+
+  const openHistory = (title: string, items: ItemFinanceiro[] = []) => {
+    setModalTitle(title);
+    setModalItems(items);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className={fStyles.container}>
@@ -52,18 +67,43 @@ export default function FinanceiroPage() {
 
       <section className={fStyles.statsGrid}>
         {[
-          { label: "Receita Total", value: fmt(dados.receita), sub: "Orçamentos entregues", icon: <DollarSign size={20} className={fStyles.statIcon} /> },
-          { label: "Lucro Líquido", value: fmt(dados.lucro), sub: "Após custo de materiais", icon: <TrendingUp size={20} className={fStyles.statIcon} /> },
-          { label: "Faturamento Perdido", value: fmt(dados.perdas), sub: `${dados.totalCancelados} cancelamentos`, icon: <Percent size={20} className={fStyles.statIcon} style={{ color: "#ef4444" }} /> },
-          { label: "Serviços Realizados", value: dados.total.toString(), sub: "No período selecionado", icon: <Briefcase size={20} className={fStyles.statIcon} /> },
+          { 
+            label: "Receita Total", 
+            value: fmt(dados.receita), 
+            sub: "Orçamentos entregues", 
+            icon: <DollarSign size={20} className={fStyles.statIcon} />,
+            onClick: () => openHistory("Histórico de Receita (Entregues)", dados.itensEntregues)
+          },
+          { 
+            label: "Lucro Líquido", 
+            value: fmt(dados.lucro), 
+            sub: "Após custo de materiais", 
+            icon: <TrendingUp size={20} className={fStyles.statIcon} />,
+            onClick: () => openHistory("Histórico de Lucro Líquido", dados.itensEntregues)
+          },
+          { 
+            label: "Faturamento Perdido", 
+            value: fmt(dados.perdas), 
+            sub: `${dados.totalCancelados} cancelamentos`, 
+            icon: <Percent size={20} className={fStyles.statIcon} style={{ color: "#ef4444" }} />,
+            onClick: () => openHistory("Histórico de Cancelamentos", dados.itensCancelados)
+          },
+          { 
+            label: "Serviços Realizados", 
+            value: dados.total.toString(), 
+            sub: "No período selecionado", 
+            icon: <Briefcase size={20} className={fStyles.statIcon} />,
+            onClick: () => openHistory("Histórico de Serviços Realizados", dados.itensEntregues)
+          },
         ].map((card) => (
-          <div key={card.label} className={`premium-card ${fStyles.statCard}`}>
+          <div key={card.label} className={`premium-card ${fStyles.statCard}`} onClick={card.onClick} style={{ cursor: "pointer" }}>
             <div className={fStyles.statHeader}>
               <span className={fStyles.statTitle}>{card.label}</span>
               {card.icon}
             </div>
             <div className={fStyles.statValue}>{loading ? "—" : card.value}</div>
             <div className={fStyles.statSubtitle}>{card.sub}</div>
+            <div className={fStyles.clickHint}>Clique para ver detalhes</div>
           </div>
         ))}
       </section>
@@ -73,10 +113,10 @@ export default function FinanceiroPage() {
         <p className={fStyles.chartSubtitle}>{periodo === "semana" ? "Últimos 7 dias" : periodo === "mes" ? "Este mês" : "Este ano"}</p>
         {loading ? (
           <div style={{ textAlign: "center", padding: "3rem", color: "var(--secondary-foreground)" }}>Carregando...</div>
-        ) : dados.total === 0 ? (
+        ) : (dados.total === 0 && dados.totalCancelados === 0) ? (
           <div style={{ textAlign: "center", padding: "3rem", color: "var(--secondary-foreground)" }}>
-            Nenhum orçamento entregue neste período.<br />
-            Marque um orçamento como "Entregue" para ver as métricas.
+            Nenhum dado financeiro neste período.<br />
+            As métricas aparecem para orçamentos "Entregues" ou "Cancelados".
           </div>
         ) : (
           <div style={{ marginTop: "1rem" }}>
@@ -97,6 +137,30 @@ export default function FinanceiroPage() {
           </div>
         )}
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalTitle}>
+        <div className={fStyles.historyList}>
+          {modalItems.length === 0 ? (
+            <p style={{ textAlign: "center", color: "var(--secondary-foreground)", padding: "2rem" }}>Nenhum registro encontrado.</p>
+          ) : (
+            modalItems.map(item => (
+              <div key={item.id} className={fStyles.historyItem}>
+                <div className={fStyles.itemMain}>
+                  <div className={fStyles.itemIcon}><FileText size={18} /></div>
+                  <div>
+                    <div className={fStyles.itemNum}>{item.numero}</div>
+                    <div className={fStyles.itemClient}>{item.cliente}</div>
+                  </div>
+                </div>
+                <div className={fStyles.itemValues}>
+                  <div className={fStyles.itemVal}>{fmt(item.valor)}</div>
+                  <div className={fStyles.itemDate}>{new Date(item.data).toLocaleDateString("pt-BR")}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }

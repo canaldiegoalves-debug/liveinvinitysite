@@ -174,13 +174,17 @@ export async function getFinanceiro(periodo: string) {
   else if (periodo === "mes") dataInicio.setMonth(agora.getMonth() - 1);
   else if (periodo === "ano") dataInicio.setFullYear(agora.getFullYear() - 1);
 
-  // Buscar orçamentos Entregues E Cancelados
+  // Buscar orçamentos Entregues E Cancelados com dados do cliente
   const orcamentos = await prisma.orcamento.findMany({
     where: {
       empresaId: empresa.id,
       status: { in: ["Entregue", "Cancelado"] },
       createdAt: { gte: dataInicio },
     },
+    include: {
+      cliente: { select: { nome: true } }
+    },
+    orderBy: { createdAt: "desc" }
   });
 
   const entregues = orcamentos.filter(o => o.status === "Entregue");
@@ -191,7 +195,6 @@ export async function getFinanceiro(periodo: string) {
   const lucro = receita - custos;
   const margem = receita > 0 ? (lucro / receita) * 100 : 0;
   
-  // Receita perdida é o valor final dos orçamentos que foram cancelados
   const perdas = cancelados.reduce((acc, o) => acc + o.valorFinal, 0);
 
   return {
@@ -201,6 +204,20 @@ export async function getFinanceiro(periodo: string) {
     margem,
     total: entregues.length,
     perdas,
-    totalCancelados: cancelados.length
+    totalCancelados: cancelados.length,
+    itensEntregues: entregues.map(o => ({
+      id: o.id,
+      numero: o.numero,
+      cliente: o.cliente.nome,
+      valor: o.valorFinal,
+      data: o.createdAt
+    })),
+    itensCancelados: cancelados.map(o => ({
+      id: o.id,
+      numero: o.numero,
+      cliente: o.cliente.nome,
+      valor: o.valorFinal,
+      data: o.createdAt
+    }))
   };
 }
