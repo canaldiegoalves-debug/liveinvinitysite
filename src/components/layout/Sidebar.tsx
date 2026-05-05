@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Package, Settings, LogOut, ArrowLeft, Calendar, TrendingUp, CreditCard } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Package, Settings, LogOut, ArrowLeft, Calendar, TrendingUp, CreditCard, ShieldCheck } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { createClient } from "@/lib/supabase";
 
