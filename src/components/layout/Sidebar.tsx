@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Package, Settings, LogOut, ArrowLeft, Calendar, TrendingUp, CreditCard, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Package, Settings, LogOut, ArrowLeft, Calendar, TrendingUp, CreditCard, ShieldCheck, Sun, Moon } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { createClient } from "@/lib/supabase";
+import { useTheme } from "@/context/ThemeContext";
 
 const hiddenRoutes = ["/landing", "/login", "/cadastro", "/onboarding", "/bloqueado"];
 
 export default function Sidebar({ userRole }: { userRole?: string }) {
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
 
   if (hiddenRoutes.includes(pathname)) {
     return null;
@@ -70,6 +72,10 @@ export default function Sidebar({ userRole }: { userRole?: string }) {
       </nav>
 
       <div className={styles.footer}>
+        <button onClick={toggleTheme} className={styles.navItem} style={{ background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          <span>{theme === "dark" ? "Modo Claro" : "Modo Escuro"}</span>
+        </button>
         <Link href="/configuracoes" className={`${styles.navItem} ${pathname.startsWith("/configuracoes") ? styles.active : ""}`}>
           <Settings size={20} />
           <span>Configurações</span>

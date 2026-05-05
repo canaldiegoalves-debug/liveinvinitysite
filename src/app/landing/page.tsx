@@ -6,7 +6,7 @@ import styles from "./landing.module.css";
 
 export default function LandingPage() {
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-theme="light">
       {/* Navbar Minimalista */}
       <nav className={styles.nav}>
         <div className={styles.logo}>
@@ -52,17 +52,17 @@ export default function LandingPage() {
         <div className={styles.painGrid}>
           {[
             {
-              icon: <Clock color="#ef4444" />,
+              icon: <Clock color="#dc2626" />,
               title: "Horas perdidas no WhatsApp",
               desc: "Passar o dia respondendo preço sem saber se vai fechar ou se está cobrando o certo."
             },
             {
-              icon: <TrendingUp color="#ef4444" />,
+              icon: <TrendingUp color="#dc2626" />,
               title: "Prejuízo invisível",
               desc: "Esquecer de somar aquele material caro e acabar pagando para trabalhar."
             },
             {
-              icon: <ShieldCheck color="#ef4444" />,
+              icon: <ShieldCheck color="#dc2626" />,
               title: "Falta de profissionalismo",
               desc: "Enviar mensagens bagunçadas ao invés de um PDF impecável com sua logo."
             }
