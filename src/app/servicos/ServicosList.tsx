@@ -75,6 +75,8 @@ export function ServicosList({
 
   // Lista de materiais temporários (vínculos)
   const [materiaisTemp, setMateriaisTemp] = useState<{ materialId: string; qtdUsada: number; material: Material; labelExibicao: string }[]>([]);
+  const [tempMatId, setTempMatId] = useState("");
+  const [tempQtd, setTempQtd] = useState("");
   const [tempUnidade, setTempUnidade] = useState("");
 
   // Atualiza unidade temp quando seleciona material
