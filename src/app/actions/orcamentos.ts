@@ -103,6 +103,7 @@ export async function updateStatusOrcamento(id: string, status: string) {
     data: { status },
   });
   revalidatePath("/orcamentos");
+  revalidatePath("/agenda");
 }
 
 export async function agendarOrcamento(id: string, data: string, hora: string) {

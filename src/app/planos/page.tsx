@@ -1,5 +1,7 @@
 import { Check, Star, Zap, Crown } from "lucide-react";
 import styles from "./page.module.css";
+import { createClient } from "@/lib/supabase-server";
+import { redirect } from "next/navigation";
 
 const plans = [
   {
@@ -81,7 +83,14 @@ const plans = [
   },
 ];
 
-export default function PlanosPage() {
+export default async function PlanosPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>

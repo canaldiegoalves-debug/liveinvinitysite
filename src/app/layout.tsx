@@ -33,7 +33,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <div className="app-container">
-            <Sidebar userRole={role} />
+            <Sidebar userRole={role} isAuthenticated={!!user} />
             <main className="full-content">
               {children}
             </main>

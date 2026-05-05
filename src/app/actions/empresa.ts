@@ -133,14 +133,10 @@ export async function saveEmpresa(data: {
     revalidatePath("/");
     revalidatePath("/configuracoes");
     revalidatePath("/admin");
-    success = true;
+    return { success: true };
   } catch (err: any) {
     console.error("ERRO NO SAVE EMPRESA:", err);
     return { error: err.message || String(err) };
-  }
-
-  if (success) {
-    redirect("/");
   }
 }
 

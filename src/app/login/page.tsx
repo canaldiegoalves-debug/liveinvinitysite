@@ -28,11 +28,10 @@ export default function LoginPage() {
 
     if (error) {
       setMessage({ type: "error", text: error.message });
+      setIsLoading(false);
     } else {
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     }
-    setIsLoading(false);
   };
 
   const handleGoogleLogin = async () => {

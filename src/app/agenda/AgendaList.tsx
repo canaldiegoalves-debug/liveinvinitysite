@@ -14,7 +14,7 @@ type Agendamento = {
     status: string;
     valorFinal: number;
     cliente: { nome: string; telefone: string | null };
-    servico: { nome: string };
+    servicos: { servico: { nome: string } }[];
   };
 };
 
@@ -64,7 +64,15 @@ export function AgendaList({ initialAgendamentos }: { initialAgendamentos: Agend
                 </td>
                 <td style={{ fontWeight: 500 }}>{a.orcamento.numero}</td>
                 <td>{a.orcamento.cliente.nome}</td>
-                <td>{a.orcamento.servico.nome}</td>
+                <td>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem" }}>
+                    {a.orcamento.servicos.map((s, idx) => (
+                      <span key={idx} style={{ background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "4px", fontSize: "0.75rem" }}>
+                        {s.servico.nome}
+                      </span>
+                    ))}
+                  </div>
+                </td>
                 <td style={{ fontWeight: 700, color: "var(--success)" }}>{fmt(a.orcamento.valorFinal)}</td>
                 <td>
                   <div className={styles.actions}>

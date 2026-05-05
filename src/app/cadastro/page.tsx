@@ -56,7 +56,8 @@ export default function RegisterPage() {
         </div>
 
         {message && (
-          <div className={`${styles.message} ${styles[message.type]}`}>
+          <div className={`${styles.message} ${styles[message.type]}`} style={message.type === "success" ? { border: "1px solid #059669", background: "rgba(5, 150, 105, 0.1)", padding: "1.5rem", borderRadius: "12px", textAlign: "center" } : {}}>
+            {message.type === "success" && <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📧</div>}
             {message.text}
           </div>
         )}

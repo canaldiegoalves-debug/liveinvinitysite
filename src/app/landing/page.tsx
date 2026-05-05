@@ -34,7 +34,7 @@ export default function LandingPage() {
             <Link href="/cadastro" className={styles.mainCta}>
               Criar meu orçamento agora <ArrowRight size={18} />
             </Link>
-            <button className={styles.secondaryBtn}>
+            <button className={styles.secondaryBtn} onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
               <PlayCircle size={18} /> Ver como funciona
             </button>
           </div>
@@ -43,7 +43,7 @@ export default function LandingPage() {
       </section>
 
       {/* Seção de Dores */}
-      <section className={styles.painPoints}>
+      <section id="features" className={styles.painPoints}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>O caos termina aqui</h2>
           <p className={styles.sectionSubtitle}>Você se identifica com algum desses problemas?</p>

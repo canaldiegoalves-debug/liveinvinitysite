@@ -10,12 +10,12 @@ import { useTheme } from "@/context/ThemeContext";
 
 const hiddenRoutes = ["/landing", "/login", "/cadastro", "/onboarding", "/bloqueado"];
 
-export default function Sidebar({ userRole }: { userRole?: string }) {
+export default function Sidebar({ userRole, isAuthenticated }: { userRole?: string; isAuthenticated?: boolean }) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (hiddenRoutes.includes(pathname)) {
+  if (!isAuthenticated || hiddenRoutes.includes(pathname)) {
     return null;
   }
 

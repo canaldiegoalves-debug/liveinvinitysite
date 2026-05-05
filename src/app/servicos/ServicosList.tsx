@@ -212,11 +212,11 @@ export function ServicosList({
               <div className={sStyles.row}>
                 <div className={formStyles.formGroup}>
                   <label className={formStyles.label}>Tempo (min)</label>
-                  <input type="number" value={tempo} onChange={e => setTempo(e.target.value)} className={formStyles.input} />
+                  <input type="number" value={tempo} onChange={e => setTempo(e.target.value)} onFocus={e => e.target.select()} className={formStyles.input} />
                 </div>
                 <div className={formStyles.formGroup}>
                   <label className={formStyles.label}>Mão de Obra %</label>
-                  <input type="number" value={percentual} onChange={e => setPercentual(e.target.value)} className={formStyles.input} />
+                  <input type="number" value={percentual} onChange={e => setPercentual(e.target.value)} onFocus={e => e.target.select()} className={formStyles.input} />
                 </div>
               </div>
 
@@ -228,7 +228,7 @@ export function ServicosList({
                     {materiais.map(m => <option key={m.id} value={m.id}>{m.nome} ({fmt(m.custoUnitario)}/{m.unidade})</option>)}
                   </select>
                   <div className={sStyles.qtyGroup}>
-                    <input type="number" placeholder="0" value={tempQtd} onChange={e => setTempQtd(e.target.value)} className={formStyles.input} />
+                    <input type="number" placeholder="0" value={tempQtd} onChange={e => setTempQtd(e.target.value)} onFocus={e => e.target.select()} className={formStyles.input} />
                     <select value={tempUnidade} onChange={e => setTempUnidade(e.target.value)} className={formStyles.select}>
                       <option value="unidade">un</option>
                       <option value="folha">folha</option>
