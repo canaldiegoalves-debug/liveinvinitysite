@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Building2, Upload, Save, Check } from "lucide-react";
+import { Building2, Upload, Save, Check, Users } from "lucide-react";
 import { NICHOS } from "@/lib/nichos";
 import { saveEmpresa } from "@/app/actions/empresa";
 import styles from "./configuracoes.module.css";
@@ -132,13 +132,20 @@ export function ConfigForm({ empresa }: { empresa: Empresa }) {
 
           {/* Plano */}
           <div className={styles.planoBox}>
-            <h4>Plano Atual</h4>
-            <span className={`${styles.planoBadge} ${empresa.plano === "premium" ? styles.planoPremium : empresa.plano === "pro" ? styles.planoPro : styles.planoFree}`}>
-              {empresa.plano.toUpperCase()}
-            </span>
-            {empresa.plano !== "premium" && (
-              <a href="/planos" className={styles.upgradeLink}>Ver planos disponíveis →</a>
-            )}
+            <h4>Configurações de Acesso</h4>
+            <div className={styles.planoRow}>
+              <span className={`${styles.planoBadge} ${empresa.plano === "premium" ? styles.planoPremium : empresa.plano === "pro" ? styles.planoPro : styles.planoFree}`}>
+                {empresa.plano.toUpperCase()}
+              </span>
+              {empresa.plano !== "premium" && (
+                <a href="/planos" className={styles.upgradeLink}>Fazer Upgrade →</a>
+              )}
+            </div>
+            
+            <a href="/configuracoes/equipe" className={styles.teamLink}>
+              <Users size={16} />
+              Gerenciar Equipe (Funcionários)
+            </a>
           </div>
         </div>
       </div>

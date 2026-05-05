@@ -22,13 +22,25 @@ export async function getEmpresa() {
         id: user.id,
         email: user.email!,
         nome: user.user_metadata.full_name || "",
+        role: "user",
       },
     });
 
-    let empresa = await prisma.empresa.findUnique({
+    let empresa = null;
+
+    // 1. Tentar encontrar a empresa onde ele é dono
+    empresa = await prisma.empresa.findUnique({
       where: { userId: user.id },
     });
 
+    // 2. Se não for dono, tentar encontrar a empresa vinculada (funcionário)
+    if (!empresa && dbUser.empresaId) {
+      empresa = await prisma.empresa.findUnique({
+        where: { id: dbUser.empresaId },
+      });
+    }
+
+    // 3. Se ainda não tem empresa (novo dono), criar uma
     if (!empresa) {
       empresa = await prisma.empresa.create({
         data: {
@@ -38,6 +50,18 @@ export async function getEmpresa() {
           plano: "free",
           planoStatus: "active",
         },
+      });
+      
+      // Vincular o dono à empresa recém-criada
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { empresaId: empresa.id }
+      });
+    } else if (!dbUser.empresaId) {
+       // Garantir que o dono também tenha o empresaId preenchido
+       await prisma.user.update({
+        where: { id: user.id },
+        data: { empresaId: empresa.id }
       });
     }
 

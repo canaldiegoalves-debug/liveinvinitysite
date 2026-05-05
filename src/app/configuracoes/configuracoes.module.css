@@ -136,9 +136,15 @@
   padding-top: 1rem;
   border-top: 1px solid var(--card-border);
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.planoRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .planoBox h4 {
@@ -162,4 +168,26 @@
   font-size: 0.8rem;
   color: var(--primary);
   font-weight: 500;
+}
+
+.teamLink {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(107, 70, 193, 0.05);
+  border: 1px solid rgba(107, 70, 193, 0.1);
+  border-radius: var(--radius);
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.teamLink:hover {
+  background: rgba(107, 70, 193, 0.1);
+  transform: translateY(-1px);
 }

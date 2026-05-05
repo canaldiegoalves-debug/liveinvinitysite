@@ -11,17 +11,28 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   nome      String?
-  role      String   @default("user")
+  role      String   @default("user") // "admin" | "user" | "moderator"
+  
+  // Empresa que este usuário pertence (como funcionário ou dono)
+  empresaId String?
+  empresa   Empresa? @relation("EmpresaToUsers", fields: [empresaId], references: [id])
+
+  // Se o usuário for dono de uma empresa
+  ownedEmpresa Empresa? @relation("EmpresaOwner")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  empresa   Empresa?
 }
 
 model Empresa {
   id        String   @id @default(uuid())
+  
+  // Dono da empresa (quem paga a conta)
   userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  owner     User     @relation("EmpresaOwner", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Todos os usuários vinculados (incluindo o dono e funcionários)
+  users     User[]   @relation("EmpresaToUsers")
   
   nome      String   @default("Minha Empresa")
   nicho     String   @default("")
