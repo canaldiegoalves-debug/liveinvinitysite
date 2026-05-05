@@ -27,6 +27,9 @@ export default function OnboardingPage() {
         setIsLoading(false);
       }
     } catch (error: any) {
+      // Ignora o erro NEXT_REDIRECT pois ele é disparado pelo Next.js para realizar o redirecionamento
+      if (error.message === "NEXT_REDIRECT") return;
+      
       console.error(error);
       alert("Erro crítico: " + (error.message || "Erro desconhecido"));
       setIsLoading(false);
