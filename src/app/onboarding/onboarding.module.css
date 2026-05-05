@@ -66,6 +66,14 @@
   width: 100%;
 }
 
+@media (max-width: 900px) {
+  .nichoGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .nichoGrid { grid-template-columns: 1fr; }
+}
+
 .nichoCard {
   background: var(--card-bg);
   border: 2px solid var(--card-border);
@@ -207,6 +215,13 @@
   display: flex;
   gap: 1rem;
   align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .btnRow { flex-direction: column-reverse; }
+  .nextBtn, .backBtn { width: 100%; }
 }
 
 .backBtn {

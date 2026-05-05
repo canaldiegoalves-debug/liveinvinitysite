@@ -7,10 +7,28 @@
   gap: 1.5rem;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header button {
+    width: 100%;
+  }
 }
 
 .title {
@@ -37,6 +55,7 @@
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  overflow-x: auto;
 }
 
 .filters {
@@ -44,6 +63,16 @@
   display: flex;
   gap: 1rem;
   border-bottom: 1px solid var(--card-border);
+}
+
+@media (max-width: 600px) {
+  .filters {
+    flex-direction: column;
+  }
+  
+  .searchInput {
+    max-width: none;
+  }
 }
 
 .searchInput {

@@ -223,5 +223,13 @@
 }
 
 @media (max-width: 850px) {
-  .mainGrid { grid-template-columns: 1fr; }
+  .mainGrid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .priceSection { position: static; }
+  .addBar { flex-direction: column; }
+  .addBtn { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .detailHeader { flex-direction: column; gap: 1rem; }
+  .totalRow strong { font-size: 1.75rem; }
 }
