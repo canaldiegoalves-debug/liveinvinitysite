@@ -165,7 +165,7 @@ export async function getAgendamentos() {
 
 export async function getFinanceiro(periodo: string) {
   const empresa = await getEmpresa();
-  if (!empresa) return { receita: 0, custos: 0, lucro: 0, margem: 0, total: 0, perdas: 0, totalCancelados: 0 };
+  if (!empresa) return { receita: 0, custos: 0, lucro: 0, margem: 0, total: 0, perdas: 0, totalCancelados: 0, itensEntregues: [], itensCancelados: [] };
 
   const agora = new Date();
   let dataInicio = new Date();
