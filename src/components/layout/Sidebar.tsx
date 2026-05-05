@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Package, Settings, LogOut, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Package, Settings, LogOut, ArrowLeft, Calendar, TrendingUp, CreditCard } from "lucide-react";
 import styles from "./Sidebar.module.css";
 import { createClient } from "@/lib/supabase";
 
@@ -48,6 +48,18 @@ export default function Sidebar() {
         <Link href="/orcamentos" className={`${styles.navItem} ${pathname.startsWith("/orcamentos") ? styles.active : ""}`}>
           <FileText size={20} />
           <span>Orçamentos</span>
+        </Link>
+        <Link href="/agenda" className={`${styles.navItem} ${pathname.startsWith("/agenda") ? styles.active : ""}`}>
+          <Calendar size={20} />
+          <span>Agenda</span>
+        </Link>
+        <Link href="/financeiro" className={`${styles.navItem} ${pathname.startsWith("/financeiro") ? styles.active : ""}`}>
+          <TrendingUp size={20} />
+          <span>Financeiro</span>
+        </Link>
+        <Link href="/planos" className={`${styles.navItem} ${pathname.startsWith("/planos") ? styles.active : ""}`}>
+          <CreditCard size={20} />
+          <span>Meu Plano</span>
         </Link>
       </nav>
 
