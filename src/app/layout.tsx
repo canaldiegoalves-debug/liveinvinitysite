@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
+import Sidebar from "@/components/layout/Sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <div className="app-container">
+            <Sidebar />
             <main className="full-content">
               {children}
             </main>
