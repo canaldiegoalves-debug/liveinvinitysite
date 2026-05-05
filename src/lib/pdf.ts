@@ -176,11 +176,31 @@ export async function gerarPDFOrcamento(orcamento: {
     doc.text(obsLinhas, 14, y);
   }
 
-  // ── Rodapé ──────────────────────────────────────────────────────────────────
+  // ── Finalização e Download ──────────────────────────────────────────────────
   const pageH = doc.internal.pageSize.getHeight();
   doc.setFontSize(8);
   doc.setTextColor(148, 163, 184);
   doc.text(`VALORA - Inteligência em Precificação Profissional`, W / 2, pageH - 10, { align: "center" });
 
-  doc.save(`Orcamento-${orcamento.numero}.pdf`);
+  try {
+    // Método robusto para download de PDF (Blob + Link)
+    const pdfBlob = doc.output("blob");
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `Orcamento-${orcamento.numero.replace(/\//g, "-")}.pdf`;
+    
+    // Adiciona ao corpo, clica e remove (necessário em alguns navegadores)
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Libera a memória
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+  } catch (error) {
+    console.error("Erro ao gerar/baixar PDF:", error);
+    // Fallback para o método clássico caso o Blob falhe
+    doc.save(`Orcamento-${orcamento.numero}.pdf`);
+  }
 }
