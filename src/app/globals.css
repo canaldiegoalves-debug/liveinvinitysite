@@ -80,4 +80,16 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  width: 100%;
+}
+
+/* Responsividade Global */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+  
+  .premium-card {
+    padding: 1.25rem;
+  }
 }
