@@ -165,7 +165,7 @@ export async function getAgendamentos() {
 
 export async function getFinanceiro(periodo: string) {
   const empresa = await getEmpresa();
-  if (!empresa) return { receita: 0, custos: 0, lucro: 0, margem: 0, total: 0 };
+  if (!empresa) return { receita: 0, custos: 0, lucro: 0, margem: 0, total: 0, perdas: 0 };
 
   const agora = new Date();
   let dataInicio = new Date();
@@ -174,24 +174,33 @@ export async function getFinanceiro(periodo: string) {
   else if (periodo === "mes") dataInicio.setMonth(agora.getMonth() - 1);
   else if (periodo === "ano") dataInicio.setFullYear(agora.getFullYear() - 1);
 
+  // Buscar orçamentos Entregues E Cancelados
   const orcamentos = await prisma.orcamento.findMany({
     where: {
       empresaId: empresa.id,
-      status: "Entregue",
+      status: { in: ["Entregue", "Cancelado"] },
       createdAt: { gte: dataInicio },
     },
   });
 
-  const receita = orcamentos.reduce((acc, o) => acc + o.valorFinal, 0);
-  const custos = orcamentos.reduce((acc, o) => acc + o.custoMateriais, 0);
+  const entregues = orcamentos.filter(o => o.status === "Entregue");
+  const cancelados = orcamentos.filter(o => o.status === "Cancelado");
+
+  const receita = entregues.reduce((acc, o) => acc + o.valorFinal, 0);
+  const custos = entregues.reduce((acc, o) => acc + o.custoMateriais, 0);
   const lucro = receita - custos;
   const margem = receita > 0 ? (lucro / receita) * 100 : 0;
+  
+  // Receita perdida é o valor final dos orçamentos que foram cancelados
+  const perdas = cancelados.reduce((acc, o) => acc + o.valorFinal, 0);
 
   return {
     receita,
     custos,
     lucro,
     margem,
-    total: orcamentos.length,
+    total: entregues.length,
+    perdas,
+    totalCancelados: cancelados.length
   };
 }

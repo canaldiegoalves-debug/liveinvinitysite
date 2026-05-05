@@ -8,11 +8,27 @@ import { getFinanceiro } from "@/app/actions/orcamentos";
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const fmtPct = (v: number) => `${v.toFixed(1)}%`;
 
-type Dados = { receita: number; custos: number; lucro: number; margem: number; total: number };
+type Dados = { 
+  receita: number; 
+  custos: number; 
+  lucro: number; 
+  margem: number; 
+  total: number; 
+  perdas: number; 
+  totalCancelados: number 
+};
 
 export default function FinanceiroPage() {
   const [periodo, setPeriodo] = useState("mes");
-  const [dados, setDados] = useState<Dados>({ receita: 0, custos: 0, lucro: 0, margem: 0, total: 0 });
+  const [dados, setDados] = useState<Dados>({ 
+    receita: 0, 
+    custos: 0, 
+    lucro: 0, 
+    margem: 0, 
+    total: 0, 
+    perdas: 0, 
+    totalCancelados: 0 
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +54,7 @@ export default function FinanceiroPage() {
         {[
           { label: "Receita Total", value: fmt(dados.receita), sub: "Orçamentos entregues", icon: <DollarSign size={20} className={fStyles.statIcon} /> },
           { label: "Lucro Líquido", value: fmt(dados.lucro), sub: "Após custo de materiais", icon: <TrendingUp size={20} className={fStyles.statIcon} /> },
-          { label: "Margem Média", value: fmtPct(dados.margem), sub: "Sobre a receita total", icon: <Percent size={20} className={fStyles.statIcon} /> },
+          { label: "Faturamento Perdido", value: fmt(dados.perdas), sub: `${dados.totalCancelados} cancelamentos`, icon: <Percent size={20} className={fStyles.statIcon} style={{ color: "#ef4444" }} /> },
           { label: "Serviços Realizados", value: dados.total.toString(), sub: "No período selecionado", icon: <Briefcase size={20} className={fStyles.statIcon} /> },
         ].map((card) => (
           <div key={card.label} className={`premium-card ${fStyles.statCard}`}>
