@@ -1,3 +1,7 @@
+-- VALORA SAAS: SEGURANÇA MÁXIMA (RLS HARDENED)
+-- Este script configura o Row Level Security para suportar múltiplos usuários (Equipe)
+-- e garantir que ninguém acesse dados de outra empresa.
+
 -- 1. Habilitar RLS em todas as tabelas
 ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Empresa" ENABLE ROW LEVEL SECURITY;
@@ -5,47 +9,49 @@ ALTER TABLE "Cliente" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Material" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Servico" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Orcamento" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Agendamento" ENABLE ROW LEVEL SECURITY;
 
--- 2. Políticas para a tabela Empresa (Dono vê sua própria empresa)
-CREATE POLICY "Users can only see their own company" ON "Empresa"
-  FOR ALL USING (auth.uid()::text = "userId");
+-- 2. Políticas para a tabela Empresa
+-- Um usuário só vê a empresa se ele for o dono ou se ele for um funcionário vinculado (empresaId coincide)
+CREATE POLICY "Users can see their company" ON "Empresa"
+  FOR SELECT USING (
+    id IN (SELECT "empresaId" FROM "User" WHERE id = auth.uid()::text)
+  );
 
--- 3. Políticas para Clientes (Só vê clientes da sua empresa)
-CREATE POLICY "Users can only see their company's clients" ON "Cliente"
+CREATE POLICY "Only owners can update company" ON "Empresa"
+  FOR UPDATE USING (auth.uid()::text = "userId");
+
+-- 3. Políticas para a tabela User
+-- Um usuário só vê a si mesmo e seus colegas de equipe
+CREATE POLICY "Users can see themselves and teammates" ON "User"
+  FOR SELECT USING (
+    id = auth.uid()::text OR 
+    "empresaId" IN (SELECT "empresaId" FROM "User" WHERE id = auth.uid()::text)
+  );
+
+-- 4. Política Universal para tabelas vinculadas (Cliente, Material, Servico, Orcamento)
+-- O usuário deve ter o mesmo empresaId que o registro
+CREATE POLICY "Access by company ID - Cliente" ON "Cliente"
+  FOR ALL USING ("empresaId" IN (SELECT "empresaId" FROM "User" WHERE id = auth.uid()::text));
+
+CREATE POLICY "Access by company ID - Material" ON "Material"
+  FOR ALL USING ("empresaId" IN (SELECT "empresaId" FROM "User" WHERE id = auth.uid()::text));
+
+CREATE POLICY "Access by company ID - Servico" ON "Servico"
+  FOR ALL USING ("empresaId" IN (SELECT "empresaId" FROM "User" WHERE id = auth.uid()::text));
+
+CREATE POLICY "Access by company ID - Orcamento" ON "Orcamento"
+  FOR ALL USING ("empresaId" IN (SELECT "empresaId" FROM "User" WHERE id = auth.uid()::text));
+
+-- 5. Agendamentos (Vinculados via Orçamento)
+CREATE POLICY "Access by company ID - Agendamento" ON "Agendamento"
   FOR ALL USING (
     EXISTS (
-      SELECT 1 FROM "Empresa" 
-      WHERE "Empresa".id = "Cliente"."empresaId" 
-      AND "Empresa"."userId" = auth.uid()::text
+      SELECT 1 FROM "Orcamento"
+      WHERE "Orcamento".id = "Agendamento"."orcamentoId"
+      AND "Orcamento"."empresaId" IN (SELECT "empresaId" FROM "User" WHERE id = auth.uid()::text)
     )
   );
 
--- 4. Políticas para Materiais
-CREATE POLICY "Users can only see their company's materials" ON "Material"
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM "Empresa" 
-      WHERE "Empresa".id = "Material"."empresaId" 
-      AND "Empresa"."userId" = auth.uid()::text
-    )
-  );
-
--- 5. Políticas para Serviços
-CREATE POLICY "Users can only see their company's services" ON "Servico"
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM "Empresa" 
-      WHERE "Empresa".id = "Servico"."empresaId" 
-      AND "Empresa"."userId" = auth.uid()::text
-    )
-  );
-
--- 6. Políticas para Orçamentos
-CREATE POLICY "Users can only see their company's quotes" ON "Orcamento"
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM "Empresa" 
-      WHERE "Empresa".id = "Orcamento"."empresaId" 
-      AND "Empresa"."userId" = auth.uid()::text
-    )
-  );
+-- 6. Proteção Extra: Impedir deleção acidental de usuários sem ser Admin
+-- (Configurado via Admin Actions no código, mas o RLS ajuda)

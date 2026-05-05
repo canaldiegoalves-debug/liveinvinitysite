@@ -109,6 +109,13 @@ export async function agendarOrcamento(id: string, data: string, hora: string) {
   const empresa = await getEmpresa();
   if (!empresa) throw new Error("Não autorizado");
 
+  // Verificar se o orçamento pertence à empresa do usuário logado
+  const orc = await prisma.orcamento.findUnique({
+    where: { id, empresaId: empresa.id }
+  });
+
+  if (!orc) throw new Error("Orçamento não encontrado ou acesso negado");
+
   await prisma.agendamento.upsert({
     where: { orcamentoId: id },
     update: { data, hora },

@@ -40,10 +40,17 @@ export function MateriaisList({
   const [unidade, setUnidade] = useState(nichoConfig?.unidadesPrincipais[0] || "unidade");
   const [valorPago, setValorPago] = useState("");
   const [qtdEstoque, setQtdEstoque] = useState("");
+  const [qtdPacotes, setQtdPacotes] = useState("1");
+  const [qtdNoPacote, setQtdNoPacote] = useState("");
+  const [usaPacote, setUsaPacote] = useState(false);
+
+  const totalUnidades = usaPacote
+    ? (parseFloat(qtdPacotes) || 0) * (parseFloat(qtdNoPacote) || 0)
+    : (parseFloat(qtdEstoque) || 0);
 
   const custoUnitarioPreview =
-    valorPago && qtdEstoque && parseFloat(qtdEstoque) > 0
-      ? parseFloat(valorPago.replace(",", ".")) / parseFloat(qtdEstoque.replace(",", "."))
+    valorPago && totalUnidades > 0
+      ? parseFloat(valorPago.replace(",", ".")) / totalUnidades
       : 0;
 
   const openCreate = () => {
@@ -53,6 +60,9 @@ export function MateriaisList({
     setUnidade(nichoConfig?.unidadesPrincipais[0] || "unidade"); 
     setValorPago(""); 
     setQtdEstoque("");
+    setQtdPacotes("1");
+    setQtdNoPacote("");
+    setUsaPacote(false);
     setIsModalOpen(true);
   };
 
@@ -67,10 +77,15 @@ export function MateriaisList({
     e.preventDefault();
     setIsLoading(true);
     try {
+      const val = parseFloat(valorPago.replace(",", "."));
+      const qtdFinal = usaPacote 
+        ? (parseFloat(qtdPacotes) || 0) * (parseFloat(qtdNoPacote) || 0)
+        : parseFloat(qtdEstoque.replace(",", "."));
+
       const data = {
         nome, categoria, unidade,
-        valorPago: parseFloat(valorPago.replace(",", ".")),
-        qtdEstoque: parseFloat(qtdEstoque.replace(",", ".")),
+        valorPago: val,
+        qtdEstoque: qtdFinal,
       };
       if (editingItem) {
         await updateMaterial(editingItem.id, data);
@@ -175,30 +190,49 @@ export function MateriaisList({
               placeholder="Ou digite uma nova categoria..." 
             />
           </div>
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <div className={formStyles.formGroup} style={{ flex: 1 }}>
-              <label className={formStyles.label}>Unidade de Medida *</label>
-              <select className={formStyles.select} value={unidade} onChange={(e) => setUnidade(e.target.value)}>
-                {nichoConfig?.unidadesPrincipais.map(u => (
-                  <option key={u} value={u}>{u}</option>
-                ))}
-                <option value="unidade">Unidade</option>
-                <option value="litro">Litro (L)</option>
-                <option value="ml">Mililitro (mL)</option>
-                <option value="kg">Quilograma (kg)</option>
-                <option value="g">Grama (g)</option>
-                <option value="folha">Folha</option>
-                <option value="m²">Metro Quadrado (m²)</option>
-              </select>
-            </div>
-            <div className={formStyles.formGroup} style={{ flex: 1 }}>
-              <label className={formStyles.label}>Qtd em Estoque *</label>
-              <input type="number" required step="0.001" min="0.001" value={qtdEstoque} onChange={(e) => setQtdEstoque(e.target.value)} className={formStyles.input} placeholder="Ex: 5" />
-            </div>
+          <div className={formStyles.formGroup}>
+            <label className={formStyles.label}>Unidade de Medida (Como você usa este item?) *</label>
+            <select className={formStyles.select} value={unidade} onChange={(e) => setUnidade(e.target.value)}>
+              {nichoConfig?.unidadesPrincipais.map(u => (
+                <option key={u} value={u}>{u}</option>
+              ))}
+              <option value="unidade">Unidade</option>
+              <option value="litro">Litro (L)</option>
+              <option value="ml">Mililitro (mL)</option>
+              <option value="kg">Quilograma (kg)</option>
+              <option value="g">Grama (g)</option>
+              <option value="folha">Folha</option>
+              <option value="m²">Metro Quadrado (m²)</option>
+            </select>
           </div>
           <div className={formStyles.formGroup}>
             <label className={formStyles.label}>Valor Total Pago (R$) *</label>
-            <input type="number" required step="0.01" value={valorPago} onChange={(e) => setValorPago(e.target.value)} className={formStyles.input} placeholder="Ex: 150.00" />
+            <input type="number" required step="0.01" value={valorPago} onChange={(e) => setValorPago(e.target.value)} className={formStyles.input} placeholder="Ex: 270.00" />
+          </div>
+
+          <div className={formStyles.formGroup} style={{ background: "rgba(255, 255, 255, 0.02)", padding: "1rem", borderRadius: "12px", border: "1px solid var(--card-border)", marginBottom: "1.5rem" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.875rem", fontWeight: 700 }}>
+              <input type="checkbox" checked={usaPacote} onChange={(e) => setUsaPacote(e.target.checked)} />
+              Comprei em Pacote / Galão / Lote
+            </label>
+            
+            {usaPacote ? (
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <label className={formStyles.label} style={{ fontSize: "0.75rem" }}>Quantos pacotes?</label>
+                  <input type="number" value={qtdPacotes} onChange={(e) => setQtdPacotes(e.target.value)} className={formStyles.input} />
+                </div>
+                <div style={{ flex: 2 }}>
+                  <label className={formStyles.label} style={{ fontSize: "0.75rem" }}>Qtd de {unidade}s por pacote?</label>
+                  <input type="number" placeholder="Ex: 500" value={qtdNoPacote} onChange={(e) => setQtdNoPacote(e.target.value)} className={formStyles.input} />
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginTop: "1rem" }}>
+                <label className={formStyles.label} style={{ fontSize: "0.75rem" }}>Total de {unidade}s compradas *</label>
+                <input type="number" step="0.001" value={qtdEstoque} onChange={(e) => setQtdEstoque(e.target.value)} className={formStyles.input} placeholder="Ex: 1000" />
+              </div>
+            )}
           </div>
 
           {custoUnitarioPreview > 0 && (
