@@ -5,6 +5,18 @@
   gap: 0.5rem;
 }
 
+.responsiveRow {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .responsiveRow {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
 .label {
   font-size: 0.875rem;
   font-weight: 500;

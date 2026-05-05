@@ -217,12 +217,12 @@ export function MateriaisList({
             </label>
             
             {usaPacote ? (
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+              <div className={formStyles.responsiveRow} style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
                 <div style={{ flex: 1 }}>
                   <label className={formStyles.label} style={{ fontSize: "0.75rem" }}>Quantos pacotes?</label>
                   <input type="number" value={qtdPacotes} onChange={(e) => setQtdPacotes(e.target.value)} className={formStyles.input} />
                 </div>
-                <div style={{ flex: 2 }}>
+                <div style={{ flex: 2, minWidth: "180px" }}>
                   <label className={formStyles.label} style={{ fontSize: "0.75rem" }}>Qtd de {unidade}s por pacote?</label>
                   <input type="number" placeholder="Ex: 500" value={qtdNoPacote} onChange={(e) => setQtdNoPacote(e.target.value)} className={formStyles.input} />
                 </div>

@@ -21,12 +21,31 @@ type Servico = {
   materiais: ServicoMaterial[];
 };
 
-const UNIDADES_OPCOES = [
-  { label: "ml", valor: 0.001 }, { label: "L", valor: 1 },
-  { label: "g", valor: 0.001 }, { label: "kg", valor: 1 },
-  { label: "cm", valor: 0.01 }, { label: "m", valor: 1 },
-  { label: "un", valor: 1 },
-];
+const CONVERSOES: Record<string, Record<string, number>> = {
+  volume: { ml: 1, litro: 1000, L: 1000 },
+  peso: { g: 1, kg: 1000 },
+  comprimento: { cm: 1, metro: 100, m: 100 },
+  unidade: { unidade: 1, un: 1, folha: 1 },
+};
+
+function getGrupo(unidade: string) {
+  for (const [grupo, unidades] of Object.entries(CONVERSOES)) {
+    if (unidade.toLowerCase() in unidades) return grupo;
+  }
+  return "unidade";
+}
+
+function converterQtd(qtd: number, de: string, para: string) {
+  const grupoDe = getGrupo(de);
+  const grupoPara = getGrupo(para);
+  
+  if (grupoDe !== grupoPara) return qtd; // Não consegue converter entre tipos diferentes (ex: ml para kg)
+
+  const fatorDe = CONVERSOES[grupoDe][de.toLowerCase()] || 1;
+  const fatorPara = CONVERSOES[grupoPara][para.toLowerCase()] || 1;
+
+  return (qtd * fatorDe) / fatorPara;
+}
 
 const fmt = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -56,9 +75,14 @@ export function ServicosList({
 
   // Lista de materiais temporários (vínculos)
   const [materiaisTemp, setMateriaisTemp] = useState<{ materialId: string; qtdUsada: number; material: Material; labelExibicao: string }[]>([]);
-  const [tempMatId, setTempMatId] = useState("");
-  const [tempQtd, setTempQtd] = useState("");
-  const [tempUnidade, setTempUnidade] = useState("ml");
+  const [tempUnidade, setTempUnidade] = useState("");
+
+  // Atualiza unidade temp quando seleciona material
+  const handleSelectMaterial = (id: string) => {
+    setTempMatId(id);
+    const m = materiais.find(x => x.id === id);
+    if (m) setTempUnidade(m.unidade);
+  };
 
   // Cálculo de custos derivado (Memoizado para performance)
   const custos = useMemo(() => {
@@ -89,8 +113,8 @@ export function ServicosList({
     if (!tempMatId || !tempQtd) return;
     const mat = materiais.find(m => m.id === tempMatId);
     if (!mat) return;
-    const unidadeObj = UNIDADES_OPCOES.find(u => u.label === tempUnidade);
-    const qtdBase = parseFloat(tempQtd) * (unidadeObj?.valor || 1);
+    
+    const qtdBase = converterQtd(parseFloat(tempQtd), tempUnidade, mat.unidade);
 
     setMateriaisTemp([...materiaisTemp, {
       materialId: tempMatId,
@@ -197,14 +221,21 @@ export function ServicosList({
               <div className={sStyles.compositionArea}>
                 <h4 className={sStyles.sectionTitle}><Package size={16} /> Composição de {labelMaterial}s</h4>
                 <div className={sStyles.addBar}>
-                  <select value={tempMatId} onChange={e => setTempMatId(e.target.value)} className={formStyles.select}>
+                  <select value={tempMatId} onChange={e => handleSelectMaterial(e.target.value)} className={formStyles.select}>
                     <option value="">Selecionar {labelMaterial.toLowerCase()}...</option>
                     {materiais.map(m => <option key={m.id} value={m.id}>{m.nome} ({fmt(m.custoUnitario)}/{m.unidade})</option>)}
                   </select>
                   <div className={sStyles.qtyGroup}>
                     <input type="number" placeholder="0" value={tempQtd} onChange={e => setTempQtd(e.target.value)} className={formStyles.input} />
                     <select value={tempUnidade} onChange={e => setTempUnidade(e.target.value)} className={formStyles.select}>
-                      {UNIDADES_OPCOES.map(u => <option key={u.label} value={u.label}>{u.label}</option>)}
+                      <option value="unidade">un</option>
+                      <option value="folha">folha</option>
+                      <option value="ml">ml</option>
+                      <option value="litro">L</option>
+                      <option value="g">g</option>
+                      <option value="kg">kg</option>
+                      <option value="cm">cm</option>
+                      <option value="metro">m</option>
                     </select>
                     <button type="button" onClick={addMaterialTemp} className={sStyles.addBtn}><Plus size={20} /></button>
                   </div>
