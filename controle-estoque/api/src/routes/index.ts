@@ -10,6 +10,7 @@ import { CaixaController } from "../controllers/CaixaController";
 import { DevolucaoController } from "../controllers/DevolucaoController";
 import { OrcamentoController } from "../controllers/OrcamentoController";
 import { FinanceiroController } from "../controllers/FinanceiroController";
+import { SuperAdminController } from "../controllers/SuperAdminController";
 import { authMiddleware, tenantMiddleware, authorizeRoles } from "../middlewares/tenant";
 import multer from "multer";
 
@@ -32,6 +33,7 @@ const caixaController = new CaixaController();
 const devolucaoController = new DevolucaoController();
 const orcamentoController = new OrcamentoController();
 const financeiroController = new FinanceiroController();
+const superAdminController = new SuperAdminController();
 
 
 // Rotas de Autenticação
@@ -88,6 +90,12 @@ routes.put("/orcamentos/:id/cancelar", authMiddleware, tenantMiddleware, orcamen
 // Rotas de Relatórios Financeiros e Auditoria
 routes.get("/financeiro/comissoes", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), vendaController.listComissoes);
 routes.get("/financeiro/lancamentos", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), financeiroController.listarLancamentos);
+
+// Rotas do Super Admin
+routes.get("/super/empresas", authMiddleware, authorizeRoles("SUPER_ADMIN"), superAdminController.listEmpresas);
+routes.post("/super/empresas", authMiddleware, authorizeRoles("SUPER_ADMIN"), superAdminController.createEmpresa);
+routes.put("/super/empresas/:id/status", authMiddleware, authorizeRoles("SUPER_ADMIN"), superAdminController.updateEmpresaStatus);
+routes.get("/super/metricas", authMiddleware, authorizeRoles("SUPER_ADMIN"), superAdminController.getMetricas);
 
 export default routes;
 

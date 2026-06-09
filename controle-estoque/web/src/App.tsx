@@ -12,7 +12,7 @@ import { Etiquetas } from "./pages/Etiquetas";
 import { Orcamentos } from "./pages/Orcamentos";
 import { Relatorios } from "./pages/Relatorios";
 
-type UserRole = "SUPER_ADMIN" | "COMPANY_ADMIN" | "OPERADOR";
+type UserRole = "COMPANY_ADMIN" | "OPERADOR";
 
 type Usuario = {
   nome: string;

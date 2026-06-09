@@ -1,6 +1,6 @@
 import { LayoutDashboard, Package, ScanBarcode, Upload, Building2, UserCheck, Banknote, RotateCcw, Tag, FileText, BarChart2 } from "lucide-react";
 
-type UserRole = "SUPER_ADMIN" | "COMPANY_ADMIN" | "OPERADOR";
+type UserRole = "COMPANY_ADMIN" | "OPERADOR";
 
 type Usuario = {
   nome: string;
@@ -56,7 +56,7 @@ export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: Side
 
         {/* Menu Dinâmico base do Cargo (RBAC) */}
         <nav className="space-y-1.5">
-          {(usuario.role === "SUPER_ADMIN" || usuario.role === "COMPANY_ADMIN") && (
+          {usuario.role === "COMPANY_ADMIN" && (
             <>
               {navItem("dashboard", activeTab, setActiveTab, <LayoutDashboard size={18} />, "Dashboard")}
               {navItem("produtos",  activeTab, setActiveTab, <Package size={18} />, "Produtos e Estoque")}
@@ -84,7 +84,7 @@ export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: Side
             "bg-sky-600/10"
           )}
 
-          {(usuario.role === "SUPER_ADMIN" || usuario.role === "COMPANY_ADMIN") && (
+          {usuario.role === "COMPANY_ADMIN" && (
             <>
               {navItem(
                 "etiquetas",
@@ -116,20 +116,10 @@ export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: Side
         {/* Toggle para testar RBAC */}
         <div className="bg-zinc-955/60 border border-zinc-850 p-3 rounded-xl space-y-2">
           <span className="text-[10px] text-zinc-550 font-bold uppercase tracking-wider block">Perfil de Acesso (Teste RBAC)</span>
-          <div className="grid grid-cols-3 gap-1 bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
-            <button
-              onClick={() => onChangeRole("SUPER_ADMIN")}
-              className={`py-1.5 rounded-md text-[9px] font-bold uppercase transition ${
-                usuario.role === "SUPER_ADMIN" 
-                  ? "bg-indigo-650 text-white shadow" 
-                  : "text-zinc-550 hover:text-zinc-300"
-              }`}
-            >
-              Dono
-            </button>
+          <div className="grid grid-cols-2 gap-1 bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
             <button
               onClick={() => onChangeRole("COMPANY_ADMIN")}
-              className={`py-1.5 rounded-md text-[9px] font-bold uppercase transition ${
+              className={`py-1.5 rounded-md text-[10px] font-bold uppercase transition ${
                 usuario.role === "COMPANY_ADMIN" 
                   ? "bg-indigo-650 text-white shadow" 
                   : "text-zinc-550 hover:text-zinc-300"
@@ -139,7 +129,7 @@ export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: Side
             </button>
             <button
               onClick={() => onChangeRole("OPERADOR")}
-              className={`py-1.5 rounded-md text-[9px] font-bold uppercase transition ${
+              className={`py-1.5 rounded-md text-[10px] font-bold uppercase transition ${
                 usuario.role === "OPERADOR" 
                   ? "bg-indigo-650 text-white shadow" 
                   : "text-zinc-550 hover:text-zinc-300"
@@ -153,9 +143,7 @@ export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: Side
         {/* Status de Login */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400">
-            {usuario.role === "SUPER_ADMIN" ? (
-              <Building2 size={16} className="text-indigo-400" />
-            ) : usuario.role === "COMPANY_ADMIN" ? (
+            {usuario.role === "COMPANY_ADMIN" ? (
               <Building2 size={16} className="text-violet-400" />
             ) : (
               <UserCheck size={16} className="text-emerald-400" />
@@ -164,15 +152,10 @@ export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: Side
           <div>
             <p className="text-xs font-bold text-white truncate max-w-[150px]">{usuario.nome}</p>
             <span className="text-[10px] font-mono text-zinc-550 font-bold uppercase">
-              {usuario.role === "SUPER_ADMIN" 
-                ? "Dono SaaS" 
-                : usuario.role === "COMPANY_ADMIN" 
-                ? "Administrador" 
-                : "Operador Caixa"}
+              {usuario.role === "COMPANY_ADMIN" ? "Administrador" : "Operador Caixa"}
             </span>
           </div>
         </div>
-
       </div>
     </aside>
   );
