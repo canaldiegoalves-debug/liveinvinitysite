@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ScanBarcode, Upload, Building2, UserCheck, Banknote, RotateCcw, Tag, FileText, BarChart2 } from "lucide-react";
+import { LayoutDashboard, Package, ScanBarcode, Upload, Building2, UserCheck, Banknote, RotateCcw, Tag, FileText, BarChart2, Sun, Moon } from "lucide-react";
 
 type UserRole = "admin" | "operador";
 
@@ -15,6 +15,8 @@ interface SidebarProps {
   setActiveTab: (tab: ActiveTab) => void;
   usuario: Usuario;
   onChangeRole: (role: UserRole) => void;
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
 }
 
 const navItem = (
@@ -38,7 +40,7 @@ const navItem = (
   </button>
 );
 
-export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: SidebarProps) {
+export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole, theme, onToggleTheme }: SidebarProps) {
   return (
     <aside className="w-72 bg-zinc-900/60 border-r border-zinc-800 p-6 flex flex-col justify-between backdrop-blur-md">
       <div className="space-y-8">
@@ -112,6 +114,20 @@ export function Sidebar({ activeTab, setActiveTab, usuario, onChangeRole }: Side
 
       {/* Seletor de Perfil Dinâmico no Rodapé */}
       <div className="border-t border-zinc-800 pt-6 space-y-4">
+
+        {/* Alternador de Tema */}
+        <button
+          onClick={onToggleTheme}
+          className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-zinc-800 bg-zinc-950/40 hover:bg-zinc-850/40 transition text-xs font-semibold text-zinc-400 hover:text-zinc-100"
+        >
+          <span className="flex items-center gap-2">
+            {theme === "dark" ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-indigo-500" />}
+            {theme === "dark" ? "Tema Claro" : "Tema Escuro"}
+          </span>
+          <span className="text-[10px] text-zinc-550 bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800 uppercase font-mono">
+            {theme}
+          </span>
+        </button>
         
         {/* Toggle para testar RBAC */}
         <div className="bg-zinc-950/60 border border-zinc-850 p-3 rounded-xl space-y-2">

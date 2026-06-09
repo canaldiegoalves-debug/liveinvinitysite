@@ -128,3 +128,170 @@
   }
 }
 
+/* =========================================================
+   LIGHT MODE OVERRIDES (Tema Claro Inteligente)
+   ========================================================= */
+.light-theme {
+  background-color: #f8fafc !important; /* slate-50 */
+  color: #0f172a !important; /* slate-900 */
+}
+
+/* Forçar o corpo da página e HTML a ficarem claros */
+.light-theme,
+.light-theme body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Fundos Escuros -> Fundos Claros/Brancos */
+.light-theme .bg-zinc-950,
+.light-theme .bg-zinc-955,
+.light-theme .bg-zinc-950\/60,
+.light-theme .bg-zinc-950\/40,
+.light-theme .bg-black {
+  background-color: #f8fafc !important; /* Fundo principal */
+}
+
+.light-theme .bg-zinc-900,
+.light-theme .bg-zinc-900\/60,
+.light-theme .bg-zinc-900\/50,
+.light-theme .bg-zinc-850,
+.light-theme .bg-zinc-800\/40 {
+  background-color: #ffffff !important; /* Cards, Sidebar e Containers */
+}
+
+.light-theme .bg-zinc-800,
+.light-theme .bg-zinc-750,
+.light-theme .bg-zinc-800\/60 {
+  background-color: #f1f5f9 !important; /* Destaques secundários e inputs */
+}
+
+/* Bordas Escuras -> Bordas Claras (slate-200) */
+.light-theme .border-zinc-800,
+.light-theme .border-zinc-850,
+.light-theme .border-zinc-700,
+.light-theme .border-zinc-750 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Ajustes de Cor de Texto */
+.light-theme .text-zinc-100,
+.light-theme .text-zinc-200,
+.light-theme .text-white {
+  color: #0f172a !important; /* Texto principal escuro */
+}
+
+.light-theme .text-zinc-300,
+.light-theme .text-zinc-400 {
+  color: #334155 !important; /* Texto secundário */
+}
+
+.light-theme .text-zinc-550,
+.light-theme .text-zinc-500,
+.light-theme .text-zinc-600 {
+  color: #64748b !important; /* Texto de suporte/muted */
+}
+
+/* Garantir que inputs de texto e selects fiquem perfeitos */
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Foco em inputs */
+.light-theme input:focus,
+.light-theme select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Ajustes finos de hover e estados ativos */
+.light-theme .hover\:bg-zinc-800:hover,
+.light-theme .hover\:bg-zinc-800\/60:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.light-theme .hover\:text-zinc-100:hover {
+  color: #0f172a !important;
+}
+
+/* Ajuste nos cards e tabelas para se destacarem em fundo branco */
+.light-theme .bg-zinc-900,
+.light-theme aside {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Tags de Modo Demo ou Badges com fundo muito escuro */
+.light-theme .bg-zinc-950 {
+  background-color: #f8fafc !important;
+}
+
+/* Ajustar o seletor de perfil no rodapé da Sidebar para ter visual claro premium */
+.light-theme .bg-zinc-950\/60 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+.light-theme .bg-zinc-900 {
+  background-color: #ffffff !important;
+}
+
+/* Garantir que as cores de destaque e marcas (Indigo, Emerald, Violet, Sky, Amber, Rose, Red) tenham excelente contraste */
+.light-theme .text-indigo-400,
+.light-theme .text-indigo-600 {
+  color: #4f46e5 !important;
+}
+
+.light-theme .bg-indigo-600\/10 {
+  background-color: #eef2ff !important;
+}
+
+.light-theme .text-emerald-400,
+.light-theme .text-emerald-600 {
+  color: #16a34a !important;
+}
+
+.light-theme .bg-emerald-600\/10 {
+  background-color: #f0fdf4 !important;
+}
+
+.light-theme .text-violet-400 {
+  color: #7c3aed !important;
+}
+
+.light-theme .bg-violet-600\/10 {
+  background-color: #f5f3ff !important;
+}
+
+.light-theme .text-sky-400 {
+  color: #0284c7 !important;
+}
+
+.light-theme .bg-sky-600\/10 {
+  background-color: #f0f9ff !important;
+}
+
+.light-theme .text-amber-400 {
+  color: #d97706 !important;
+}
+
+.light-theme .bg-amber-600\/10 {
+  background-color: #fffbeb !important;
+}
+
+.light-theme .text-teal-400 {
+  color: #0d9488 !important;
+}
+
+.light-theme .bg-teal-600\/10 {
+  background-color: #f0fdfa !important;
+}
+
+
