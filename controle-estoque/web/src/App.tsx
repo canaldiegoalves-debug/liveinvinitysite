@@ -45,26 +45,6 @@ export default function App() {
     role: "admin"
   });
 
-  // Estado e Controle de Tema (Claro / Escuro)
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    const saved = localStorage.getItem("@valora-estoque:theme");
-    return (saved as "dark" | "light") || "dark";
-  });
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === "light") {
-      root.classList.add("light-theme");
-    } else {
-      root.classList.remove("light-theme");
-    }
-    localStorage.setItem("@valora-estoque:theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === "dark" ? "light" : "dark"));
-  };
-
   useEffect(() => {
     loadData();
   }, []);
@@ -108,7 +88,7 @@ export default function App() {
   };
 
   return (
-    <div className={`flex min-h-screen bg-zinc-955 text-zinc-100 ${theme === 'light' ? 'light-theme' : ''}`}>
+    <div className="flex min-h-screen bg-zinc-955 text-zinc-100">
       
       {/* Sidebar Modular Dinâmica (RBAC) */}
       <Sidebar 
@@ -116,8 +96,6 @@ export default function App() {
         setActiveTab={setActiveTab} 
         usuario={usuario}
         onChangeRole={(role) => setUsuario(prev => ({ ...prev, role }))}
-        theme={theme}
-        onToggleTheme={toggleTheme}
       />
 
       {/* Main Content */}
