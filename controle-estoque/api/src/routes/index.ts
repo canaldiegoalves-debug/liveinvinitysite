@@ -10,7 +10,7 @@ import { CaixaController } from "../controllers/CaixaController";
 import { DevolucaoController } from "../controllers/DevolucaoController";
 import { OrcamentoController } from "../controllers/OrcamentoController";
 import { FinanceiroController } from "../controllers/FinanceiroController";
-import { authMiddleware, tenantMiddleware } from "../middlewares/tenant";
+import { authMiddleware, tenantMiddleware, authorizeRoles } from "../middlewares/tenant";
 import multer from "multer";
 
 
@@ -39,22 +39,22 @@ routes.post("/auth/register", authController.register);
 routes.post("/auth/login", authController.login);
 
 // Rotas de Produtos
-routes.post("/produtos", authMiddleware, tenantMiddleware, produtoController.create);
+routes.post("/produtos", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), produtoController.create);
 routes.get("/produtos", authMiddleware, tenantMiddleware, produtoController.list);
 routes.get("/produtos/:id", authMiddleware, tenantMiddleware, produtoController.getById);
 routes.get("/produtos/barcode/:barcode", authMiddleware, tenantMiddleware, produtoController.getByBarcode);
-routes.put("/produtos/:id", authMiddleware, tenantMiddleware, produtoController.update);
-routes.delete("/produtos/:id", authMiddleware, tenantMiddleware, produtoController.delete);
+routes.put("/produtos/:id", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), produtoController.update);
+routes.delete("/produtos/:id", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), produtoController.delete);
 
 // Rotas de Notas Fiscais
-routes.post("/notas-fiscais/upload", authMiddleware, tenantMiddleware, upload.single("xml"), notaFiscalController.uploadXml);
-routes.get("/notas-fiscais", authMiddleware, tenantMiddleware, notaFiscalController.list);
-routes.get("/notas-fiscais/:id", authMiddleware, tenantMiddleware, notaFiscalController.getById);
+routes.post("/notas-fiscais/upload", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), upload.single("xml"), notaFiscalController.uploadXml);
+routes.get("/notas-fiscais", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), notaFiscalController.list);
+routes.get("/notas-fiscais/:id", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), notaFiscalController.getById);
 
 // Rotas de Histórico e Auditoria de Estoque
-routes.post("/estoque/ajuste", authMiddleware, tenantMiddleware, estoqueController.ajustarEstoque);
-routes.get("/estoque/movimentacoes", authMiddleware, tenantMiddleware, estoqueController.listMovimentacoes);
-routes.get("/estoque/critico", authMiddleware, tenantMiddleware, estoqueController.getEstoqueCritico);
+routes.post("/estoque/ajuste", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), estoqueController.ajustarEstoque);
+routes.get("/estoque/movimentacoes", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), estoqueController.listMovimentacoes);
+routes.get("/estoque/critico", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), estoqueController.getEstoqueCritico);
 
 // Rotas de Clientes
 routes.get("/clientes", authMiddleware, tenantMiddleware, clienteController.list);
@@ -86,8 +86,8 @@ routes.get("/orcamentos/:id", authMiddleware, tenantMiddleware, orcamentoControl
 routes.put("/orcamentos/:id/cancelar", authMiddleware, tenantMiddleware, orcamentoController.cancelar);
 
 // Rotas de Relatórios Financeiros e Auditoria
-routes.get("/financeiro/comissoes", authMiddleware, tenantMiddleware, vendaController.listComissoes);
-routes.get("/financeiro/lancamentos", authMiddleware, tenantMiddleware, financeiroController.listarLancamentos);
+routes.get("/financeiro/comissoes", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), vendaController.listComissoes);
+routes.get("/financeiro/lancamentos", authMiddleware, tenantMiddleware, authorizeRoles("SUPER_ADMIN", "COMPANY_ADMIN"), financeiroController.listarLancamentos);
 
 export default routes;
 

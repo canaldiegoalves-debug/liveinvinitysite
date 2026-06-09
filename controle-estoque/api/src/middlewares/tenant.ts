@@ -41,10 +41,29 @@ export function authMiddleware(req: CustomRequest, res: Response, next: NextFunc
   });
 }
 
-// Middleware para validar se a requisição tem empresaId vinculada
+// Middleware para validar se a requisição tem empresaId vinculada (Super Admin pula o filtro de empresa)
 export function tenantMiddleware(req: CustomRequest, res: Response, next: NextFunction) {
+  if (req.userRole === "SUPER_ADMIN") {
+    return next();
+  }
+
   if (!req.empresaId) {
     return res.status(400).json({ error: "Tenant/Empresa não identificado na sessão" });
   }
   next();
+}
+
+// Middleware para autorizar acesso com base nas Roles do usuário (RBAC)
+export function authorizeRoles(...allowedRoles: string[]) {
+  return (req: CustomRequest, res: Response, next: NextFunction) => {
+    if (!req.userRole) {
+      return res.status(401).json({ error: "Papel de acesso (Role) não identificado na sessão" });
+    }
+
+    if (!allowedRoles.includes(req.userRole)) {
+      return res.status(403).json({ error: "Acesso negado: privilégios insuficientes para esta operação" });
+    }
+
+    next();
+  };
 }

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { Role } from "@prisma/client";
 
 const JWT_SECRET = process.env.JWT_SECRET || "secreto_default_para_estoque_saas";
 
@@ -41,7 +42,7 @@ export class AuthController {
             nome: nomeUsuario,
             email,
             senhaHash,
-            role: "admin",
+            role: Role.COMPANY_ADMIN,
             empresaId: empresa.id,
           },
         });
@@ -111,10 +112,10 @@ export class AuthController {
           email: usuario.email,
           role: usuario.role,
         },
-        empresa: {
+        empresa: usuario.empresa ? {
           id: usuario.empresa.id,
           nomeFantasia: usuario.empresa.nomeFantasia,
-        },
+        } : null,
       });
     } catch (error: any) {
       return res.status(500).json({ error: error.message });

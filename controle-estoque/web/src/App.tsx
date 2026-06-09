@@ -12,7 +12,7 @@ import { Etiquetas } from "./pages/Etiquetas";
 import { Orcamentos } from "./pages/Orcamentos";
 import { Relatorios } from "./pages/Relatorios";
 
-type UserRole = "admin" | "operador";
+type UserRole = "SUPER_ADMIN" | "COMPANY_ADMIN" | "OPERADOR";
 
 type Usuario = {
   nome: string;
@@ -42,7 +42,7 @@ export default function App() {
   const [usuario, setUsuario] = useState<Usuario>({
     nome: "Diego Alves",
     email: "diego@valora.com.br",
-    role: "admin"
+    role: "COMPANY_ADMIN"
   });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function App() {
   // Monitor e Protetor de Rotas (RBAC)
   useEffect(() => {
     const tabsPermitidas: ActiveTab[] = ["venda", "caixa", "devolucoes", "orcamentos"];
-    if (usuario.role === "operador" && !tabsPermitidas.includes(activeTab)) {
+    if (usuario.role === "OPERADOR" && !tabsPermitidas.includes(activeTab)) {
       alert("Acesso Negado: Operadores de caixa têm permissão de acesso apenas à Venda Rápida, Controle de Caixa, Devoluções e Orçamentos.");
       setActiveTab("venda");
     }
