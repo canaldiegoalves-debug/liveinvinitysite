@@ -1,0 +1,347 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Empresa {
+  id           String    @id @default(uuid())
+  nomeFantasia String    @map("nome_fantasia")
+  razaoSocial  String?   @map("razao_social")
+  cnpj         String?   @unique
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  usuarios      Usuario[]
+  produtos      Produto[]
+  notasFiscais  NotaFiscal[]
+  movimentacoes MovimentacaoEstoque[]
+  fornecedores  Fornecedor[]
+  lancamentos   LancamentoFinanceiro[]
+  clientes      Cliente[]
+  contasReceber ContaReceber[]
+  vendas        Venda[]
+  comissoes     ComissaoVenda[]
+  turnos        CaixaTurno[]
+  devolucoes    Devolucao[]
+  valesCredito  ValeCredito[]
+  orcamentos    Orcamento[]
+
+  @@map("empresas")
+}
+
+model Usuario {
+  id                 String          @id @default(uuid())
+  empresaId          String          @map("empresa_id")
+  empresa            Empresa         @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  nome               String
+  email              String
+  senhaHash          String          @map("senha_hash")
+  role               String          @default("operador") // "admin" | "operador"
+  percentualComissao Decimal         @default(0.00) @map("percentual_comissao")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+  movimentacoes      MovimentacaoEstoque[]
+  vendasVendedor     Venda[]         @relation("VendedorVendas")
+  comissoes          ComissaoVenda[]
+  turnos             CaixaTurno[]
+
+  @@unique([email, empresaId])
+  @@map("usuarios")
+}
+
+model Produto {
+  id              String           @id @default(uuid())
+  empresaId       String           @map("empresa_id")
+  empresa         Empresa          @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  codigoBarras    String?          @map("codigo_barras") // EAN-13
+  nome            String
+  precoCusto      Decimal          @default(0.00) @map("preco_custo")
+  precoVenda      Decimal          @default(0.00) @map("preco_venda")
+  lucroPercentual Decimal          @default(0.00) @map("lucro_percentual")
+  estoqueAtual    Decimal          @default(0.000) @map("estoque_atual")
+  estoqueMinimo   Decimal?         @default(0.000) @map("estoque_minimo")
+  ncm             String?          @map("ncm") // Nomenclatura Comum do Mercosul
+  csosn           String?          @map("csosn") // Código de Situação da Operação no Simples Nacional / CST
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  
+  notaFiscalItens  NotaFiscalItem[]
+  movimentacoes    MovimentacaoEstoque[]
+  devolucaoItens   DevolucaoItem[]
+  orcamentoItens   OrcamentoItem[]
+
+  @@unique([codigoBarras, empresaId])
+  @@map("produtos")
+}
+
+model NotaFiscal {
+  id           String           @id @default(uuid())
+  empresaId    String           @map("empresa_id")
+  empresa      Empresa          @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  numero       String
+  serie        String?
+  chaveAcesso  String?          @map("chave_acesso")
+  emitenteNome String?          @map("emitente_nome")
+  emitenteCnpj String?          @map("emitente_cnpj")
+  valorTotal   Decimal          @default(0.00) @map("valor_total")
+  dataEmissao  DateTime?        @map("data_emissao")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  
+  itens        NotaFiscalItem[]
+
+  @@map("notas_fiscais")
+}
+
+model NotaFiscalItem {
+  id           String     @id @default(uuid())
+  notaFiscalId String     @map("nota_fiscal_id")
+  notaFiscal   NotaFiscal @relation(fields: [notaFiscalId], references: [id], onDelete: Cascade)
+  produtoId    String     @map("produto_id")
+  produto      Produto    @relation(fields: [produtoId], references: [id])
+  quantidade   Decimal
+  precoCusto   Decimal    @map("preco_custo")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@map("nota_fiscal_itens")
+}
+
+model MovimentacaoEstoque {
+  id         String   @id @default(uuid())
+  empresaId  String   @map("empresa_id")
+  empresa    Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  produtoId  String   @map("produto_id")
+  produto    Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  usuarioId  String?  @map("usuario_id")
+  usuario    Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  tipo       String   // "ENTRADA" | "SAIDA"
+  quantidade Decimal  @map("quantidade")
+  motivo     String   // ex: "Venda", "Ajuste de Estoque", "NFe"
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("movimentacoes_estoque")
+}
+
+model Fornecedor {
+  id          String   @id @default(uuid())
+  empresaId   String   @map("empresa_id")
+  empresa     Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  cnpj        String
+  razaoSocial String   @map("razao_social")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([cnpj, empresaId])
+  @@map("fornecedores")
+}
+
+model LancamentoFinanceiro {
+  id             String    @id @default(uuid())
+  empresaId      String    @map("empresa_id")
+  empresa        Empresa   @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  tipo           String    // "RECEITA" | "DESPESA"
+  valor          Decimal
+  status         String    // "PAGO" | "PENDENTE"
+  dataVencimento DateTime  @map("data_vencimento")
+  dataPagamento  DateTime? @map("data_pagamento")
+  motivo         String
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("financeiro_lancamentos")
+}
+
+model Cliente {
+  id            String         @id @default(uuid())
+  empresaId     String         @map("empresa_id")
+  empresa       Empresa        @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  nome          String
+  cpfCnpj       String?        @map("cpf_cnpj")
+  telefone      String?
+  endereco      String?
+  saldoDevedor  Decimal        @default(0.00) @map("saldo_de_vedor")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  contasReceber ContaReceber[]
+  vendas        Venda[]
+  devolucoes    Devolucao[]
+  valesCredito  ValeCredito[]
+  orcamentos    Orcamento[]
+
+  @@unique([cpfCnpj, empresaId])
+  @@map("clientes")
+}
+
+model Venda {
+  id                String           @id @default(uuid())
+  empresaId         String           @map("empresa_id")
+  empresa           Empresa          @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  vendedorId        String?          @map("vendedor_id")
+  vendedor          Usuario?         @relation("VendedorVendas", fields: [vendedorId], references: [id], onDelete: SetNull)
+  clienteId         String?          @map("cliente_id")
+  cliente           Cliente?         @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  turnoId           String?          @map("turno_id")
+  turno             CaixaTurno?      @relation(fields: [turnoId], references: [id], onDelete: SetNull)
+  valorTotal        Decimal          @map("valor_total")
+  desconto          Decimal          @default(0.00)
+  condicaoPagamento String           @map("condicao_pagamento") // "A_VISTA" | "A_PRAZO" | "MULTIPLO"
+  pagoDinheiro      Decimal          @default(0.00) @map("pago_dinheiro")
+  pagoCartao        Decimal          @default(0.00) @map("pago_cartao")
+  pagoPix           Decimal          @default(0.00) @map("pago_pix")
+  pagoCrediario     Decimal          @default(0.00) @map("pago_cred_iario")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  orcamentoId       String?          @map("orcamento_id")
+  orcamento         Orcamento?       @relation(fields: [orcamentoId], references: [id], onDelete: SetNull)
+  comissoes         ComissaoVenda[]
+  contasReceber     ContaReceber[]
+
+  @@map("vendas")
+}
+
+model ComissaoVenda {
+  id              String   @id @default(uuid())
+  empresaId       String   @map("empresa_id")
+  empresa         Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  usuarioId       String   @map("usuario_id")
+  usuario         Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  vendaId         String   @map("venda_id")
+  venda           Venda    @relation(fields: [vendaId], references: [id], onDelete: Cascade)
+  valorVenda      Decimal  @map("valor_venda")
+  valorComissao   Decimal  @map("valor_comissao")
+  status          String   @default("PENDENTE") // "PENDENTE" | "PAGO"
+  dataCompetencia DateTime @map("data_competencia")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("comissoes_vendas")
+}
+
+model CaixaTurno {
+  id                        String              @id @default(uuid())
+  empresaId                 String              @map("empresa_id")
+  empresa                   Empresa             @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  usuarioId                 String              @map("usuario_id")
+  usuario                   Usuario             @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  status                    String              @default("ABERTO") // "ABERTO" | "FECHADO"
+  valorAbertura             Decimal             @map("valor_abertura")
+  valorFechamentoDinheiro   Decimal?            @map("valor_fechamento_dinheiro")
+  valorFechamentoInformado  Decimal?            @map("valor_fechamento_informado")
+  createdAt                 DateTime            @default(now()) @map("created_at")
+  closedAt                  DateTime?           @map("closed_at")
+  movimentacoes             CaixaMovimentacao[]
+  vendas                    Venda[]
+
+  @@map("caixas_turnos")
+}
+
+model CaixaMovimentacao {
+  id        String     @id @default(uuid())
+  turnoId   String     @map("turno_id")
+  turno     CaixaTurno @relation(fields: [turnoId], references: [id], onDelete: Cascade)
+  tipo      String     // "SUPRIMENTO" | "SANGRIA"
+  valor     Decimal
+  motivo    String?
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@map("caixas_movimentacoes")
+}
+
+model ContaReceber {
+  id             String    @id @default(uuid())
+  empresaId      String    @map("empresa_id")
+  empresa        Empresa   @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  clienteId      String    @map("cliente_id")
+  cliente        Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  vendaId        String?   @map("venda_id")
+  venda          Venda?    @relation(fields: [vendaId], references: [id], onDelete: SetNull)
+  valor          Decimal
+  dataVencimento DateTime  @map("data_vencimento")
+  status         String    @default("PENDENTE") // "PENDENTE" | "PAGO" | "PARCIAL"
+  valorPago      Decimal   @default(0.00) @map("valor_pago")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("contas_receber")
+}
+
+model Devolucao {
+  id         String          @id @default(uuid())
+  empresaId  String          @map("empresa_id")
+  empresa    Empresa         @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  clienteId  String?         @map("cliente_id")
+  cliente    Cliente?        @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  valorTotal Decimal         @map("valor_total")
+  motivo     String          // "DEFEITO" | "TAMANHO_ERRADO" | "TROCA" | "OUTRO"
+  observacao String?
+  createdAt  DateTime        @default(now()) @map("created_at")
+  itens      DevolucaoItem[]
+  valeCredito ValeCredito?
+
+  @@map("devolucoes")
+}
+
+model DevolucaoItem {
+  id          String    @id @default(uuid())
+  devolucaoId String    @map("devolucao_id")
+  devolucao   Devolucao @relation(fields: [devolucaoId], references: [id], onDelete: Cascade)
+  produtoId   String    @map("produto_id")
+  produto     Produto   @relation(fields: [produtoId], references: [id])
+  quantidade  Decimal
+  precoCusto  Decimal   @map("preco_custo")
+  precoVenda  Decimal   @map("preco_venda")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("devolucao_itens")
+}
+
+model ValeCredito {
+  id           String    @id @default(uuid())
+  empresaId    String    @map("empresa_id")
+  empresa      Empresa   @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  clienteId    String?   @map("cliente_id")
+  cliente      Cliente?  @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  devolucaoId  String?   @unique @map("devolucao_id")
+  devolucao    Devolucao? @relation(fields: [devolucaoId], references: [id], onDelete: SetNull)
+  codigoUnico  String    @unique @map("codigo_unico")
+  valorInicial Decimal   @map("valor_inicial")
+  valorAtual   Decimal   @map("valor_atual")
+  status       String    @default("ATIVO") // "ATIVO" | "UTILIZADO" | "PARCIAL"
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("vales_credito")
+}
+
+model Orcamento {
+  id          String          @id @default(uuid())
+  empresaId   String          @map("empresa_id")
+  empresa     Empresa         @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  clienteId   String?         @map("cliente_id")
+  cliente     Cliente?        @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  valorTotal  Decimal         @map("valor_total")
+  status      String          @default("ABERTO") // "ABERTO" | "APROVADO" | "EXPIRADO"
+  createdAt   DateTime        @default(now()) @map("created_at")
+  itens       OrcamentoItem[]
+  vendas      Venda[]
+
+  @@map("orcamentos")
+}
+
+model OrcamentoItem {
+  id          String    @id @default(uuid())
+  orcamentoId String    @map("orcamento_id")
+  orcamento   Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+  produtoId   String    @map("produto_id")
+  produto     Produto   @relation(fields: [produtoId], references: [id])
+  quantidade  Decimal
+  precoVenda  Decimal   @map("preco_venda")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("orcamento_itens")
+}
+
+

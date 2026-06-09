@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-zinc-100 min-h-screen antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* =========================================================
+   ESTILOS DE IMPRESSÃO TÉRMICA DE ETIQUETAS
+   Padrão: 50mm × 30mm por etiqueta (rolo térmico)
+   ========================================================= */
+@media print {
+  /* Ocultar TODA a interface do sistema */
+  body > div > aside,
+  body > div > main > header,
+  body > div > main > *:not(#etiquetas-print-area) {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  /* Área de impressão ocupa 100% */
+  #etiquetas-print-area {
+    display: block !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Container das etiquetas: coluna contínua sem margens */
+  .etiqueta-roll-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+
+  /* Cada etiqueta individual: 50mm × 30mm */
+  .etiqueta-item {
+    width: 50mm;
+    height: 30mm;
+    overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: none;
+    margin: 0;
+    padding: 1.5mm 2mm;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: white;
+  }
+
+  /* Nome da loja */
+  .etiqueta-loja {
+    font-size: 5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  /* Nome do produto */
+  .etiqueta-produto {
+    font-size: 6.5pt;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-height: 9pt;
+  }
+
+  /* Preço em destaque */
+  .etiqueta-preco {
+    font-size: 12pt;
+    font-weight: 900;
+    color: #000;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: -0.3pt;
+  }
+
+  /* Barcode SVG */
+  .etiqueta-barcode svg {
+    width: 100%;
+    height: 9mm;
+    max-width: 46mm;
+  }
+
+  /* Código EAN abaixo do barcode */
+  .etiqueta-ean {
+    font-size: 5pt;
+    color: #333;
+    letter-spacing: 0.8pt;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+  }
+
+  /* Linha separadora entre etiquetas */
+  .etiqueta-separator {
+    display: block;
+    width: 50mm;
+    height: 0.2mm;
+    background: #ccc;
+  }
+}
+
