@@ -1,7 +1,0 @@
-{
-  "regions": ["gru1"],
-  "installCommand": "npm install --prefix controle-estoque/web",
-  "buildCommand": "npm run build --prefix controle-estoque/web",
-  "outputDirectory": "controle-estoque/web/dist",
-  "framework": "vite"
-}
