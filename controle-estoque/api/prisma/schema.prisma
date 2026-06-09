@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -7,13 +7,25 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Role {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+  OPERADOR
+}
+
+enum EmpresaStatus {
+  ATIVO
+  BLOQUEADO
+}
+
 model Empresa {
-  id           String    @id @default(uuid())
-  nomeFantasia String    @map("nome_fantasia")
-  razaoSocial  String?   @map("razao_social")
-  cnpj         String?   @unique
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id           String        @id @default(uuid())
+  nomeFantasia String        @map("nome_fantasia")
+  razaoSocial  String?       @map("razao_social")
+  cnpj         String?       @unique
+  status       EmpresaStatus @default(ATIVO)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
 
   usuarios      Usuario[]
   produtos      Produto[]
@@ -34,22 +46,21 @@ model Empresa {
 }
 
 model Usuario {
-  id                 String          @id @default(uuid())
-  empresaId          String          @map("empresa_id")
-  empresa            Empresa         @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  id                 String                @id @default(uuid())
+  empresaId          String?               @map("empresa_id")
+  empresa            Empresa?              @relation(fields: [empresaId], references: [id], onDelete: Cascade)
   nome               String
-  email              String
-  senhaHash          String          @map("senha_hash")
-  role               String          @default("operador") // "admin" | "operador"
-  percentualComissao Decimal         @default(0.00) @map("percentual_comissao")
-  createdAt          DateTime        @default(now()) @map("created_at")
-  updatedAt          DateTime        @updatedAt @map("updated_at")
+  email              String                @unique
+  senhaHash          String                @map("senha_hash")
+  role               Role                  @default(OPERADOR)
+  percentualComissao Decimal               @default(0.00) @map("percentual_comissao")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
   movimentacoes      MovimentacaoEstoque[]
-  vendasVendedor     Venda[]         @relation("VendedorVendas")
+  vendasVendedor     Venda[]               @relation("VendedorVendas")
   comissoes          ComissaoVenda[]
   turnos             CaixaTurno[]
 
-  @@unique([email, empresaId])
   @@map("usuarios")
 }
 
