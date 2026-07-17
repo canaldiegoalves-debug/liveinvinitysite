@@ -840,12 +840,29 @@
   letter-spacing: 0.08em;
   font-family: var(--font-title);
   box-shadow: 0 5px 15px rgba(255, 29, 29, 0.4);
+  white-space: nowrap;
+}
+
+@keyframes pulseGold {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.6);
+    transform: translateX(-50%) scale(1);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+    transform: translateX(-50%) scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 .pricingBadgeGold {
   background: linear-gradient(135deg, #ffd700, #ff9500);
   color: #000000;
   box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+  animation: pulseGold 2s infinite ease-in-out;
 }
 
 .pricingHeader {
