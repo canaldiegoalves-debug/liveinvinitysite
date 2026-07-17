@@ -569,7 +569,7 @@ export default function LandingPage() {
         </div>
         <div className={styles.pricingGrid}>
           {/* Plano Individual */}
-          <div className={styles.pricingCard}>
+          <div className={`${styles.pricingCard} ${styles.pricingCardWhite}`}>
             <div className={styles.pricingHeader}>
               <h3>Individual</h3>
               <p className={styles.pricingDesc}>Ideal para quem está iniciando suas vendas no TikTok Shop com apenas uma conta principal.</p>
@@ -586,14 +586,14 @@ export default function LandingPage() {
               <li><Check size={18} /> Sistema Anti-Ban integrado</li>
               <li><Check size={18} /> Suporte padrão via e-mail</li>
             </ul>
-            <a href="https://pay.cakto.com.br/3477jz3_976117" className={`${styles.pricingBtn} ${styles.pricingBtnStandard}`}>
+            <a href="https://pay.cakto.com.br/3477jz3_976117" className={`${styles.pricingBtn} ${styles.pricingBtnWhite}`}>
               Assinar Plano
             </a>
           </div>
 
           {/* Plano Duplo */}
           <div className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
-            <div className={styles.pricingBadge}>Mais Vendido</div>
+            <div className={styles.pricingBadge}>INICIO DA ESCALA</div>
             <div className={styles.pricingHeader}>
               <h3>Duplo</h3>
               <p className={styles.pricingDesc}>Perfeito para escalar suas lives gerenciando duas operações ou contas separadas.</p>
@@ -616,7 +616,8 @@ export default function LandingPage() {
           </div>
 
           {/* Plano Infinity */}
-          <div className={styles.pricingCard}>
+          <div className={`${styles.pricingCard} ${styles.pricingCardGold}`}>
+            <div className={`${styles.pricingBadge} ${styles.pricingBadgeGold}`}>AUTOMAÇÃO INFINITA</div>
             <div className={styles.pricingHeader}>
               <h3>Infinity</h3>
               <p className={styles.pricingDesc}>Para quem possui múltiplos computadores ou rodará em infraestrutura de VPS.</p>
@@ -633,7 +634,7 @@ export default function LandingPage() {
               <li><Check size={18} /> Acesso prioritário a betas</li>
               <li><Check size={18} /> Atualizações em primeira mão</li>
             </ul>
-            <a href="https://pay.cakto.com.br/3b3y7bp_982839" className={`${styles.pricingBtn} ${styles.pricingBtnStandard}`}>
+            <a href="https://pay.cakto.com.br/3b3y7bp_982839" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Dominação Total
             </a>
           </div>

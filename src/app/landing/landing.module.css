@@ -792,6 +792,18 @@
   transform: scale(1.02);
 }
 
+.pricingCardWhite {
+  border: 2px solid #ffffff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 20, 0.8) 100%);
+  box-shadow: 0 20px 40px rgba(255, 255, 255, 0.06);
+}
+
+.pricingCardGold {
+  border: 2px solid #FFD700;
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.03) 0%, rgba(20, 20, 20, 0.8) 100%);
+  box-shadow: 0 20px 40px rgba(255, 215, 0, 0.06);
+}
+
 .pricingCard:hover {
   transform: translateY(-8px);
   border-color: rgba(255, 255, 255, 0.15);
@@ -801,6 +813,16 @@
 .pricingCardFeatured:hover {
   border-color: var(--color-primary);
   box-shadow: 0 25px 45px rgba(255, 29, 29, 0.15);
+}
+
+.pricingCardWhite:hover {
+  border-color: #ffffff;
+  box-shadow: 0 25px 45px rgba(255, 255, 255, 0.12);
+}
+
+.pricingCardGold:hover {
+  border-color: #FFD700;
+  box-shadow: 0 25px 45px rgba(255, 215, 0, 0.12);
 }
 
 .pricingBadge {
@@ -818,6 +840,12 @@
   letter-spacing: 0.08em;
   font-family: var(--font-title);
   box-shadow: 0 5px 15px rgba(255, 29, 29, 0.4);
+}
+
+.pricingBadgeGold {
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000000;
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
 }
 
 .pricingHeader {
@@ -917,6 +945,19 @@
   transform: translateY(-2px);
 }
 
+.pricingBtnWhite {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+}
+
+.pricingBtnWhite:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.35);
+  background: #f0f0f0;
+}
+
 .pricingBtnFeatured {
   background: linear-gradient(135deg, var(--color-primary), #d61414);
   color: #fff;
@@ -928,6 +969,19 @@
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(255, 29, 29, 0.45);
   background: linear-gradient(135deg, #ff3c3c, var(--color-primary));
+}
+
+.pricingBtnGold {
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000000;
+  border-color: #ffd700;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.25);
+}
+
+.pricingBtnGold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.45);
+  background: linear-gradient(135deg, #ffa600, #ffd700);
 }
 
 /* FAQ Section */
