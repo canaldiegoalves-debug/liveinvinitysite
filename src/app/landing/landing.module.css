@@ -61,6 +61,7 @@
 .logo {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
   text-decoration: none;
 }
 
@@ -68,6 +69,42 @@
   height: 48px;
   width: auto;
   display: block;
+}
+
+.logoSloganContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  padding-left: 0.75rem;
+  margin-left: 0.25rem;
+  line-height: 1.25;
+}
+
+.logoSloganLine1 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: var(--font-tiktok-sans), sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.logoSloganLine2 {
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-family: var(--font-tiktok-sans), sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.logoSloganRed {
+  color: #FF1D1D;
+}
+
+.logoSloganGold {
+  color: #FFD700;
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .navActions {
@@ -1560,6 +1597,10 @@
 
   .logoImg {
     height: 36px !important;
+  }
+
+  .logoSloganContainer {
+    display: none !important;
   }
 
   /* Mostrar CTA encolhido na navbar em celulares e esconder apenas o link de Login */

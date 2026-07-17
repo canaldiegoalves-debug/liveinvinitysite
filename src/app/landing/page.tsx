@@ -192,12 +192,18 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <Link href="/" className={styles.logo}>
           <img src="/logo.png" alt="Live Infinity" className={styles.logoImg} />
+          <div className={styles.logoSloganContainer}>
+            <span className={styles.logoSloganLine1}>Automação Infinita.</span>
+            <span className={styles.logoSloganLine2}>
+              <span className={styles.logoSloganRed}>Lucro </span>
+              <span className={styles.logoSloganGold}>Sem Limites.</span>
+            </span>
+          </div>
         </Link>
         <div className={styles.navActions}>
           <a href="#recursos" className={styles.loginBtn}>Recursos</a>
           <a href="#planos" className={styles.loginBtn}>Planos</a>
           <a href="#faq" className={styles.loginBtn}>Dúvidas</a>
-          <Link href="/login" className={styles.loginBtn}>Entrar</Link>
           <a href="#planos" className={styles.ctaBtn}>Começar Agora</a>
         </div>
       </nav>
