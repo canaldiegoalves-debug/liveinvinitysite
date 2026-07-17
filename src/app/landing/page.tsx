@@ -738,64 +738,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className={styles.footer}>
         <Link href="/" className={styles.logo}>
-          <div className={styles.logoIcon}>
-            <svg width="84" height="42" viewBox="0 0 84 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="gradRed" x1="0%" y1="50%" x2="100%" y2="50%">
-                  <stop offset="0%" stopColor="#E50914" />
-                  <stop offset="100%" stopColor="#FF3B30" />
-                </linearGradient>
-                <linearGradient id="gradGold" x1="0%" y1="50%" x2="100%" y2="50%">
-                  <stop offset="0%" stopColor="#FFD700" />
-                  <stop offset="100%" stopColor="#FFA500" />
-                </linearGradient>
-                <radialGradient id="radialRed" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#FF453A" />
-                  <stop offset="70%" stopColor="#FF1D1D" />
-                  <stop offset="100%" stopColor="#8B0000" />
-                </radialGradient>
-              </defs>
-              {/* Loop Esquerdo (Vermelho) */}
-              <path 
-                d="M42 21 C33 9, 13 9, 7 16 C1 23, 1 29, 7 34 C13 39, 33 33, 42 21" 
-                stroke="url(#gradRed)" 
-                strokeWidth="4.5" 
-                strokeLinecap="round"
-              />
-              {/* Loop Direito (Dourado) */}
-              <path 
-                d="M42 21 C51 33, 71 33, 77 26 C83 19, 83 13, 77 8 C71 3, 51 9, 42 21" 
-                stroke="url(#gradGold)" 
-                strokeWidth="4.5" 
-                strokeLinecap="round"
-              />
-              {/* Marcadores de REC */}
-              <path d="M12 17 H10 V19" stroke="#FF1D1D" strokeWidth="1" strokeLinecap="round" />
-              <path d="M28 17 H30 V19" stroke="#FF1D1D" strokeWidth="1" strokeLinecap="round" />
-              <path d="M12 25 H10 V23" stroke="#FF1D1D" strokeWidth="1" strokeLinecap="round" />
-              <path d="M28 25 H30 V23" stroke="#FF1D1D" strokeWidth="1" strokeLinecap="round" />
-              {/* Ponto Vermelho REC Piscando */}
-              <circle cx="14" cy="21" r="2.5" fill="url(#radialRed)">
-                <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite" />
-              </circle>
-              {/* Texto LIVE */}
-              <text x="18" y="23.5" fill="#FFFFFF" fontSize="7" fontWeight="900" fontFamily="sans-serif" letterSpacing="0.05em">LIVE</text>
-              {/* Cifrão Dourado */}
-              <text x="50" y="24" fill="#FFD700" fontSize="8" fontWeight="800" fontFamily="sans-serif">$</text>
-              {/* Barras do Gráfico */}
-              <rect x="60" y="22" width="1.2" height="2" fill="#FFD700" />
-              <rect x="62" y="20" width="1.2" height="4" fill="#FFD700" />
-              <rect x="64" y="18" width="1.2" height="6" fill="#FFD700" />
-              <rect x="66" y="16" width="1.2" height="8" fill="#FFD700" />
-              <rect x="68" y="13" width="1.2" height="11" fill="#FFD700" />
-              {/* Seta do Gráfico */}
-              <path d="M58 24 L68 14 M68 14 H64 M68 14 V18" stroke="#FFD700" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div className={styles.logoTextWrapper}>
-            <span className={styles.logoText}><span className={styles.logoTextRed}>LIVE</span> INFINITY</span>
-            <span className={styles.logoSlogan}>AUTOMAÇÃO INFINITA. LUCRO SEM LIMITES.</span>
-          </div>
+          <img src="/logo.png" alt="Live Infinity" className={styles.logoImg} />
         </Link>
         <p>© 2026 Live Infinity. Todos os direitos reservados. Automação Infinita. Lucro Sem Limites.</p>
       </footer>
