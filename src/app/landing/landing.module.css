@@ -62,25 +62,46 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-weight: 900;
-  font-size: 1.4rem;
-  font-family: var(--font-title);
-  letter-spacing: 0.08em;
-  color: var(--color-text);
   text-decoration: none;
 }
 
+.logoTextWrapper {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  text-align: left;
+}
+
 .logoText {
-  background: linear-gradient(to right, #ffffff, #e0e0e0);
+  font-weight: 900;
+  font-size: 1.25rem;
+  font-family: var(--font-title);
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.logoTextRed {
+  color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), #ff4a4a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.logoSlogan {
+  font-size: 0.45rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--color-secondary);
+  text-transform: uppercase;
 }
 
 .logoIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  height: 42px;
 }
 
 .navActions {
