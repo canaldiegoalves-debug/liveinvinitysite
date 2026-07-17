@@ -59,6 +59,8 @@ export default function LandingPage() {
   } | null>(null);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const triggerPopup = () => {
       const randomFirstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
       const randomLastInitial = LAST_INITIALS[Math.floor(Math.random() * LAST_INITIALS.length)];
@@ -76,22 +78,32 @@ export default function LandingPage() {
         time: randomTime
       });
 
+      // Tocar som de caixa registradora (Cha-ching!)
+      try {
+        const audio = new Audio('/som-caixa.mp3');
+        audio.volume = 0.35;
+        audio.play().catch(() => {
+          // Autoplay bloqueado pelo navegador até o usuário interagir com a tela
+        });
+      } catch (err) {
+        console.error('Erro de reprodução de áudio:', err);
+      }
+
+      // Esconder popup após 4.2 segundos
       setTimeout(() => {
         setActivePopup(null);
-      }, 5000);
+      }, 4200);
+
+      // Agenda o próximo popup entre 5 e 7 segundos (5000ms a 7000ms) após o popup atual sumir
+      const nextDelay = Math.floor(Math.random() * 2000) + 9200; // 4200ms de exibição + (5000ms a 7000ms) de intervalo em silêncio
+      timeoutId = setTimeout(triggerPopup, nextDelay);
     };
 
-    const initialTimeout = setTimeout(() => {
-      triggerPopup();
-    }, 4500);
-
-    const interval = setInterval(() => {
-      triggerPopup();
-    }, 24000);
+    // Primeiro popup após 4 segundos
+    timeoutId = setTimeout(triggerPopup, 4000);
 
     return () => {
-      clearTimeout(initialTimeout);
-      clearInterval(interval);
+      clearTimeout(timeoutId);
     };
   }, []);
 
