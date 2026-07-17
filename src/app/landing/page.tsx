@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Zap, 
   ArrowRight, 
@@ -18,14 +18,82 @@ import {
   Laptop,
   Radio,
   Volume2,
-  Lock
+  Lock,
+  ShoppingBag
 } from "lucide-react";
 import Link from "next/link";
 import styles from "./landing.module.css";
 
+const FIRST_NAMES = [
+  "João", "Pedro", "Lucas", "Matheus", "Gabriel", "Guilherme", "Enzo", "Arthur", "Gustavo", "Felipe",
+  "Rafael", "Bruno", "Daniel", "Thiago", "Rodrigo", "Marcos", "André", "Diego", "Leonardo", "Vitor",
+  "Eduardo", "Carlos", "Alexandre", "Fernando", "Ricardo", "Marcelo", "Fábio", "Otávio", "Samuel", "Henrique",
+  "Murilo", "Douglas", "Igor", "Renan", "Caio", "Vinícius", "Alex", "Alan", "Júlio", "Renato",
+  "César", "Augusto", "Luiz", "Francisco", "Antônio", "José", "Hugo", "Leandro", "Adriano", "Alan",
+  "Maria", "Ana", "Julia", "Yasmin", "Beatriz", "Laura", "Sofia", "Alice", "Manuela", "Isabela",
+  "Gabriela", "Luana", "Mariana", "Larissa", "Camila", "Amanda", "Carolina", "Letícia", "Bruna", "Jessica",
+  "Vanessa", "Aline", "Patrícia", "Fernanda", "Juliana", "Bianca", "Clara", "Cecília", "Helena", "Valentina",
+  "Lívia", "Giovanna", "Sarah", "Rafaela", "Rebeca", "Nicole", "Melissa", "Lorena", "Isadora", "Daniela",
+  "Tatiane", "Priscila", "Renata", "Sabrina", "Monique", "Karina", "Letícia", "Caroline", "Evelyn", "Débora"
+];
+
+const LAST_INITIALS = [
+  "A***", "B***", "C***", "D***", "E***", "F***", "G***", "H***", "I***", "J***", "L***", "M***",
+  "N***", "O***", "P***", "Q***", "R***", "S***", "T***", "U***", "V***", "W***", "X***", "Y***", "Z***"
+];
+
+const PLANS = [
+  { name: "Plano Individual", price: "R$ 97" },
+  { name: "Plano Duplo", price: "R$ 147" },
+  { name: "Plano Infinity", price: "R$ 197" }
+];
+
 export default function LandingPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activeScenario, setActiveScenario] = useState<number>(0);
+  const [activePopup, setActivePopup] = useState<{
+    name: string;
+    plan: string;
+    price: string;
+    time: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const triggerPopup = () => {
+      const randomFirstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+      const randomLastInitial = LAST_INITIALS[Math.floor(Math.random() * LAST_INITIALS.length)];
+      const randomPlan = PLANS[Math.floor(Math.random() * PLANS.length)];
+      const times = [
+        "há 12 segundos", "há 30 segundos", "há 45 segundos", "há 58 segundos",
+        "há 1 minuto", "há 2 minutos", "há 3 minutos", "há 4 minutos", "há 5 minutos"
+      ];
+      const randomTime = times[Math.floor(Math.random() * times.length)];
+
+      setActivePopup({
+        name: `${randomFirstName} ${randomLastInitial}`,
+        plan: randomPlan.name,
+        price: randomPlan.price,
+        time: randomTime
+      });
+
+      setTimeout(() => {
+        setActivePopup(null);
+      }, 5000);
+    };
+
+    const initialTimeout = setTimeout(() => {
+      triggerPopup();
+    }, 4500);
+
+    const interval = setInterval(() => {
+      triggerPopup();
+    }, 24000);
+
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
+  }, []);
 
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
@@ -692,6 +760,23 @@ export default function LandingPage() {
         </Link>
         <p>© 2026 Live Infinity. Todos os direitos reservados. Automação Infinita. Lucro Sem Limites.</p>
       </footer>
+
+      {/* Popups de Venda em Tempo Real (Prova Social) */}
+      {activePopup && (
+        <div className={styles.salesPopup}>
+          <div className={styles.salesPopupIcon}>
+            <ShoppingBag size={20} />
+          </div>
+          <div className={styles.salesPopupContent}>
+            <p className={styles.salesPopupTitle}>
+              <strong>{activePopup.name}</strong> assinou o <span>{activePopup.plan}</span>
+            </p>
+            <p className={styles.salesPopupSubtitle}>
+              Garantido por {activePopup.price} • {activePopup.time}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
