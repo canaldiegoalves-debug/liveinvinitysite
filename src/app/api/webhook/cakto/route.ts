@@ -12,6 +12,18 @@ export async function POST(request: Request) {
     const planType = body.plan_id?.includes("pro") ? "pro" : "premium";
     const method = body.payment_method || "card";
 
+    // Mapeamento de expiração inteligente: Anual vs Mensal
+    const isAnual = 
+      body.plan_id?.toLowerCase().includes("anual") || 
+      body.plan_id?.toLowerCase().includes("year") || 
+      body.plan_id?.toLowerCase().includes("yearly") || 
+      body.plan_name?.toLowerCase().includes("anual") || 
+      body.plan_name?.toLowerCase().includes("year") || 
+      body.plan?.name?.toLowerCase().includes("anual") || 
+      body.plan?.name?.toLowerCase().includes("year") || 
+      (body.amount && Number(body.amount) > 150) || 
+      (body.price && Number(body.price) > 150);
+
     if (status === "paid" || status === "approved" || status === "completed") {
       const user = await prisma.user.findUnique({
         where: { email },
@@ -19,9 +31,13 @@ export async function POST(request: Request) {
       });
 
       if (user && user.empresa) {
-        // Calcula nova data de expiração (Hoje + 30 dias)
+        // Calcula nova data de expiração (Hoje + 365 dias se for anual, +30 dias se for mensal)
         const novaExpiracao = new Date();
-        novaExpiracao.setDate(novaExpiracao.getDate() + 30);
+        if (isAnual) {
+          novaExpiracao.setDate(novaExpiracao.getDate() + 365);
+        } else {
+          novaExpiracao.setDate(novaExpiracao.getDate() + 30);
+        }
 
         await prisma.empresa.update({
           where: { id: user.empresa.id },

@@ -67,6 +67,14 @@ export async function updateUserDetails(userId: string, data: {
     }
   }
 
+  // Se o admin está mudando para um plano pago, ativa e estende a expiração
+  const isPlanoAtivacao = data.empresa?.plano === "premium" || data.empresa?.plano === "pro";
+  const novaExpiracao = isPlanoAtivacao ? (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 365);
+    return d;
+  })() : undefined;
+
   await prisma.user.update({
     where: { id: userId },
     data: {
@@ -77,6 +85,11 @@ export async function updateUserDetails(userId: string, data: {
           plano: data.empresa.plano,
           nicho: data.empresa.nicho,
           nome: data.empresa.nome,
+          ...(isPlanoAtivacao && {
+            planoStatus: "active",
+            planoExpiresAt: novaExpiracao,
+            lastPaymentAt: new Date(),
+          }),
         }
       } : undefined
     }

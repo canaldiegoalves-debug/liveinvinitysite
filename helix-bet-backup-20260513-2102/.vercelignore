@@ -1,0 +1,4 @@
+backup_stable/
+.git
+node_modules
+.next
