@@ -85,78 +85,168 @@ export default function AfiliadosPage() {
         </p>
       </header>
 
-      {/* Products Selection */}
-      <section className={styles.productsSection}>
-        <div className={styles.grid}>
-          {/* Card Produto 1: Extensão */}
-          <div className={`${styles.card} ${styles.cardRed}`}>
-            <div className={`${styles.cardBadge} ${styles.badgeRed}`}>RECORRÊNCIA MENSAL</div>
-            <div className={`${styles.cardIcon} ${styles.iconRed}`}>
-              <ShoppingBag size={26} />
-            </div>
-            <h2 className={styles.cardTitle}>Extensão Live Infinity</h2>
-            <p className={styles.cardDesc}>
-              A extensão profissional nº 1 do Brasil para automatizar transmissões ao vivo 24/7 com proteção anti-ban e vendedor virtual IA.
-            </p>
-            
-            <div className={styles.metaInfo}>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Comissão:</span>
-                <span className={`${styles.metaValue} ${styles.valueRed}`}>50% Recorrente</span>
-              </div>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Valor dos Planos:</span>
-                <span className={styles.metaValue}>R$ 97 a R$ 197 / mês</span>
-              </div>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Seu ganho mensal por cliente:</span>
-                <span className={styles.metaValue}>Até R$ 98,50 / mês</span>
-              </div>
-            </div>
-
-            <a 
-              href="https://pay.cakto.com.br/3477jz3_976117" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className={`${styles.cardBtn} ${styles.btnRed}`}
-            >
-              Me Afiliar à Extensão <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
-            </a>
-          </div>
-
-          {/* Card Produto 2: Treinamento */}
-          <div className={`${styles.card} ${styles.cardGold}`}>
-            <div className={`${styles.cardBadge} ${styles.badgeGold}`}>MÉTODO DE ESCALA</div>
+      {/* 1. Método de Escala (Curso) */}
+      <section className={styles.featuredSection}>
+        <div className={styles.sectionHeader} style={{ marginBottom: "2rem" }}>
+          <h2 className={styles.sectionTitle}>1. Método de Escala Rápida (Curso)</h2>
+          <p className={styles.sectionSubtitle}>
+            Promova o treinamento completo passo a passo e ganhe comissão direta em cada venda realizada.
+          </p>
+        </div>
+        
+        <div className={styles.featuredContainer}>
+          <div className={`${styles.card} ${styles.cardGold} ${styles.cardFeatured}`}>
+            <div className={`${styles.cardBadge} ${styles.badgeGold}`}>LIVES AUTOMÁTICAS</div>
             <div className={`${styles.cardIcon} ${styles.iconGold}`}>
               <BookOpen size={26} />
             </div>
-            <h2 className={styles.cardTitle}>Treinamento Oficial</h2>
+            <h2 className={styles.cardTitle}>Curso Lives Infinitas</h2>
             <p className={styles.cardDesc}>
-              O guia prático definitivo ensinando como subir produtos campeões, atrair audiência qualificada e faturar no TikTok Shop sem aparecer.
+              O guia definitivo ensinando o método de escala acelerada no TikTok Shop. Como escolher produtos validados, atrair milhares de compradores e faturar 24/7 sem aparecer.
             </p>
             
             <div className={styles.metaInfo}>
               <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Comissão:</span>
-                <span className={`${styles.metaValue} ${styles.valueGold}`}>50% Direta</span>
+                <span className={styles.metaLabel}>Sua Comissão:</span>
+                <span className={`${styles.metaValue} ${styles.valueGold}`}>50% Direta por Venda</span>
               </div>
               <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Valor do Produto:</span>
+                <span className={styles.metaLabel}>Valor do Treinamento:</span>
                 <span className={styles.metaValue}>R$ 197,00</span>
               </div>
               <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Seu ganho por venda:</span>
-                <span className={styles.metaValue}>R$ 98,50</span>
+                <span className={styles.metaLabel}>Seu ganho por indicação:</span>
+                <span className={`${styles.metaValue} ${styles.valueGold}`}>R$ 98,50</span>
               </div>
             </div>
 
             <a 
-              href="https://pay.cakto.com.br/3b3y7bp_982839" 
+              href="https://app.cakto.com.br/affiliate/invite/6bbdc0c1-5f68-4fba-810f-4f768f12f9fc" 
               target="_blank" 
               rel="noopener noreferrer" 
               className={`${styles.cardBtn} ${styles.btnGold}`}
             >
-              Me Afiliar ao Treinamento <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
+              Quero me Afiliar ao Curso <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Planos da Extensão (Assinatura Recorrente) */}
+      <section className={styles.productsSection}>
+        <div className={styles.sectionHeader} style={{ marginBottom: "3rem" }}>
+          <h2 className={styles.sectionTitle}>2. Planos de Assinatura (Extensão)</h2>
+          <p className={styles.sectionSubtitle}>
+            Promova a nossa extensão de automação profissional e fature comissões recorrentes todo mês que o cliente continuar ativo.
+          </p>
+        </div>
+
+        <div className={styles.grid}>
+          {/* Plano Básico */}
+          <div className={`${styles.card} ${styles.cardWhite}`}>
+            <div className={`${styles.cardBadge} ${styles.badgeWhite}`}>PLANO INDIVIDUAL</div>
+            <div className={`${styles.cardIcon} ${styles.iconWhite}`}>
+              <ShoppingBag size={24} />
+            </div>
+            <h2 className={styles.cardTitle}>Live Infinity Básico</h2>
+            <p className={styles.cardDesc}>
+              Acesso individual para 1 conta TikTok Shop. Automação de lives, chat virtual IA e anti-ban.
+            </p>
+            
+            <div className={styles.metaInfo}>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Sua Comissão:</span>
+                <span className={`${styles.metaValue} ${styles.valueWhite}`}>50% Recorrente</span>
+              </div>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Valor do Plano:</span>
+                <span className={styles.metaValue}>R$ 97,00 / mês</span>
+              </div>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Seu ganho mensal:</span>
+                <span className={`${styles.metaValue} ${styles.valueWhite}`}>R$ 48,50 / mês</span>
+              </div>
+            </div>
+
+            <a 
+              href="https://app.cakto.com.br/affiliate/invite/e5505d59-fb55-492b-b877-4d675df3e3a5" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={`${styles.cardBtn} ${styles.btnWhite}`}
+            >
+              Afiliar-se ao Básico <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
+            </a>
+          </div>
+
+          {/* Plano Pro */}
+          <div className={`${styles.card} ${styles.cardRed}`}>
+            <div className={`${styles.cardBadge} ${styles.badgeRed}`}>PLANO DUPLO</div>
+            <div className={`${styles.cardIcon} ${styles.iconRed}`}>
+              <ShoppingBag size={24} />
+            </div>
+            <h2 className={styles.cardTitle}>Live Infinity Pro</h2>
+            <p className={styles.cardDesc}>
+              Acesso para 2 contas TikTok Shop. Perfeito para quem está iniciando a escala e faturando mais.
+            </p>
+            
+            <div className={styles.metaInfo}>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Sua Comissão:</span>
+                <span className={`${styles.metaValue} ${styles.valueRed}`}>50% Recorrente</span>
+              </div>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Valor do Plano:</span>
+                <span className={styles.metaValue}>R$ 147,00 / mês</span>
+              </div>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Seu ganho mensal:</span>
+                <span className={`${styles.metaValue} ${styles.valueRed}`}>R$ 73,50 / mês</span>
+              </div>
+            </div>
+
+            <a 
+              href="https://app.cakto.com.br/affiliate/invite/ff1139b3-2a70-4e72-aeb6-8a17b3caa720" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={`${styles.cardBtn} ${styles.btnRed}`}
+            >
+              Afiliar-se ao Pro <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
+            </a>
+          </div>
+
+          {/* Plano Premium */}
+          <div className={`${styles.card} ${styles.cardGold}`}>
+            <div className={`${styles.cardBadge} ${styles.badgeGold}`}>AUTOMAÇÃO INFINITA</div>
+            <div className={`${styles.cardIcon} ${styles.iconGold}`}>
+              <ShoppingBag size={24} />
+            </div>
+            <h2 className={styles.cardTitle}>Live Infinity Premium</h2>
+            <p className={styles.cardDesc}>
+              Acesso para 3 contas ou mais. Suporte prioritário 1-on-1 e recursos de moderação anti-furto avançados.
+            </p>
+            
+            <div className={styles.metaInfo}>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Sua Comissão:</span>
+                <span className={`${styles.metaValue} ${styles.valueGold}`}>50% Recorrente</span>
+              </div>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Valor do Plano:</span>
+                <span className={styles.metaValue}>R$ 197,00 / mês</span>
+              </div>
+              <div className={styles.metaRow}>
+                <span className={styles.metaLabel}>Seu ganho mensal:</span>
+                <span className={`${styles.metaValue} ${styles.valueGold}`}>R$ 98,50 / mês</span>
+              </div>
+            </div>
+
+            <a 
+              href="https://app.cakto.com.br/affiliate/invite/f6467a03-fe9d-4cab-ae7a-01034717dbec" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className={`${styles.cardBtn} ${styles.btnGold}`}
+            >
+              Afiliar-se ao Premium <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
             </a>
           </div>
         </div>
