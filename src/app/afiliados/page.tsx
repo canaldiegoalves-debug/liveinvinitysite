@@ -14,7 +14,8 @@ import {
   RefreshCw,
   Users,
   ShieldCheck,
-  Zap
+  Zap,
+  MessageCircle
 } from "lucide-react";
 import styles from "./afiliados.module.css";
 
@@ -294,16 +295,16 @@ export default function AfiliadosPage() {
       {/* CTA Footer Section */}
       <section className={styles.finalCta}>
         <div className={styles.finalCard}>
-          <Send size={48} className={styles.zapIcon} />
-          <h2>Ficou com alguma dúvida?</h2>
+          <MessageCircle size={48} className={styles.zapIcon} style={{ color: "#25d366", filter: "drop-shadow(0 0 10px rgba(37, 211, 102, 0.3))" }} />
+          <h2>Participe do Grupo do WhatsApp</h2>
           <p>
-            Entre no nosso canal de afiliados exclusivo do Telegram para receber novidades, dicas de tráfego, criativos diários e suporte completo.
+            Entre no nosso grupo oficial de afiliados no WhatsApp para ter suporte exclusivo, networking, criativos validados e novidades em tempo real.
           </p>
           <a 
-            href="https://t.me/+exemplo_canal_afiliados" 
+            href="https://chat.whatsapp.com/LwKKoV3LUZ81I22Nzo76eE" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className={styles.telegramBtn}
+            className={styles.whatsappBtn}
           >
             Entrar no Grupo de Afiliados
           </a>

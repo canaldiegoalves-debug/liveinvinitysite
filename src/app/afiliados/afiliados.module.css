@@ -659,3 +659,25 @@
   box-shadow: 0 10px 25px rgba(255, 255, 255, 0.35);
   background: #f0f0f0;
 }
+
+.whatsappBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #ffffff;
+  padding: 1.1rem 2.2rem;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(37, 211, 102, 0.25);
+  border: none;
+}
+
+.whatsappBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(37, 211, 102, 0.45);
+  background: linear-gradient(135deg, #2ae774, #25d366);
+}
