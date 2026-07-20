@@ -108,15 +108,7 @@ export default function AfiliadosPage() {
             <div className={styles.metaInfo}>
               <div className={styles.metaRow}>
                 <span className={styles.metaLabel}>Sua Comissão:</span>
-                <span className={`${styles.metaValue} ${styles.valueGold}`}>50% Direta por Venda</span>
-              </div>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Valor do Treinamento:</span>
-                <span className={styles.metaValue}>R$ 197,00</span>
-              </div>
-              <div className={styles.metaRow}>
-                <span className={styles.metaLabel}>Seu ganho por indicação:</span>
-                <span className={`${styles.metaValue} ${styles.valueGold}`}>R$ 98,50</span>
+                <span className={`${styles.metaValue} ${styles.valueGold}`}>50% por Venda</span>
               </div>
             </div>
 
