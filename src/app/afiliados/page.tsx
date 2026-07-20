@@ -96,11 +96,11 @@ export default function AfiliadosPage() {
         
         <div className={styles.featuredContainer}>
           <div className={`${styles.card} ${styles.cardGold} ${styles.cardFeatured}`}>
-            <div className={`${styles.cardBadge} ${styles.badgeGold}`}>LIVES AUTOMÁTICAS</div>
+            <div className={`${styles.cardBadge} ${styles.badgeGold}`}>TREINAMENTO OFICIAL</div>
             <div className={`${styles.cardIcon} ${styles.iconGold}`}>
               <BookOpen size={26} />
             </div>
-            <h2 className={styles.cardTitle}>Curso Lives Infinitas</h2>
+            <h2 className={styles.cardTitle}>Lives Automáticas</h2>
             <p className={styles.cardDesc}>
               O guia definitivo ensinando o método de escala acelerada no TikTok Shop. Como escolher produtos validados, atrair milhares de compradores e faturar 24/7 sem aparecer.
             </p>
@@ -118,7 +118,7 @@ export default function AfiliadosPage() {
               rel="noopener noreferrer" 
               className={`${styles.cardBtn} ${styles.btnGold}`}
             >
-              Quero me Afiliar ao Curso <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
+              Quero me Afiliar ao Lives Automáticas <ArrowLeft size={16} style={{ transform: "rotate(180deg)" }} />
             </a>
           </div>
         </div>
