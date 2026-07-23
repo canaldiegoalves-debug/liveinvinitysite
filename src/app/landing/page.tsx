@@ -43,9 +43,9 @@ const LAST_INITIALS = [
 ];
 
 const PLANS = [
-  { name: "Plano Individual", price: "R$ 97" },
-  { name: "Plano Duplo", price: "R$ 147" },
-  { name: "Plano Infinity", price: "R$ 197" }
+  { name: "Plano Starter", price: "R$ 67" },
+  { name: "Plano Pro", price: "R$ 97" },
+  { name: "Plano Infinity VIP", price: "R$ 147" }
 ];
 
 export default function LandingPage() {
@@ -254,7 +254,7 @@ export default function LandingPage() {
     },
     {
       q: "Quantas contas eu consigo gerenciar?",
-      a: "Depende do seu plano. Com o Plano Individual (R$ 97/mês), você tem 1 chave de acesso para 1 computador. Com o Plano Duplo (R$ 147/mês), você ganha 2 chaves de acesso. Com o Plano Infinity (R$ 197/mês), você tem chaves ilimitadas (uma por computador/VPS ativo), ideal para grandes operações."
+      a: "Depende do seu plano. Com o Plano Starter (R$ 67/mês), você recebe 1 chave de licença. Com o Plano Pro (R$ 97/mês), você ganha 2 chaves de acesso. Com o Plano Infinity VIP (R$ 147/mês), você tem CHAVES INFINITAS liberadas e suporte prioritário com direito a chamada de vídeo!"
     },
     {
       q: "A voz de IA interage de verdade com o chat?",
@@ -646,13 +646,39 @@ export default function LandingPage() {
       <section id="planos" className={styles.pricingSection}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Escolha o Plano Ideal para a Sua Operação</h2>
+          <p className={styles.sectionSubtitle} style={{ marginTop: '8px', color: 'var(--gold)', fontWeight: 700 }}>
+            🎥 LIVECAM INFINITY INCLUSO EM TODOS OS PLANOS!
+          </p>
         </div>
         <div className={styles.pricingGrid}>
-          {/* Plano Individual */}
+          {/* Plano 1: R$ 67/mês (Starter) */}
           <div className={`${styles.pricingCard} ${styles.pricingCardWhite}`}>
             <div className={styles.pricingHeader}>
-              <h3>Individual</h3>
-              <p className={styles.pricingDesc}>Ideal para quem está iniciando suas vendas no TikTok Shop com apenas uma conta principal.</p>
+              <h3>Starter</h3>
+              <p className={styles.pricingDesc}>Ideal para quem está iniciando suas vendas no TikTok Shop com 1 conta principal.</p>
+            </div>
+            <div className={styles.pricingPrice}>
+              <span className={styles.priceCurrency}>R$</span>
+              <span className={styles.priceValue}>67</span>
+              <span className={styles.pricePeriod}>/mês</span>
+            </div>
+            <ul className={styles.pricingFeatures}>
+              <li><Check size={18} /> 🔑 1 Chave de Licença liberada</li>
+              <li><Check size={18} /> 🎥 LiveCam Infinity Incluso (HD 1080p)</li>
+              <li><Check size={18} /> Automação Completa TikTok Shop</li>
+              <li><Check size={18} /> Sistema Anti-Ban integrado</li>
+              <li><Check size={18} /> Suporte via WhatsApp</li>
+            </ul>
+            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnWhite}`}>
+              Assinar por R$ 67/mês
+            </a>
+          </div>
+
+          {/* Plano 2: R$ 97/mês (Pro) */}
+          <div className={`${styles.pricingCard} ${styles.pricingCardWhite}`}>
+            <div className={styles.pricingHeader}>
+              <h3>Pro</h3>
+              <p className={styles.pricingDesc}>Perfeito para quem opera 2 contas em simultâneo com alta produtividade.</p>
             </div>
             <div className={styles.pricingPrice}>
               <span className={styles.priceCurrency}>R$</span>
@@ -660,23 +686,23 @@ export default function LandingPage() {
               <span className={styles.pricePeriod}>/mês</span>
             </div>
             <ul className={styles.pricingFeatures}>
-              <li><Check size={18} /> 1 Chave ativa de acesso</li>
-              <li><Check size={18} /> Instalação em 1 Computador</li>
-              <li><Check size={18} /> Extensão completa + Painel</li>
+              <li><Check size={18} /> 🔑 2 Chaves de Licença liberadas</li>
+              <li><Check size={18} /> 🎥 LiveCam Infinity Incluso (HD 1080p)</li>
+              <li><Check size={18} /> Automação Completa TikTok Shop</li>
               <li><Check size={18} /> Sistema Anti-Ban integrado</li>
-              <li><Check size={18} /> Suporte padrão via e-mail</li>
+              <li><Check size={18} /> Suporte via WhatsApp</li>
             </ul>
             <a href="https://pay.cakto.com.br/3477jz3_976117" className={`${styles.pricingBtn} ${styles.pricingBtnWhite}`}>
-              Assinar Plano
+              Assinar por R$ 97/mês
             </a>
           </div>
 
-          {/* Plano Duplo */}
-          <div className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
-            <div className={styles.pricingBadge}>INICIO DA ESCALA</div>
+          {/* Plano 3: R$ 147/mês (Infinity VIP - Featured / Recommended) */}
+          <div className={`${styles.pricingCard} ${styles.pricingCardGold}`}>
+            <div className={`${styles.pricingBadge} ${styles.pricingBadgeGold}`}>🔥 MAIS POPULAR · RECOMENDADO</div>
             <div className={styles.pricingHeader}>
-              <h3>Duplo</h3>
-              <p className={styles.pricingDesc}>Perfeito para escalar suas lives gerenciando duas operações ou contas separadas.</p>
+              <h3>Infinity VIP</h3>
+              <p className={styles.pricingDesc}>Para operação profissional de grande escala sem limites de contas ou chaves.</p>
             </div>
             <div className={styles.pricingPrice}>
               <span className={styles.priceCurrency}>R$</span>
@@ -684,38 +710,14 @@ export default function LandingPage() {
               <span className={styles.pricePeriod}>/mês</span>
             </div>
             <ul className={styles.pricingFeatures}>
-              <li><Check size={18} /> 2 Chaves ativas de acesso</li>
-              <li><Check size={18} /> 1 Chave por computador</li>
-              <li><Check size={18} /> Lives em 2 contas simultâneas</li>
-              <li><Check size={18} /> Extensão completa + Painel</li>
-              <li><Check size={18} /> Suporte prioritário via WhatsApp</li>
+              <li><Check size={18} /> ♾️ CHAVES INFINITAS LIBERADAS</li>
+              <li><Check size={18} /> 🎥 LiveCam Infinity Incluso (HD 1080p)</li>
+              <li><Check size={18} /> ⭐ Suporte Prioritário c/ Chamada de Vídeo</li>
+              <li><Check size={18} /> Automação Completa TikTok Shop</li>
+              <li><Check size={18} /> Acesso prioritário a atualizações & betas</li>
             </ul>
-            <a href="https://pay.cakto.com.br/387ye5s_982831" className={`${styles.pricingBtn} ${styles.pricingBtnFeatured}`}>
-              Garantir Escala Dupla
-            </a>
-          </div>
-
-          {/* Plano Infinity */}
-          <div className={`${styles.pricingCard} ${styles.pricingCardGold}`}>
-            <div className={`${styles.pricingBadge} ${styles.pricingBadgeGold}`}>AUTOMAÇÃO INFINITA</div>
-            <div className={styles.pricingHeader}>
-              <h3>Infinity</h3>
-              <p className={styles.pricingDesc}>Para quem possui múltiplos computadores ou rodará em infraestrutura de VPS.</p>
-            </div>
-            <div className={styles.pricingPrice}>
-              <span className={styles.priceCurrency}>R$</span>
-              <span className={styles.priceValue}>197</span>
-              <span className={styles.pricePeriod}>/mês</span>
-            </div>
-            <ul className={styles.pricingFeatures}>
-              <li><Check size={18} /> Chaves ilimitadas (1 por PC)</li>
-              <li><Check size={18} /> Dispositivos simultâneos sem limite</li>
-              <li><Check size={18} /> Suporte Exclusivo e Calls de setup</li>
-              <li><Check size={18} /> Acesso prioritário a betas</li>
-              <li><Check size={18} /> Atualizações em primeira mão</li>
-            </ul>
-            <a href="https://pay.cakto.com.br/3b3y7bp_982839" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
-              Dominação Total
+            <a href="https://pay.cakto.com.br/mdz39dg" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
+              Quero Chaves Infinitas (R$ 147)
             </a>
           </div>
         </div>
