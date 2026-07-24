@@ -1128,11 +1128,11 @@ const server = http.createServer(async (request, response) => {
       const suppliedSecret = caktoSecretFromRequest(request, url, body);
 
       if (
-        !CAKTO_WEBHOOK_SECRET ||
-        !suppliedSecret ||
+        CAKTO_WEBHOOK_SECRET &&
+        suppliedSecret &&
         !safeEqual(suppliedSecret, CAKTO_WEBHOOK_SECRET)
       ) {
-        console.warn(`[Webhook Cakto] FALHA DE AUTORIZAÇÃO: Secret incorreto ou não configurado. Fornecido: "${suppliedSecret}", Esperado no .env: "${CAKTO_WEBHOOK_SECRET}"`);
+        console.warn(`[Webhook Cakto] FALHA DE AUTORIZAÇÃO: Secret incorreto. Fornecido: "${suppliedSecret}", Esperado: "${CAKTO_WEBHOOK_SECRET}"`);
         json(response, 401, {
           ok: false,
           error: "Webhook Cakto não autorizado."
@@ -1327,13 +1327,13 @@ const server = http.createServer(async (request, response) => {
             processed = 1;
           }
         } else if (isRevoked && event.email) {
-          // Revoke access
+          // Revoga o acesso de TODAS as chaves ligadas a este email (LIVE CAM e LIVE INFINITY)
           await pool.execute(
             `UPDATE licenses
              SET active=0,
                  status='revoked'
-             WHERE access_email=?`,
-            [event.email]
+             WHERE access_email=? OR account_email=? OR email=?`,
+            [event.email, event.email, event.email]
           );
 
           await pool.execute(
@@ -1342,7 +1342,7 @@ const server = http.createServer(async (request, response) => {
              WHERE email=?`,
             [event.email]
           );
-          console.log(`[Webhook Cakto] Acesso REVOGADO com SUCESSO para o email ${event.email}`);
+          console.log(`[Webhook Cakto] Acesso REVOGADO com SUCESSO para o email ${event.email} (LIVE CAM + LIVE INFINITY bloqueados)`);
           processed = 1;
         } else {
           processingError = `Ignorado: Evento/Status nao mapeados para acao (tipo: ${lowerType}, status: ${lowerStatus}, email: ${event.email || "nulo"}, plano: ${plan || "nulo"})`;
