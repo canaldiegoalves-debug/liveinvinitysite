@@ -993,6 +993,7 @@ const server = http.createServer(async (request, response) => {
   }
 
   const url = new URL(request.url, `http://${request.headers.host}`);
+  url.pathname = url.pathname.replace(/^\/painel-seguro-liveinfinity/, '') || '/';
 
   try {
 
