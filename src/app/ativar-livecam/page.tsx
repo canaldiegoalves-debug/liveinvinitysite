@@ -47,7 +47,7 @@ export default function AtivarLiveCam() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#090a0e",
+      background: "#0b0c10",
       color: "#f0f2f5",
       fontFamily: "system-ui, sans-serif",
       display: "flex",
@@ -58,20 +58,29 @@ export default function AtivarLiveCam() {
       <div style={{
         width: "100%",
         maxWidth: "500px",
-        background: "rgba(18, 20, 29, 0.8)",
+        background: "rgba(18, 20, 29, 0.85)",
         backdropFilter: "blur(16px)",
-        border: "1px solid rgba(0, 230, 118, 0.25)",
+        border: "1px solid rgba(255, 204, 0, 0.25)",
         borderRadius: "20px",
         padding: "40px 30px",
         textAlign: "center",
-        boxShadow: "0 20px 50px rgba(0,0,0,0.6)"
+        boxShadow: "0 20px 50px rgba(0,0,0,0.6), 0 0 35px rgba(255, 204, 0, 0.2)"
       }}>
-        <h1 style={{ fontSize: "28px", fontWeight: "800", marginBottom: "8px" }}>
-          📹 <span style={{ background: "linear-gradient(135deg, #00e676, #ffcc00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>LIVECAM</span>
-        </h1>
-        <span style={{ background: "rgba(0, 230, 118, 0.15)", color: "#00e676", fontSize: "11px", fontWeight: "700", padding: "4px 12px", borderRadius: "20px", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+          <img
+            src="/livecam-logo.jpg"
+            alt="LiveCam Logo"
+            style={{ width: "64px", height: "64px", borderRadius: "14px", objectFit: "cover", border: "2px solid #ffcc00", boxShadow: "0 0 20px rgba(255,204,0,0.4)" }}
+          />
+          <h1 style={{ fontSize: "28px", fontWeight: "800", background: "linear-gradient(135deg, #e50914, #ff4b2b, #ffcc00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            LIVECAM
+          </h1>
+        </div>
+
+        <span style={{ background: "rgba(255, 204, 0, 0.12)", border: "1px solid rgba(255, 204, 0, 0.4)", color: "#ffcc00", fontSize: "11px", fontWeight: "700", padding: "5px 14px", borderRadius: "20px", textTransform: "uppercase" }}>
           Ativação da Extensão LiveCam
         </span>
+
         <p style={{ color: "#9aa0a6", fontSize: "14px", marginTop: "16px", marginBottom: "30px", lineHeight: "1.5" }}>
           Digite o mesmo e-mail preenchido no checkout da Cakto para visualizar sua chave de acesso.
         </p>
@@ -103,8 +112,8 @@ export default function AtivarLiveCam() {
             disabled={loading}
             style={{
               width: "100%",
-              background: "linear-gradient(135deg, #00c853, #00e676)",
-              color: "#000",
+              background: "linear-gradient(135deg, #e50914, #ff4b2b, #ffcc00)",
+              color: "#fff",
               fontSize: "16px",
               fontWeight: "800",
               padding: "16px",
