@@ -36,9 +36,17 @@ const state = {
 };
 
 
+function getBasePath() {
+  const p = window.location.pathname;
+  if (p.includes("/painel-seguro-liveinfinity")) {
+    return "/painel-seguro-liveinfinity";
+  }
+  return "";
+}
+
 async function loadServerVersion() {
   try {
-    const response = await fetch("/api/health", {
+    const response = await fetch(getBasePath() + "/api/health", {
       cache: "no-store"
     });
 
@@ -58,7 +66,9 @@ async function loadServerVersion() {
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
+  const cleanPath = path.startsWith("/") ? path : "/" + path;
+  const fullUrl = getBasePath() + cleanPath;
+  const response = await fetch(fullUrl, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1585,7 +1595,7 @@ elements.enter.onclick = async () => {
   try {
     elements.loginMessage.textContent = "Entrando...";
 
-    const response = await fetch("/api/admin/login", {
+    const response = await fetch(getBasePath() + "/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
