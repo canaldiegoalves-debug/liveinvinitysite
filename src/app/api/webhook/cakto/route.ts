@@ -4,43 +4,73 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("[WEBHOOK CAKTO] Recebido:", body);
+    console.log("[WEBHOOK CAKTO] Recebido:", JSON.stringify(body, null, 2));
 
-    // Mapeamento básico da Cakto (ajustar conforme documentação exata)
-    const email = body.customer?.email || body.email;
-    const status = body.status; // 'paid', 'approved', 'completed'
-    const planType = body.plan_id?.includes("pro") ? "pro" : "premium";
-    const method = body.payment_method || "card";
+    // Suporta tanto payloads planos (raiz) quanto payloads aninhados no formato Cakto ({ event, data: { ... } })
+    const data = body.data || body;
+    const customer = data.customer || body.customer || {};
+    const email = (customer.email || data.email || body.email || "").trim().toLowerCase();
+    
+    // Status do evento (paid, approved, completed, purchase.approved, etc.)
+    const statusRaw = (data.status || body.status || body.event || body.event_type || "").toLowerCase();
+    const isApproved = 
+      statusRaw.includes("paid") || 
+      statusRaw.includes("approved") || 
+      statusRaw.includes("completed") || 
+      statusRaw === "purchase.approved";
 
-    // Mapeamento de expiração inteligente: Anual vs Mensal
-    const isAnual = 
-      body.plan_id?.toLowerCase().includes("anual") || 
-      body.plan_id?.toLowerCase().includes("year") || 
-      body.plan_id?.toLowerCase().includes("yearly") || 
-      body.plan_name?.toLowerCase().includes("anual") || 
-      body.plan_name?.toLowerCase().includes("year") || 
-      body.plan?.name?.toLowerCase().includes("anual") || 
-      body.plan?.name?.toLowerCase().includes("year") || 
-      (body.amount && Number(body.amount) > 150) || 
-      (body.price && Number(body.price) > 150);
+    if (!email) {
+      console.warn("[WEBHOOK CAKTO] E-mail não encontrado no payload.");
+      return NextResponse.json({ received: true, warning: "E-mail não informado" }, { status: 200 });
+    }
 
-    if (status === "paid" || status === "approved" || status === "completed") {
-      const user = await prisma.user.findUnique({
+    // Identificação de ofertas e planos da Cakto
+    const offerId = (data.offer?.id || data.offer_id || body.offer_id || data.plan_id || "").toLowerCase();
+    const offerName = (data.offer?.name || data.plan_name || data.product?.name || "").toLowerCase();
+    
+    let planType = "starter"; // Padrão
+    let maxKeys = 1;
+
+    if (offerId.includes("mdz39dg") || offerName.includes("infinity") || offerName.includes("vip") || offerName.includes("147")) {
+      planType = "infinity_vip";
+      maxKeys = 999999; // Chaves Infinitas
+    } else if (offerId.includes("3477jz3") || offerName.includes("pro") || offerName.includes("97")) {
+      planType = "pro";
+      maxKeys = 2;
+    } else if (offerId.includes("xd4yj7y") || offerName.includes("starter") || offerName.includes("67")) {
+      planType = "starter";
+      maxKeys = 1;
+    }
+
+    const method = data.payment_method || body.payment_method || "card";
+
+    if (isApproved) {
+      // 1. Busca ou cria o usuário automaticamente
+      let user = await prisma.user.findUnique({
         where: { email },
         include: { empresa: true }
       });
 
-      if (user && user.empresa) {
-        // Calcula nova data de expiração (Hoje + 365 dias se for anual, +30 dias se for mensal)
-        const novaExpiracao = new Date();
-        if (isAnual) {
-          novaExpiracao.setDate(novaExpiracao.getDate() + 365);
-        } else {
-          novaExpiracao.setDate(novaExpiracao.getDate() + 30);
-        }
+      if (!user) {
+        console.log(`[WEBHOOK CAKTO] Criando novo usuário para ${email}`);
+        user = await prisma.user.create({
+          data: {
+            email,
+            nome: customer.name || email.split("@")[0],
+            role: "user"
+          },
+          include: { empresa: true }
+        });
+      }
 
+      // 2. Busca ou cria a empresa vinculada
+      let empresaId = user.empresa?.id;
+      const novaExpiracao = new Date();
+      novaExpiracao.setDate(novaExpiracao.getDate() + 30); // 30 dias de acesso renováveis
+
+      if (empresaId) {
         await prisma.empresa.update({
-          where: { id: user.empresa.id },
+          where: { id: empresaId },
           data: {
             plano: planType,
             planoStatus: "active",
@@ -49,14 +79,35 @@ export async function POST(request: Request) {
             lastPaymentAt: new Date()
           }
         });
-
-        console.log(`✅ [WEBHOOK] Plano ${planType} ativado para ${email} até ${novaExpiracao.toLocaleDateString()}`);
+      } else {
+        const novaEmpresa = await prisma.empresa.create({
+          data: {
+            userId: user.id,
+            nome: `Empresa de ${user.nome || email}`,
+            email: email,
+            plano: planType,
+            planoStatus: "active",
+            planoExpiresAt: novaExpiracao,
+            metodoPagamento: method,
+            lastPaymentAt: new Date()
+          }
+        });
+        
+        // Atualiza a referência da empresa no usuário
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { empresaId: novaEmpresa.id }
+        });
       }
+
+      console.log(`✅ [WEBHOOK CAKTO SUCESSO] Plano ${planType} (${maxKeys} chaves) ativado com sucesso para ${email}!`);
+    } else {
+      console.log(`ℹ️ [WEBHOOK CAKTO] Evento recebido sem aprovação de pagamento (status: ${statusRaw})`);
     }
 
-    return NextResponse.json({ received: true }, { status: 200 });
-  } catch (error) {
-    console.error("❌ [WEBHOOK ERROR]", error);
-    return NextResponse.json({ error: "Erro ao processar webhook" }, { status: 500 });
+    return NextResponse.json({ received: true, status: "processed" }, { status: 200 });
+  } catch (error: any) {
+    console.error("❌ [WEBHOOK CAKTO ERROR]", error);
+    return NextResponse.json({ error: "Erro interno no servidor ao processar webhook", details: error.message }, { status: 500 });
   }
 }
