@@ -25,36 +25,36 @@ export default function DownloadPage() {
             <div style={{ fontSize: "44px", marginBottom: "12px" }}>🚀</div>
             <h2 style={{ fontSize: "22px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>Live Infinity</h2>
             <span style={{ background: "rgba(255, 204, 0, 0.15)", border: "1px solid rgba(255, 204, 0, 0.4)", color: "#ffcc00", fontSize: "11px", fontWeight: "700", padding: "4px 12px", borderRadius: "20px" }}>
-              Versão v5.0.9 Oficial
+              Versão v10.1.0 Oficial
             </span>
             <p style={{ color: "#9aa0a6", fontSize: "13px", margin: "16px 0 24px", lineHeight: "1.5" }}>
-              Extensão completa de automação de transmissão ao vivo, engajamento e controle de audiência.
+              Extensão oficial de automação inteligente, GMV em tempo real, refixação de produtos e respostas no TikTok Shop.
             </p>
             <a
               href="/downloads/live-infinity.zip"
               download
               style={{ display: "block", background: "linear-gradient(135deg, #e50914, #ff4b2b)", color: "#fff", fontWeight: "700", fontSize: "15px", padding: "15px", borderRadius: "12px", textDecoration: "none" }}
             >
-              ⬇️ Baixar Live Infinity (.zip)
+              ⬇️ Baixar Live Infinity v10.1.0 (.zip)
             </a>
           </div>
 
           {/* LiveCam */}
           <div style={{ background: "rgba(18, 20, 29, 0.85)", backdropFilter: "blur(16px)", border: "1px solid rgba(255, 204, 0, 0.25)", borderRadius: "20px", padding: "32px 24px", textAlign: "center", boxShadow: "0 20px 50px rgba(0,0,0,0.6)" }}>
             <div style={{ fontSize: "44px", marginBottom: "12px" }}>📹</div>
-            <h2 style={{ fontSize: "22px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>LiveCam</h2>
+            <h2 style={{ fontSize: "22px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>LiveCam Infinity</h2>
             <span style={{ background: "rgba(255, 204, 0, 0.15)", border: "1px solid rgba(255, 204, 0, 0.4)", color: "#ffcc00", fontSize: "11px", fontWeight: "700", padding: "4px 12px", borderRadius: "20px" }}>
-              Versão v1.0.0 Oficial
+              Versão v1.5.0 Oficial
             </span>
             <p style={{ color: "#9aa0a6", fontSize: "13px", margin: "16px 0 24px", lineHeight: "1.5" }}>
-              Extensão oficial de câmera, gravação e transmissão ao vivo para a sua operação.
+              Extensão oficial de câmera virtual HD 1-clique com player de looping e retomada pós-F5.
             </p>
             <a
               href="/downloads/livecam.zip"
               download
               style={{ display: "block", background: "linear-gradient(135deg, #ffcc00, #ffa500)", color: "#000", fontWeight: "800", fontSize: "15px", padding: "15px", borderRadius: "12px", textDecoration: "none" }}
             >
-              ⬇️ Baixar LiveCam (.zip)
+              ⬇️ Baixar LiveCam Infinity v1.5.0 (.zip)
             </a>
           </div>
         </div>
