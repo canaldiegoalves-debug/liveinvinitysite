@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 
+const OFFICIAL_DB_URL = "postgresql://postgres:Valora2024SaaS!@db.aoifhzglajhnifjqcfqt.supabase.co:5432/postgres";
+
 const prismaClientSingleton = () => {
-  const url = "postgresql://postgres:Valora2024SaaS!@db.aoifhzglajhnifjqcfqt.supabase.co:5432/postgres";
   return new PrismaClient({
     datasources: {
       db: {
-        url: url,
+        url: OFFICIAL_DB_URL,
       },
     },
   });
