@@ -58,7 +58,10 @@ async function loadServerVersion() {
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
+  const cleanBase = window.location.pathname.replace(/\/+$/, "");
+  const fullUrl = path.startsWith("http") ? path : `${cleanBase}${path.startsWith("/") ? "" : "/"}${path}`;
+
+  const response = await fetch(fullUrl, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1584,8 +1587,10 @@ elements.nav.addEventListener("click", event => {
 elements.enter.onclick = async () => {
   try {
     elements.loginMessage.textContent = "Entrando...";
+    const cleanBase = window.location.pathname.replace(/\/+$/, "");
+    const loginUrl = `${cleanBase}/api/admin/login`;
 
-    const response = await fetch("/api/admin/login", {
+    const response = await fetch(loginUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
