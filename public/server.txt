@@ -1105,12 +1105,12 @@ const server = http.createServer(async (request, response) => {
         await pool.execute(
           `INSERT INTO licenses
            (id,account_email,access_email,email,license_key,plan,duration_days,note,amount_paid,net_amount,payment_method,expires_at,status,active,activated_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())`,
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)`,
           [
             id, email, email, email, key, plan, durationDays,
             `Gerado via autoatendimento (${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"})`,
             amountPaid, amountPaid * 0.92, "Cakto Self-Service",
-            expiresAt, "active", 1
+            expiresAt, "pending", 1
           ]
         );
 
