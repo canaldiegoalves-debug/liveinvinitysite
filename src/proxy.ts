@@ -35,7 +35,19 @@ export default async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const publicRoutes = ["/login", "/cadastro", "/auth/callback", "/landing", "/afiliados", "/api/webhook"];
+  const publicRoutes = [
+    "/login",
+    "/cadastro",
+    "/auth/callback",
+    "/landing",
+    "/afiliados",
+    "/api/webhook",
+    "/download",
+    "/downloads",
+    "/ativar-liveinfinity",
+    "/ativar-livecam",
+    "/ativar"
+  ];
   const isPublicRoute = publicRoutes.some(route => request.nextUrl.pathname.startsWith(route));
   const isHome = request.nextUrl.pathname === "/";
 
