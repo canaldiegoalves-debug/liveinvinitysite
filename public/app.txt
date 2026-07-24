@@ -1,0 +1,1660 @@
+
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
+
+const elements = {
+  login: $("#admin-login"),
+  app: $("#admin-app"),
+  user: $("#admin-user"),
+  password: $("#admin-password"),
+  enter: $("#admin-enter"),
+  loginMessage: $("#admin-login-message"),
+  logout: $("#admin-logout"),
+  nav: $("#admin-nav"),
+  content: $("#page-content"),
+  title: $("#page-title"),
+  kicker: $("#page-kicker"),
+  refresh: $("#refresh"),
+  lastUpdate: $("#last-update"),
+  template: $("#license-card-template")
+};
+
+const state = {
+  token: sessionStorage.getItem("liveInfinityAdminSession") || "",
+  role: sessionStorage.getItem("liveInfinityAdminRole") || "admin",
+  licenses: [],
+  accounts: [],
+  tickets: [],
+  caktoEvents: [],
+  updates: [],
+  pendingNewKeyAccount: null,
+  editingLicense: null,
+  page: sessionStorage.getItem("liveInfinityAdminRole") === "moderator" ? "licenses" : "dashboard",
+  loading: false,
+  refreshTimer: null,
+  updatesAvailable: false
+};
+
+
+async function loadServerVersion() {
+  try {
+    const response = await fetch("/api/health", {
+      cache: "no-store"
+    });
+
+    const body = await response.json();
+
+    const element = document.getElementById("server-version");
+
+    if (element) {
+      element.textContent = body?.version
+        ? `Servidor v${body.version}`
+        : "Versão indisponível";
+    }
+  } catch {
+    const element = document.getElementById("server-version");
+    if (element) element.textContent = "Versão indisponível";
+  }
+}
+
+async function api(path, options = {}) {
+  const cleanBase = window.location.pathname.replace(/\/+$/, "");
+  const fullUrl = path.startsWith("http") ? path : `${cleanBase}${path.startsWith("/") ? "" : "/"}${path}`;
+
+  const response = await fetch(fullUrl, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: state.token ? `Bearer ${state.token}` : "",
+      ...(options.headers || {})
+    }
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || "Falha na requisição.");
+  return body;
+}
+
+
+const PLAN_META = {
+  basic: {
+    name: "Básico",
+    price: 67,
+    keyLimit: 1,
+    description: "1 chave para 1 computador"
+  },
+  pro: {
+    name: "PRO",
+    price: 97,
+    keyLimit: 2,
+    description: "2 chaves, uma para cada computador"
+  },
+  premium: {
+    name: "Premium",
+    price: 147,
+    keyLimit: null,
+    description: "Chaves ilimitadas, uma por computador"
+  }
+};
+
+function planMeta(plan) {
+  return PLAN_META[plan] || PLAN_META.basic;
+}
+
+function keyLimitText(plan) {
+  const meta = planMeta(plan);
+  return meta.keyLimit === null
+    ? "Ilimitadas"
+    : String(meta.keyLimit);
+}
+
+function suggestAccessEmail(accountEmail, position) {
+  const email = String(accountEmail || "").trim().toLowerCase();
+  const at = email.lastIndexOf("@");
+  if (at <= 0) return "";
+  const local = email.slice(0, at);
+  const domain = email.slice(at + 1);
+  if (position <= 1) return email;
+  return `${local}+acesso${position}@${domain}`;
+}
+
+function accountForEmail(email) {
+  return state.accounts.find(account => account.email === String(email || "").trim().toLowerCase());
+}
+
+function money(value) {
+  return Number(value || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function date(value) {
+  return value ? new Date(value).toLocaleString("pt-BR") : "—";
+}
+
+function escapeHtml(unsafe) {
+  return String(unsafe || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function statusOf(license) {
+  if (!license.active || license.status === "revoked") return "revoked";
+  if (license.expiresAt && new Date(license.expiresAt) <= new Date()) return "expired";
+  return license.activatedAt ? "active" : "pending";
+}
+
+function statusText(status) {
+  return {
+    active: "Ativa",
+    pending: "Aguardando ativação",
+    revoked: "Bloqueada",
+    expired: "Expirada"
+  }[status] || status;
+}
+
+function isOnline(license) {
+  if (!license.lastValidationAt) return false;
+  // Aumentado para 30 minutos para garantir que clientes ativos em lives apareçam online
+  return Date.now() - new Date(license.lastValidationAt).getTime() < 30 * 60 * 1000;
+}
+
+function getClientDisplayName(license) {
+  const email = String(license.email || "").trim().toLowerCase();
+  
+  const nameMap = {
+    "diegocoutinho1987@gmail.com": "Diego Vieira Coutinho",
+    "rafinhasantosfernandes2015@gmail.com": "Rafael dos Santos Fernandes",
+    "maxsuel963@gmail.com": "Maxsuel",
+    "diegoalvesrecomenda@gmail.com": "Diego Alves",
+    "diegoalvesrecomenda+acesso2@gmail.com": "Diego Alves (Acesso 2)",
+    "diegoalvesdealmeida14@gmail.com": "Diego Alves de Almeida",
+    "diegoalvesdealmeida14+acesso2@gmail.com": "Diego Alves de Almeida (Acesso 2)",
+    "afiliadodiegoalves@gmail.com": "Afiliado Diego Alves",
+    "afiliadodiegoalves+acesso2@gmail.com": "Afiliado Diego Alves (Acesso 2)",
+    "testewebhook@gmail.com": "Teste Webhook"
+  };
+
+  if (nameMap[email]) {
+    return nameMap[email];
+  }
+
+  // Fallback: extrai o nome do prefixo do e-mail de forma limpa
+  const prefix = email.split("@")[0];
+  const cleanPrefix = prefix.replace(/[0-9\+\-\_\.]/g, " ").trim();
+  return cleanPrefix
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ") || "Cliente Live Infinity";
+}
+
+function showLogin() {
+  elements.app.classList.add("hidden");
+  elements.login.classList.remove("hidden");
+}
+
+function applyRolePermissions() {
+  const isMod = state.role === "moderator";
+  $$("#admin-nav [data-page]").forEach(button => {
+    const page = button.dataset.page;
+    if (isMod && page !== "licenses" && page !== "support") {
+      button.style.display = "none";
+    } else {
+      button.style.display = "";
+    }
+  });
+
+  const kicker = document.getElementById("page-kicker");
+  if (kicker && isMod) {
+    kicker.textContent = "PAINEL DE MODERAÇÃO";
+  }
+
+  if (isMod && state.page !== "licenses" && state.page !== "support") {
+    state.page = "licenses";
+  }
+}
+
+function showApp() {
+  elements.login.classList.add("hidden");
+  elements.app.classList.remove("hidden");
+  applyRolePermissions();
+  loadServerVersion();
+}
+
+async function loadData({ silent = false, render = true } = {}) {
+  if (state.loading) return;
+  state.loading = true;
+
+  try {
+    let licenses = { licenses: [] };
+    let accounts = { accounts: [] };
+    let tickets = { tickets: [] };
+    let caktoEvents = { events: [] };
+    let updates = { updates: [] };
+
+    if (state.role === "moderator") {
+      const [licRes, supRes] = await Promise.all([
+        api("/api/admin/licenses").catch(() => ({ licenses: [] })),
+        api("/api/admin/support").catch(() => ({ tickets: [] }))
+      ]);
+      licenses = licRes;
+      tickets = supRes;
+    } else {
+      const [licRes, accRes, supRes, cakRes, updRes] = await Promise.all([
+        api("/api/admin/licenses").catch(() => ({ licenses: [] })),
+        api("/api/admin/accounts").catch(() => ({ accounts: [] })),
+        api("/api/admin/support").catch(() => ({ tickets: [] })),
+        api("/api/admin/cakto-events").catch(() => ({ events: [] })),
+        api("/api/admin/updates").catch(() => ({ updates: [] }))
+      ]);
+      licenses = licRes;
+      accounts = accRes;
+      tickets = supRes;
+      caktoEvents = cakRes;
+      updates = updRes;
+    }
+
+    state.licenses = licenses.licenses || [];
+    state.accounts = accounts.accounts || [];
+    state.tickets = tickets.tickets || [];
+    state.caktoEvents = caktoEvents.events || [];
+    state.updates = updates.updates || [];
+    elements.lastUpdate.textContent =
+      `Atualizado às ${new Date().toLocaleTimeString("pt-BR")}`;
+
+    if (render) {
+      state.updatesAvailable = false;
+      renderPage();
+    } else {
+      state.updatesAvailable = true;
+      elements.lastUpdate.textContent =
+        `Dados novos recebidos às ${new Date().toLocaleTimeString("pt-BR")} · clique em Atualizar`;
+    }
+  } catch (error) {
+    if (!silent) alert(error.message);
+  } finally {
+    state.loading = false;
+  }
+}
+
+function setPage(page) {
+  state.page = page;
+  $$("#admin-nav [data-page]").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
+  renderPage();
+}
+
+function pageMeta(title, kicker) {
+  elements.title.textContent = title;
+  elements.kicker.textContent = kicker;
+}
+
+function statsHtml() {
+  const financeLicenses = state.licenses.filter(l => {
+    const email = String(l.email || "").trim().toLowerCase();
+    const accessEmail = String(l.accessEmail || "").trim().toLowerCase();
+    const accountEmail = String(l.accountEmail || "").trim().toLowerCase();
+    if (email.includes("diegoalvesrecomenda") || 
+        accessEmail.includes("diegoalvesrecomenda") || 
+        accountEmail.includes("diegoalvesrecomenda") ||
+        email.includes("testewebhook") ||
+        accessEmail.includes("testewebhook") ||
+        accountEmail.includes("testewebhook")) {
+      return false;
+    }
+    const method = String(l.paymentMethod || "").trim().toLowerCase();
+    if (method === "manual" || method === "cortesia" || method === "teste" || method === "teste webhook") return false;
+    return l.amountPaid > 0 || method === "cakto";
+  });
+
+  const total = state.licenses.length;
+  const active = state.licenses.filter(l => statusOf(l) === "active").length;
+  const pro = state.licenses.filter(l => l.plan === "pro").length;
+  const revenue = financeLicenses.reduce((sum, l) => sum + Number(l.amountPaid || 0), 0);
+  const netRevenue = financeLicenses.reduce((sum, l) => sum + Number(l.netAmount || 0), 0);
+
+  return `<section class="stats">
+    <article class="stat-card"><span>Total de clientes</span><strong>${total}</strong><small>Base cadastrada</small></article>
+    <article class="stat-card"><span>Licenças ativas</span><strong>${active}</strong><small>${state.licenses.filter(isOnline).length} online agora</small></article>
+    <article class="stat-card gold"><span>Planos PRO</span><strong>${pro}</strong><small>${total ? Math.round(pro/total*100) : 0}% da base</small></article>
+    <article class="stat-card gold"><span>Faturamento registrado</span><strong>${money(revenue)}</strong><small>Lucro real: ${money(netRevenue)}</small></article>
+  </section>`;
+}
+
+function dashboardPage() {
+  pageMeta("Dashboard", "VISÃO GERAL");
+
+  const months = [
+    { key: "2026-6", label: "jul." },
+    { key: "2026-7", label: "ago." },
+    { key: "2026-8", label: "set." },
+    { key: "2026-9", label: "out." },
+    { key: "2026-10", label: "nov." },
+    { key: "2026-11", label: "dez." }
+  ];
+
+  const financeLicenses = state.licenses.filter(l => {
+    const email = String(l.email || "").trim().toLowerCase();
+    const accessEmail = String(l.accessEmail || "").trim().toLowerCase();
+    const accountEmail = String(l.accountEmail || "").trim().toLowerCase();
+    if (email.includes("diegoalvesrecomenda") || 
+        accessEmail.includes("diegoalvesrecomenda") || 
+        accountEmail.includes("diegoalvesrecomenda") ||
+        email.includes("testewebhook") ||
+        accessEmail.includes("testewebhook") ||
+        accountEmail.includes("testewebhook")) {
+      return false;
+    }
+    const method = String(l.paymentMethod || "").trim().toLowerCase();
+    if (method === "manual" || method === "cortesia" || method === "teste" || method === "teste webhook") return false;
+    return l.amountPaid > 0 || method === "cakto";
+  });
+
+  const monthly = months.map(month => {
+    const value = financeLicenses
+      .filter(l => {
+        const created = new Date(l.createdAt);
+        return `${created.getFullYear()}-${created.getMonth()}` === month.key;
+      })
+      .reduce((sum, l) => sum + Number(l.amountPaid || 0), 0);
+    return { ...month, value };
+  });
+
+  const max = Math.max(...monthly.map(m => m.value), 1);
+  const openTickets = state.tickets.filter(t => t.status !== "resolved").length;
+  const onlineCount = state.licenses.filter(isOnline).length;
+
+  const sortedLicenses = [...state.licenses].sort((a, b) => {
+    const aTime = a.lastValidationAt ? new Date(a.lastValidationAt).getTime() : 0;
+    const bTime = b.lastValidationAt ? new Date(b.lastValidationAt).getTime() : 0;
+    return bTime - aTime;
+  });
+
+  const recentLicenses = sortedLicenses.slice(0, 10);
+
+  elements.content.innerHTML = `
+    ${statsHtml()}
+    <section class="dashboard-grid">
+      <article class="card chart-card">
+        <div class="card-head"><div><small>FATURAMENTO REAL</small><h2>Histórico de Recebimentos</h2></div></div>
+        <div class="bars">
+          ${monthly.map((m) => {
+            const h = Math.max(12, (m.value/max)*130);
+            return `
+              <div class="bar ${m.value > 0 ? "red" : ""}" style="height:${h}px; min-height:${h}px;" title="${money(m.value)}">
+                <span class="bar-value">${money(m.value)}</span>
+                <span class="bar-label">${m.label}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head"><div><small>OPERAÇÃO REAL</small><h2>Resumo de Performance</h2></div></div>
+        <div class="metric-box"><span>Clientes Online Agora</span><strong>${onlineCount}</strong></div>
+        <div class="metric-box"><span>Chamados em Aberto</span><strong>${openTickets}</strong></div>
+        <div class="metric-box"><span>Status do Servidor</span><strong style="color:#00e676">99.98% (Online)</strong></div>
+      </article>
+    </section>
+
+    <article class="card" style="margin-top:14px">
+      <div class="card-head" style="align-items: center;">
+        <div><small>MONITORAMENTO DE ACESSOS</small><h2>Atividade Recente das Licenças (Real)</h2></div>
+        <span class="pulse-live" style="color:#ffd000">● ${onlineCount} CLIENTES ONLINE AGORA</span>
+      </div>
+      <div class="live-tracker-list">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Cliente (Nome)</th>
+              <th>Plano</th>
+              <th>Faturamento Espionado (GMV)</th>
+              <th>Última Validação / Atividade</th>
+              <th>Vencimento</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${recentLicenses.map(l => {
+              const online = isOnline(l);
+              const lastActive = l.lastValidationAt ? date(l.lastValidationAt) : "Nunca utilizou";
+              
+              const displayName = getClientDisplayName(l);
+              const planName = planMeta(l.plan).name.toUpperCase();
+              const text = `Olá, ${displayName}! Obrigado por adquirir o Live Infinity. 🚀\n\nSua chave de acesso do plano ${planName} é:\n👉 ${l.key}\n\nCopie a chave acima e insira na extensão para ativá-la! Se precisar de suporte, estamos à disposição.`;
+              const waUrl = l.phone ? `https://api.whatsapp.com/send?phone=${l.phone}&text=${encodeURIComponent(text)}` : "";
+              const waBadge = waUrl ? `
+                <br>
+                <a href="${waUrl}" target="_blank" class="wa-badge">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.45 5.489 0 9.954-4.43 9.957-9.885.002-2.643-1.022-5.127-2.883-6.99C16.48 1.866 14.003.844 11.36.843c-5.49 0-9.955 4.431-9.958 9.886-.002 1.83.473 3.619 1.38 5.187L1.75 22.007l6.096-1.597.001-.001zm10.742-7.404c-.29-.145-1.716-.848-1.982-.946-.266-.097-.459-.145-.653.145-.193.29-.747.946-.917 1.139-.17.194-.341.218-.631.073-.29-.145-1.226-.452-2.336-1.442-.864-.771-1.448-1.724-1.618-2.015-.17-.29-.018-.447.127-.592.13-.13.29-.34.436-.509.145-.17.193-.29.29-.485.097-.194.049-.364-.025-.509-.073-.146-.653-1.577-.895-2.159-.236-.57-.496-.49-.653-.497-.17-.008-.364-.01-.557-.01-.194 0-.509.073-.775.364-.266.29-1.018.995-1.018 2.428 0 1.432 1.042 2.815 1.188 3.01.145.193 2.05 3.13 4.966 4.385.694.3 1.236.478 1.659.613.698.222 1.333.191 1.835.116.56-.083 1.716-.703 1.958-1.382.242-.679.242-1.261.17-1.382-.073-.12-.266-.194-.557-.34z"/>
+                  </svg>
+                  WhatsApp
+                </a>
+              ` : "";
+
+              return `
+                <tr>
+                  <td>
+                    <strong>${displayName}</strong>
+                    ${waBadge}
+                  </td>
+                  <td><span class="license-plan ${l.plan}">${planMeta(l.plan).name.toUpperCase()}</span></td>
+                  <td><strong style="color:#00e676;font-family:monospace">${money(l.totalGmv || 0)}</strong></td>
+                  <td>${lastActive}</td>
+                  <td>${date(l.expiresAt)}</td>
+                  <td>
+                    <span class="status-badge-pulsing" style="color:${online ? "#00e676" : "#666"}">
+                      <span class="pulse-dot" style="background:${online ? "#00e676" : "#666"};box-shadow:${online ? "0 0 8px #00e676" : "none"};animation:${online ? "dotPulse 1.2s infinite alternate ease-in-out" : "none"}"></span>
+                      ${online ? "Online" : "Offline"}
+                    </span>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </article>`;
+}
+
+function licenseCard(license) {
+  const node = elements.template.content.cloneNode(true);
+  const status = statusOf(license);
+
+  const planEl = node.querySelector(".license-plan");
+  planEl.textContent = `PLANO ${planMeta(license.plan).name.toUpperCase()}`;
+  planEl.className = `license-plan ${license.plan}`;
+  node.querySelector(".license-email").textContent = `Acesso: ${license.accessEmail || license.email}`;
+  const accountEl = node.querySelector(".license-account-email");
+  if (accountEl) accountEl.textContent = `Compra: ${license.accountEmail || license.email}`;
+  node.querySelector(".license-key").textContent = license.key;
+
+  const statusElement = node.querySelector(".license-status");
+  statusElement.textContent = statusText(status);
+  statusElement.classList.add(status);
+
+  node.querySelector(".license-duration").textContent = `${license.durationDays} dias`;
+  node.querySelector(".license-remaining").textContent =
+    status === "pending" ? "Ainda não iniciou" : `${license.remainingDays} dias`;
+  node.querySelector(".license-activated").textContent = date(license.activatedAt);
+  node.querySelector(".license-expires").textContent = date(license.expiresAt);
+  node.querySelector(".license-note").textContent =
+    `${license.note || "Sem observações."} · ${money(license.amountPaid)} · ${license.paymentMethod || "Pagamento não informado"}`;
+
+  const toggle = node.querySelector('[data-action="toggle"]');
+  toggle.textContent = status === "revoked" ? "Desbloquear" : "Bloquear";
+
+  const actionsEl = node.querySelector(".license-actions");
+  const waBtn = document.createElement("button");
+  waBtn.textContent = "WhatsApp";
+  waBtn.style.background = "#1ebd5b";
+  waBtn.style.color = "#fff";
+  waBtn.style.fontWeight = "bold";
+  
+  const displayName = getClientDisplayName(license);
+  const planName = planMeta(license.plan).name.toUpperCase();
+  const text = `Olá, ${displayName}! Obrigado por adquirir o Live Infinity. 🚀\n\nSua chave de acesso do plano ${planName} é:\n👉 ${license.key}\n\nCopie a chave acima e insira na extensão para ativá-la! Se precisar de suporte, estamos à disposição.`;
+  
+  waBtn.onclick = () => {
+    if (license.phone) {
+      window.open(`https://api.whatsapp.com/send?phone=${license.phone}&text=${encodeURIComponent(text)}`, "_blank");
+    } else {
+      const num = prompt(`Digite o WhatsApp de ${displayName} (com DDD, ex: 11999998888):`);
+      if (num) {
+        const cleanNum = num.replace(/\D/g, "");
+        window.open(`https://api.whatsapp.com/send?phone=${cleanNum}&text=${encodeURIComponent(text)}`, "_blank");
+      } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+      }
+    }
+  };
+  actionsEl.insertBefore(waBtn, actionsEl.firstChild);
+
+  node.querySelector('[data-action="copy"]').onclick = async () => {
+    await navigator.clipboard.writeText(license.key);
+    alert("Chave copiada.");
+  };
+
+  node.querySelector('[data-action="edit"]').onclick = () => {
+    state.editingLicense = license;
+    renderPage();
+  };
+
+  node.querySelector('[data-action="renew"]').onclick = async () => {
+    const days = Number(prompt("Quantos dias deseja adicionar?"));
+    if (!Number.isInteger(days) || days < 1) return;
+
+    await api(`/api/admin/licenses/${license.id}/renew`, {
+      method: "POST",
+      body: JSON.stringify({ days })
+    });
+    await loadData();
+  };
+
+  node.querySelector('[data-action="device"]').onclick = async () => {
+    if (!confirm("Liberar esta chave para outro computador?")) return;
+    await api(`/api/admin/licenses/${license.id}/reset-device`, { method: "POST" });
+    await loadData();
+  };
+
+  toggle.onclick = async () => {
+    const action = status === "revoked" ? "restore" : "revoke";
+    await api(`/api/admin/licenses/${license.id}/${action}`, { method: "POST" });
+    await loadData();
+  };
+
+  node.querySelector('[data-action="delete"]').onclick = async () => {
+    if (!confirm("Excluir esta licença definitivamente?")) return;
+    await api(`/api/admin/licenses/${license.id}`, { method: "DELETE" });
+    await loadData();
+  };
+
+  return node;
+}
+
+function licensesPage() {
+  pageMeta("Licenças", "GESTÃO DE ACESSOS");
+
+  elements.content.innerHTML = `
+    <section class="plan-cards">
+      ${Object.entries(PLAN_META).map(([code, plan]) => `
+        <article class="plan-card ${code}">
+          <small>PLANO ${plan.name.toUpperCase()}</small>
+          <strong>${money(plan.price)}<span>/mês</span></strong>
+          <p>${plan.description}</p>
+          <div>Limite de chaves: <b>${plan.keyLimit === null ? "Ilimitadas" : plan.keyLimit}</b></div>
+        </article>
+      `).join("")}
+    </section>
+
+    <article class="card">
+      <div class="card-head"><div><small>NOVA LICENÇA</small><h2>Gerar chave de acesso</h2></div></div>
+      <div class="form-grid">
+        <input id="new-email" type="email" placeholder="E-mail do cliente">
+        <select id="new-plan">
+          <option value="basic">Básico — R$ 97/mês — 1 chave</option>
+          <option value="pro">PRO — R$ 147/mês — 2 chaves</option>
+          <option value="premium">Premium — R$ 197/mês — chaves ilimitadas</option>
+        </select>
+        <input id="new-days" type="number" min="1" value="30" placeholder="Dias">
+        <input id="new-amount" type="number" min="0" step="0.01" placeholder="Valor pago">
+        <select id="new-payment"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Transferência</option><option>Outro</option></select>
+        <input id="new-note" placeholder="Observação">
+      </div>
+      <button id="create-license" class="primary">Gerar chave</button>
+      <p class="helper">A contagem começa somente na primeira ativação.</p>
+      <div id="new-license-result"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><small>CLIENTES</small><h2>Licenças cadastradas</h2></div></div>
+      <div class="filters">
+        <input id="license-search" placeholder="Pesquisar e-mail ou chave">
+        <select id="license-filter">
+          <option value="">Todos os status</option>
+          <option value="active">Ativa</option>
+          <option value="pending">Aguardando</option>
+          <option value="revoked">Bloqueada</option>
+          <option value="expired">Expirada</option>
+        </select>
+      </div>
+      <div id="license-list" class="licenses"></div>
+    </article>`;
+
+  const renderList = () => {
+    const query = $("#license-search").value.toLowerCase().trim();
+    const filter = $("#license-filter").value;
+    const list = $("#license-list");
+    list.innerHTML = "";
+
+    const licenses = state.licenses.filter(l =>
+      (!query || l.email.toLowerCase().includes(query) || l.key.toLowerCase().includes(query)) &&
+      (!filter || statusOf(l) === filter)
+    );
+
+    if (!licenses.length) {
+      list.innerHTML = '<div class="empty">Nenhuma licença encontrada.</div>';
+      return;
+    }
+
+    licenses.forEach(license => list.appendChild(licenseCard(license)));
+  };
+
+  $("#license-search").oninput = renderList;
+  $("#license-filter").onchange = renderList;
+  renderList();
+
+  $("#create-license").onclick = async () => {
+    const result = await api("/api/admin/licenses", {
+      method: "POST",
+      body: JSON.stringify({
+        email: $("#new-email").value.trim(),
+        plan: $("#new-plan").value,
+        durationDays: Number($("#new-days").value),
+        amountPaid: Number($("#new-amount").value || 0),
+        paymentMethod: $("#new-payment").value,
+        note: $("#new-note").value.trim()
+      })
+    });
+
+    $("#new-license-result").innerHTML = `
+      <div class="new-license">
+        <strong>Chave criada com sucesso</strong>
+        <code>${result.license.key}</code>
+        <button id="copy-generated">Copiar chave</button>
+      </div>`;
+
+    $("#copy-generated").onclick = () => navigator.clipboard.writeText(result.license.key);
+    await loadData();
+  };
+}
+
+function accountCanCreateKey(account) {
+  return account.keyLimit === null || account.keysCreated < account.keyLimit;
+}
+
+function accountKeyLimitLabel(account) {
+  return account.keyLimit === null ? "Ilimitadas" : String(account.keyLimit);
+}
+
+function accountKeysHtml(account) {
+  if (!account.keys?.length) {
+    const canCreate = accountCanCreateKey(account);
+    if (canCreate && (account.plan === "pro" || account.plan === "premium")) {
+      return `<div class="account-keys">
+        <div style="padding:14px 18px; border: 1px dashed rgba(255, 208, 0, 0.25); border-radius: 12px; margin: 14px 18px; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 208, 0, 0.02);">
+          <div>
+            <strong style="color:var(--gold);">Chave disponível (1/${accountKeyLimitLabel(account)})</strong>
+            <div style="font-size:10px; color:var(--muted); margin-top:2px;">
+              ${account.plan === "pro" ? "Crie a primeira chave do seu plano PRO." : "Crie chaves adicionais inclusas no seu plano Premium."}
+            </div>
+          </div>
+          <button 
+            class="primary create-key-for-account" 
+            data-account-email="${account.email}" 
+            data-plan="${account.plan}"
+            style="padding: 6px 12px; font-size: 11px;"
+          >
+            + Gerar Chave
+          </button>
+        </div>
+      </div>`;
+    }
+    return '<div class="empty compact">Nenhuma chave criada para esta conta.</div>';
+  }
+
+  const canCreate = accountCanCreateKey(account);
+  const addKeyHtml = (canCreate && (account.plan === "pro" || account.plan === "premium")) ? `
+    <div style="padding:14px 18px; border: 1px dashed rgba(255, 208, 0, 0.25); border-radius: 12px; margin: 14px 18px; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 208, 0, 0.02);">
+      <div>
+        <strong style="color:var(--gold);">Chave disponível (${account.keys.length + 1}/${accountKeyLimitLabel(account)})</strong>
+        <div style="font-size:10px; color:var(--muted); margin-top:2px;">
+          ${account.plan === "pro" ? "Crie a segunda chave inclusa no seu plano PRO." : "Crie chaves adicionais inclusas no seu plano Premium."}
+        </div>
+      </div>
+      <button 
+        class="primary create-key-for-account" 
+        data-account-email="${account.email}" 
+        data-plan="${account.plan}"
+        style="padding: 6px 12px; font-size: 11px;"
+      >
+        + Gerar Chave
+      </button>
+    </div>
+  ` : "";
+
+  return `<div class="account-keys">
+    ${account.keys.map((license, index) => `
+      <article class="account-key-item">
+        <div class="account-key-index">${index + 1}</div>
+
+        <div class="account-key-main">
+          <strong>${license.accessEmail || license.email}</strong>
+          <code>${license.key}</code>
+          <small>
+            ${license.deviceId ? "Computador vinculado" : "Aguardando ativação"}
+            · ${license.active ? "Ativa" : "Bloqueada"}
+          </small>
+        </div>
+
+        <div class="account-key-actions">
+          <button
+            class="secondary copy-account-key"
+            data-key="${license.key}"
+          >
+            Copiar
+          </button>
+
+          ${license.deviceId
+            ? `<button
+                class="secondary release-account-device"
+                data-license-id="${license.id}"
+              >
+                Liberar PC
+              </button>`
+            : ""}
+        </div>
+      </article>
+    `).join("")}
+    ${addKeyHtml}
+  </div>`;
+}
+
+
+function newKeyModalHtml() {
+  const account = state.pendingNewKeyAccount;
+
+  if (!account) return "";
+
+  const nextPosition = Number(account.keysCreated || 0) + 1;
+  const suggestedEmail = suggestAccessEmail(account.email, nextPosition);
+
+  return `
+    <div class="modal-backdrop" id="new-key-modal">
+      <section class="modal-card">
+        <div class="card-head">
+          <div>
+            <small>NOVA CHAVE</small>
+            <h2>${account.email}</h2>
+          </div>
+          <button class="secondary" id="close-new-key-modal">Fechar</button>
+        </div>
+
+        <label>E-mail da compra</label>
+        <input id="modal-account-email" type="email" value="${account.email}" disabled />
+
+        <label>E-mail de acesso da nova chave</label>
+        <input
+          id="modal-access-email"
+          type="email"
+          value="${suggestedEmail}"
+        />
+
+        <label>Plano</label>
+        <select id="modal-plan">
+          <option value="basic" ${account.plan === "basic" ? "selected" : ""}>Básico</option>
+          <option value="pro" ${account.plan === "pro" ? "selected" : ""}>PRO</option>
+          <option value="premium" ${account.plan === "premium" ? "selected" : ""}>Premium</option>
+        </select>
+
+        <label>Duração</label>
+        <input id="modal-duration-days" type="number" min="1" value="30" />
+
+        <label>Observação</label>
+        <textarea id="modal-note" placeholder="Opcional"></textarea>
+
+        <button class="primary full" id="confirm-create-account-key">
+          Criar chave
+        </button>
+      </section>
+    </div>
+  `;
+}
+
+function editLicenseModalHtml() {
+  const license = state.editingLicense;
+  if (!license) return "";
+
+  return `
+    <div class="modal-backdrop" id="edit-license-modal">
+      <section class="modal-card">
+        <div class="card-head">
+          <div>
+            <small>EDITAR LICENÇA</small>
+            <h2>${license.accessEmail || license.email}</h2>
+          </div>
+          <button class="secondary" id="close-edit-license-modal">Fechar</button>
+        </div>
+
+        <label>Chave da licença</label>
+        <input type="text" value="${license.key}" disabled style="font-family:monospace;background:#222;color:#ffd000;" />
+
+        <label>Plano</label>
+        <select id="edit-modal-plan">
+          <option value="basic" ${license.plan === "basic" ? "selected" : ""}>Básico</option>
+          <option value="pro" ${license.plan === "pro" ? "selected" : ""}>PRO</option>
+          <option value="premium" ${license.plan === "premium" ? "selected" : ""}>Premium</option>
+        </select>
+
+        <label>Duração (dias)</label>
+        <input id="edit-modal-duration" type="number" min="1" value="${license.durationDays || 30}" />
+
+        <label>Telefone do cliente (DDD + Número)</label>
+        <input id="edit-modal-phone" type="text" value="${license.phone || ""}" placeholder="Ex: 11999999999" />
+
+        <label>Valor Pago (R$)</label>
+        <input id="edit-modal-amount" type="number" step="0.01" value="${license.amountPaid || 0}" />
+
+        <label>Forma de Pagamento</label>
+        <input id="edit-modal-method" type="text" value="${license.paymentMethod || "Pix"}" placeholder="Ex: Pix, Cartão" />
+
+        <label>Observação</label>
+        <textarea id="edit-modal-note" placeholder="Observações internas">${license.note || ""}</textarea>
+
+        <button class="primary full" id="confirm-edit-license">
+          Salvar Alterações
+        </button>
+      </section>
+    </div>
+  `;
+}
+
+function usersTable(accounts) {
+  if (!accounts.length) {
+    return '<div class="empty">Nenhuma conta cadastrada.</div>';
+  }
+
+  return `<section class="customer-accounts">
+    ${accounts.map(account => {
+      const canCreate = accountCanCreateKey(account);
+      const meta = planMeta(account.plan);
+
+      return `
+        <article class="customer-account-card">
+          <header class="customer-account-header">
+            <div>
+              <small>CLIENTE / E-MAIL DA COMPRA</small>
+              <h3>${account.email}</h3>
+              <p>
+                Plano ${meta.name} · ${money(account.monthlyPrice)}/mês
+                · ${account.keysCreated}/${accountKeyLimitLabel(account)} chaves
+              </p>
+            </div>
+
+            <div class="customer-account-actions">
+              <span class="status-pill ${account.subscriptionStatus}">
+                ${account.subscriptionStatus}
+              </span>
+
+              <button
+                class="secondary change-account-plan"
+                data-account-email="${account.email}"
+                data-plan="${account.plan}"
+              >
+                Mudar plano
+              </button>
+
+              <button
+                class="${canCreate ? "primary" : "secondary"} create-key-for-account"
+                data-account-email="${account.email}"
+                data-plan="${account.plan}"
+                ${canCreate ? "" : "disabled"}
+              >
+                ${canCreate ? "+ Nova chave" : "Limite atingido"}
+              </button>
+            </div>
+          </header>
+
+          ${accountKeysHtml(account)}
+        </article>
+      `;
+    }).join("")}
+  </section>`;
+}
+
+function usersPage() {
+  pageMeta("Clientes", "CONTAS E CHAVES");
+  elements.content.innerHTML = `
+    ${statsHtml()}
+    <article class="card">
+      <div class="card-head"><div><small>CLIENTES</small><h2>Contas e chaves de acesso</h2></div></div>
+      ${usersTable(state.accounts)}
+    </article>
+    ${newKeyModalHtml()}`;
+}
+
+function financePage() {
+  pageMeta("Faturamento", "CONTROLE FINANCEIRO");
+
+  const financeLicenses = state.licenses.filter(l => {
+    const email = String(l.email || "").trim().toLowerCase();
+    const accessEmail = String(l.accessEmail || "").trim().toLowerCase();
+    const accountEmail = String(l.accountEmail || "").trim().toLowerCase();
+    if (email.includes("diegoalvesrecomenda") || 
+        accessEmail.includes("diegoalvesrecomenda") || 
+        accountEmail.includes("diegoalvesrecomenda") ||
+        email.includes("testewebhook") ||
+        accessEmail.includes("testewebhook") ||
+        accountEmail.includes("testewebhook")) {
+      return false;
+    }
+    const method = String(l.paymentMethod || "").trim().toLowerCase();
+    if (method === "manual" || method === "cortesia" || method === "teste" || method === "teste webhook") return false;
+    return l.amountPaid > 0 || method === "cakto";
+  });
+
+  const total = financeLicenses.reduce((sum, l) => sum + Number(l.amountPaid || 0), 0);
+  const netRevenue = financeLicenses.reduce((sum, l) => sum + Number(l.netAmount || 0), 0);
+  const fees = total - netRevenue;
+
+  elements.content.innerHTML = `
+    <section class="stats">
+      <article class="stat-card gold"><span>Faturamento bruto</span><strong>${money(total)}</strong><small>Valores recebidos</small></article>
+      <article class="stat-card green"><span>Lucro real (Líquido)</span><strong>${money(netRevenue)}</strong><small>Já sem taxas de checkout</small></article>
+      <article class="stat-card"><span>Taxas de checkout</span><strong>${money(fees)}</strong><small>Cakto e intermediadores</small></article>
+      <article class="stat-card"><span>Ticket médio</span><strong>${money(financeLicenses.length ? total/financeLicenses.length : 0)}</strong><small>Por licença pagante</small></article>
+    </section>
+
+    <article class="card">
+      <div class="card-head"><div><small>RECEBIMENTOS</small><h2>Histórico financeiro</h2></div></div>
+      <table class="table">
+        <thead><tr><th>Cliente</th><th>Plano</th><th>Bruto</th><th>Líquido (Lucro)</th><th>Pagamento</th><th>Cadastro</th></tr></thead>
+        <tbody>${financeLicenses.map(l => `<tr><td>${l.email}</td><td>${l.plan.toUpperCase()}</td><td>${money(l.amountPaid)}</td><td>${money(l.netAmount)}</td><td>${l.paymentMethod || "—"}</td><td>${date(l.createdAt)}</td></tr>`).join("")}</tbody>
+      </table>
+    </article>`;
+}
+
+function downloadCsv(filename, rows) {
+  const content = rows.map(row =>
+    row.map(value => `"${String(value ?? "").replaceAll('"', '""')}"`).join(";")
+  ).join("\n");
+
+  const blob = new Blob(["\ufeff" + content], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function reportsPage() {
+  pageMeta("Relatórios", "EXPORTAÇÃO E ANÁLISES");
+
+  const active = state.licenses.filter(l => statusOf(l) === "active").length;
+  const conversion = state.licenses.length ? Math.round(active/state.licenses.length*100) : 0;
+
+  elements.content.innerHTML = `
+    <section class="stats">
+      <article class="stat-card"><span>Taxa de ativação</span><strong>${conversion}%</strong><small>Chaves ativadas</small></article>
+      <article class="stat-card"><span>Planos PRO</span><strong>${state.licenses.filter(l => l.plan === "pro").length}</strong><small>Clientes premium</small></article>
+      <article class="stat-card"><span>Bloqueadas</span><strong>${state.licenses.filter(l => statusOf(l) === "revoked").length}</strong><small>Acessos suspensos</small></article>
+      <article class="stat-card gold"><span>Chamados resolvidos</span><strong>${state.tickets.filter(t => t.status === "resolved").length}</strong><small>Atendimentos concluídos</small></article>
+    </section>
+
+    <article class="card">
+      <div class="card-head"><div><small>EXPORTAR</small><h2>Baixar relatórios</h2></div></div>
+      <div class="report-actions">
+        <button id="export-clients">Exportar clientes CSV</button>
+        <button id="export-finance">Exportar faturamento CSV</button>
+        <button id="export-support">Exportar suporte CSV</button>
+      </div>
+    </article>`;
+
+  $("#export-clients").onclick = () => downloadCsv("live-infinity-clientes.csv", [
+    ["E-mail","Chave","Plano","Status","Ativação","Vencimento","Dias restantes","Dispositivo"],
+    ...state.licenses.map(l => [l.email,l.key,l.plan,statusText(statusOf(l)),date(l.activatedAt),date(l.expiresAt),l.remainingDays,l.deviceId || ""])
+  ]);
+
+  $("#export-finance").onclick = () => {
+    const financeLicenses = state.licenses.filter(l => {
+      const email = String(l.email || "").trim().toLowerCase();
+      const accessEmail = String(l.accessEmail || "").trim().toLowerCase();
+      const accountEmail = String(l.accountEmail || "").trim().toLowerCase();
+      if (email.includes("diegoalvesrecomenda") || 
+          accessEmail.includes("diegoalvesrecomenda") || 
+          accountEmail.includes("diegoalvesrecomenda") ||
+          email.includes("testewebhook") ||
+          accessEmail.includes("testewebhook") ||
+          accountEmail.includes("testewebhook")) {
+        return false;
+      }
+      const method = String(l.paymentMethod || "").trim().toLowerCase();
+      if (method === "manual" || method === "cortesia" || method === "teste" || method === "teste webhook") return false;
+      return l.amountPaid > 0 || method === "cakto";
+    });
+    downloadCsv("live-infinity-faturamento.csv", [
+      ["E-mail","Plano","Valor","Forma de pagamento","Cadastro"],
+      ...financeLicenses.map(l => [l.email,l.plan,l.amountPaid || 0,l.paymentMethod || "",date(l.createdAt)])
+    ]);
+  };
+
+  $("#export-support").onclick = () => downloadCsv("live-infinity-suporte.csv", [
+    ["Assunto","Cliente","Prioridade","Status","Criado em"],
+    ...state.tickets.map(t => [t.subject,t.customerEmail,t.priority,t.status,date(t.createdAt)])
+  ]);
+}
+
+function supportPage() {
+  pageMeta("Suporte", "ATENDIMENTO AO CLIENTE");
+
+  elements.content.innerHTML = `
+    <article class="card">
+      <div class="card-head"><div><small>NOVO CHAMADO</small><h2>Registrar atendimento</h2></div></div>
+      <div class="form-grid" style="grid-template-columns:2fr 2fr 1fr 3fr auto">
+        <input id="ticket-subject" placeholder="Assunto">
+        <input id="ticket-email" type="email" placeholder="E-mail do cliente">
+        <select id="ticket-priority"><option value="low">Baixa</option><option value="normal" selected>Normal</option><option value="high">Alta</option></select>
+        <input id="ticket-message" placeholder="Descrição do problema">
+        <button id="create-ticket" class="primary">Criar chamado</button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><small>CHAMADOS</small><h2>Fila de suporte</h2></div></div>
+      <div id="ticket-list"></div>
+    </article>`;
+
+  const list = $("#ticket-list");
+  list.innerHTML = state.tickets.length ? "" : '<div class="empty">Nenhum chamado registrado.</div>';
+
+  state.tickets.forEach(ticket => {
+    const article = document.createElement("article");
+    article.className = "ticket";
+    article.innerHTML = `
+      <div class="ticket-head">
+        <div><strong>${ticket.subject}</strong><br><small>${ticket.customerEmail || "Cliente não informado"} · ${date(ticket.createdAt)}</small></div>
+        <span class="priority-${ticket.priority}">${ticket.priority.toUpperCase()} · ${ticket.status}</span>
+      </div>
+      <p style="margin-bottom:10px;">${ticket.message}</p>
+      <div style="margin-bottom:8px;">
+        <button class="toggle-chat-btn" style="margin-right:8px; background:rgba(255,208,0,0.06); border:1px solid rgba(255,208,0,0.2); color:#ffd000; cursor:pointer; padding:6px 12px; border-radius:6px; font-weight:700;">💬 Chat</button>
+        <button data-status="in_progress" style="margin-right:8px; cursor:pointer; padding:6px 12px; border-radius:6px;">Em atendimento</button>
+        <button data-status="resolved" style="cursor:pointer; padding:6px 12px; border-radius:6px;">Resolver</button>
+      </div>
+      <div class="ticket-chat" style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:none;">
+        <div class="chat-messages" style="max-height:220px; overflow-y:auto; margin-bottom:10px; padding:10px; background:rgba(0,0,0,0.15); border-radius:6px; display:flex; flex-direction:column; gap:8px;"></div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" placeholder="Digite uma resposta..." style="flex:1; padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2); color:#fff;" class="chat-input-text">
+          <button class="chat-send-btn primary" style="padding:8px 16px; border-radius:6px; font-weight:700; cursor:pointer;">Enviar</button>
+        </div>
+      </div>`;
+
+    const chatContainer = article.querySelector(".ticket-chat");
+    const chatMessages = article.querySelector(".chat-messages");
+    const chatInput = article.querySelector(".chat-input-text");
+    const chatSendBtn = article.querySelector(".chat-send-btn");
+    const toggleChatBtn = article.querySelector(".toggle-chat-btn");
+
+    async function loadChatMessages() {
+      try {
+        const res = await api(`/api/admin/support/${ticket.id}/messages`);
+        if (res && res.ok !== undefined) {
+          const msgs = res.messages || [];
+          chatMessages.innerHTML = msgs.length ? "" : '<div style="color:rgba(255,255,255,0.35); text-align:center; font-size:11px; padding:10px;">Nenhuma mensagem ainda. Digite abaixo para iniciar.</div>';
+          msgs.forEach(m => {
+            const div = document.createElement("div");
+            if (m.sender === "agent") {
+              div.style.cssText = "align-self: flex-end; background: #ffd000; color: #000; border-radius: 8px 8px 0px 8px; padding: 6px 10px; font-size: 11px; max-width: 80%; word-break: break-word; margin-left: auto;";
+              div.innerHTML = `<strong>Suporte:</strong> ${m.message}`;
+            } else {
+              div.style.cssText = "align-self: flex-start; background: rgba(255,255,255,0.08); color: #fff; border-radius: 8px 8px 8px 0px; padding: 6px 10px; font-size: 11px; max-width: 80%; word-break: break-word;";
+              div.innerHTML = `<strong>Usuário:</strong> ${m.message}`;
+            }
+            chatMessages.appendChild(div);
+          });
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      } catch(err) {
+        chatMessages.innerHTML = `<div style="color:#ff4444; font-size:11px; padding:10px;">Erro ao carregar mensagens: ${err.message}</div>`;
+      }
+    }
+
+    toggleChatBtn.onclick = () => {
+      const isOpen = chatContainer.style.display !== "none";
+      if (isOpen) {
+        chatContainer.style.display = "none";
+      } else {
+        chatContainer.style.display = "block";
+        loadChatMessages();
+      }
+    };
+
+    chatSendBtn.onclick = async () => {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatSendBtn.disabled = true;
+      try {
+        await api(`/api/admin/support/${ticket.id}/messages`, {
+          method: "POST",
+          body: JSON.stringify({ message: text })
+        });
+        chatInput.value = "";
+        await loadChatMessages();
+      } catch(err) {
+        alert("Erro ao enviar mensagem: " + err.message);
+      } finally {
+        chatSendBtn.disabled = false;
+      }
+    };
+
+    chatInput.onkeydown = (e) => {
+      if (e.key === "Enter") {
+        chatSendBtn.click();
+      }
+    };
+
+    article.querySelectorAll("[data-status]").forEach(button => {
+      button.onclick = async () => {
+        await api(`/api/admin/support/${ticket.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: button.dataset.status })
+        });
+        await loadData();
+      };
+    });
+
+    list.appendChild(article);
+  });
+
+  $("#create-ticket").onclick = async () => {
+    await api("/api/admin/support", {
+      method: "POST",
+      body: JSON.stringify({
+        subject: $("#ticket-subject").value.trim(),
+        customerEmail: $("#ticket-email").value.trim(),
+        priority: $("#ticket-priority").value,
+        message: $("#ticket-message").value.trim()
+      })
+    });
+    await loadData();
+  };
+}
+
+
+function caktoPage() {
+  pageMeta("Cakto", "EVENTOS E INTEGRAÇÃO");
+
+  elements.content.innerHTML = `
+    <article class="card">
+      <div class="card-head">
+        <div>
+          <small>MODO SEGURO</small>
+          <h2>Captura de webhooks</h2>
+        </div>
+      </div>
+      <p class="helper">
+        Os eventos são salvos, mas nenhuma licença é criada automaticamente
+        enquanto CAKTO_CAPTURE_ONLY=true.
+      </p>
+      <p class="helper">
+        Básico: 3477jz3_976117 · PRO: 387ye5s_982831 · Premium: 3b3y7bp_982839
+      </p>
+    </article>
+
+    <article class="card">
+      <div class="card-head">
+        <div>
+          <small>ÚLTIMOS EVENTOS</small>
+          <h2>Webhooks recebidos</h2>
+        </div>
+      </div>
+
+      ${state.caktoEvents.length
+        ? `<table class="table">
+            <thead>
+              <tr>
+                <th>Recebido</th>
+                <th>Evento</th>
+                <th>E-mail</th>
+                <th>Plano detectado</th>
+                <th>Status</th>
+                <th>Processamento</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.caktoEvents.map(event => `<tr>
+                <td>${date(event.receivedAt)}</td>
+                <td>${event.eventType || "—"}</td>
+                <td>${event.customerEmail || "—"}</td>
+                <td>${event.mappedPlan || "Não identificado"}</td>
+                <td>${event.paymentStatus || "—"}</td>
+                <td>${event.processed ? "Processado" : (event.processingError || "Capturado")}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`
+        : '<div class="empty">Nenhum webhook recebido ainda.</div>'}
+    </article>
+  `;
+}
+
+
+function updateStatusHtml(update) {
+  return update.published
+    ? `<span class="status active">Publicada</span>`
+    : `<span class="status pending">Rascunho</span>`;
+}
+
+function updatesPage() {
+  pageMeta("Atualizações", "DISTRIBUIÇÃO DA EXTENSÃO");
+
+  elements.content.innerHTML = `
+    <section class="update-admin-grid">
+      <article class="card update-publish-card">
+        <div class="card-head">
+          <div>
+            <small>NOVA ATUALIZAÇÃO</small>
+            <h2>Publicar ZIP de atualização obrigatória</h2>
+          </div>
+        </div>
+
+        <p class="muted">
+          Envie o ZIP da extensão. O cliente será bloqueado até instalar a versão publicada.
+        </p>
+
+        <label>Versão
+          <input id="update-version" placeholder="1.4.1">
+        </label>
+
+        <label>Título
+          <input id="update-title" placeholder="Nova atualização disponível">
+        </label>
+
+        <label>Descrição
+          <textarea id="update-description" rows="3" placeholder="Resumo da atualização"></textarea>
+        </label>
+
+        <label>Novidades e correções
+          <textarea id="update-changelog" rows="8" placeholder="- Correção do timer&#10;- Melhoria no Telegram"></textarea>
+        </label>
+
+        <label>Arquivo ZIP da extensão
+          <input id="update-file" type="file" accept=".zip,application/zip">
+        </label>
+
+        <div class="update-mandatory-notice">
+          🔒 Toda atualização publicada é obrigatória.
+        </div>
+
+        <button id="publish-update" class="primary">
+          Publicar atualização
+        </button>
+
+        <p id="update-publish-message" class="message"></p>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <small>HISTÓRICO</small>
+            <h2>Versões publicadas</h2>
+          </div>
+        </div>
+
+        <div class="update-list">
+          ${state.updates.length
+            ? state.updates.map(update => `
+              <div class="update-row">
+                <div>
+                  <div class="update-row-title">
+                    <strong>v${escapeHtml(update.version)}</strong>
+                    ${updateStatusHtml(update)}
+                  </div>
+                  <h3>${escapeHtml(update.title)}</h3>
+                  <p>${escapeHtml(update.description || "Sem descrição.")}</p>
+                  <small>
+                    ${update.publishedAt ? `Publicada em ${date(update.publishedAt)}` : "Ainda não publicada"}
+                    · ${(Number(update.fileSize || 0) / 1024 / 1024).toFixed(2)} MB
+                  </small>
+                </div>
+
+                <div class="update-row-actions">
+                  <a class="button-link" href="${escapeHtml(update.downloadUrl)}" target="_blank">
+                    Baixar ZIP
+                  </a>
+
+                  <button
+                    class="toggle-update-publish"
+                    data-update-id="${escapeHtml(update.id)}"
+                    data-published="${update.published ? "1" : "0"}"
+                  >
+                    ${update.published ? "Despublicar" : "Publicar"}
+                  </button>
+
+                  <button
+                    class="delete-update danger"
+                    data-update-id="${escapeHtml(update.id)}"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
+            `).join("")
+            : `<div class="empty-state">Nenhuma atualização cadastrada.</div>`}
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function renderPage() {
+  if (!elements.content) return;
+
+  const pages = {
+    dashboard: dashboardPage,
+    licenses: licensesPage,
+    users: usersPage,
+    finance: financePage,
+    reports: reportsPage,
+    support: supportPage,
+    cakto: caktoPage,
+    updates: updatesPage
+  };
+
+  (pages[state.page] || dashboardPage)();
+
+  if (state.editingLicense) {
+    elements.content.innerHTML += editLicenseModalHtml();
+  }
+}
+
+elements.content.addEventListener("click", async event => {
+
+  const publishUpdateButton = event.target.closest("#publish-update");
+
+  if (publishUpdateButton) {
+    const message = document.getElementById("update-publish-message");
+    const file = document.getElementById("update-file")?.files?.[0];
+
+    try {
+      if (!file) throw new Error("Selecione o ZIP da extensão.");
+      if (file.size > 25 * 1024 * 1024) {
+        throw new Error("O ZIP deve ter no máximo 25 MB.");
+      }
+
+      publishUpdateButton.disabled = true;
+      publishUpdateButton.textContent = "Enviando atualização...";
+
+      const fileBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = String(reader.result || "");
+          resolve(result.includes(",") ? result.split(",")[1] : result);
+        };
+
+        reader.onerror = () => reject(
+          new Error("Não foi possível ler o arquivo.")
+        );
+
+        reader.readAsDataURL(file);
+      });
+
+      await api("/api/admin/updates", {
+        method: "POST",
+        body: JSON.stringify({
+          version: document.getElementById("update-version").value,
+          title: document.getElementById("update-title").value,
+          description: document.getElementById("update-description").value,
+          changelog: document.getElementById("update-changelog").value,
+          fileBase64,
+          published: true
+        })
+      });
+
+      if (message) {
+        message.textContent =
+          "Atualização obrigatória publicada com sucesso.";
+      }
+
+      await loadData({ render: true });
+    } catch (error) {
+      if (message) message.textContent = error.message;
+    } finally {
+      publishUpdateButton.disabled = false;
+      publishUpdateButton.textContent = "Publicar atualização";
+    }
+
+    return;
+  }
+
+  const toggleUpdateButton = event.target.closest(".toggle-update-publish");
+
+  if (toggleUpdateButton) {
+    const action =
+      toggleUpdateButton.dataset.published === "1"
+        ? "unpublish"
+        : "publish";
+
+    await api(
+      `/api/admin/updates/${toggleUpdateButton.dataset.updateId}/${action}`,
+      { method: "POST" }
+    );
+
+    await loadData({ render: true });
+    return;
+  }
+
+  const deleteUpdateButton = event.target.closest(".delete-update");
+
+  if (deleteUpdateButton) {
+    if (!confirm("Excluir esta atualização e seu arquivo ZIP?")) return;
+
+    await api(
+      `/api/admin/updates/${deleteUpdateButton.dataset.updateId}`,
+      { method: "DELETE" }
+    );
+
+    await loadData({ render: true });
+    return;
+  }
+
+
+  const createButton = event.target.closest(".create-key-for-account");
+
+  if (createButton) {
+    if (createButton.disabled) return;
+
+    const account = accountForEmail(createButton.dataset.accountEmail);
+    state.pendingNewKeyAccount = account;
+    renderPage();
+    return;
+  }
+
+  const closeModal = event.target.closest("#close-new-key-modal");
+
+  if (closeModal) {
+    state.pendingNewKeyAccount = null;
+    renderPage();
+    return;
+  }
+
+  const confirmCreate = event.target.closest("#confirm-create-account-key");
+
+  if (confirmCreate) {
+    const account = state.pendingNewKeyAccount;
+    const accessEmail =
+      document.getElementById("modal-access-email").value;
+    const plan =
+      document.getElementById("modal-plan").value;
+    const durationDays = Number(
+      document.getElementById("modal-duration-days").value
+    );
+    const note =
+      document.getElementById("modal-note").value;
+
+    await api("/api/admin/licenses", {
+      method: "POST",
+      body: JSON.stringify({
+        accountEmail: account.email,
+        accessEmail,
+        plan,
+        durationDays,
+        note
+      })
+    });
+
+    state.pendingNewKeyAccount = null;
+    await loadData({ render: true });
+    return;
+  }
+
+  const closeEditModal = event.target.closest("#close-edit-license-modal");
+
+  if (closeEditModal) {
+    state.editingLicense = null;
+    renderPage();
+    return;
+  }
+
+  const confirmEdit = event.target.closest("#confirm-edit-license");
+
+  if (confirmEdit) {
+    const license = state.editingLicense;
+    const plan = document.getElementById("edit-modal-plan").value;
+    const durationDays = Number(document.getElementById("edit-modal-duration").value || 30);
+    const phone = document.getElementById("edit-modal-phone").value;
+    const amountPaid = Number(document.getElementById("edit-modal-amount").value || 0);
+    const paymentMethod = document.getElementById("edit-modal-method").value;
+    const note = document.getElementById("edit-modal-note").value;
+
+    try {
+      await api(`/api/admin/licenses/${license.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ plan, durationDays, amountPaid, paymentMethod, phone, note })
+      });
+      state.editingLicense = null;
+      await loadData({ render: true });
+    } catch (err) {
+      alert("Erro ao salvar alterações: " + err.message);
+    }
+    return;
+  }
+
+  const changePlanButton = event.target.closest(".change-account-plan");
+
+  if (changePlanButton) {
+    const accountEmail = changePlanButton.dataset.accountEmail;
+    const currentPlan = changePlanButton.dataset.plan;
+    const selected = prompt(
+      "Digite o novo plano: BASICO, PRO ou PREMIUM",
+      planMeta(currentPlan).name.toUpperCase()
+    );
+
+    if (!selected) return;
+
+    const normalized = selected.trim().toLowerCase();
+    const plan =
+      normalized === "premium"
+        ? "premium"
+        : normalized === "pro"
+          ? "pro"
+          : "basic";
+
+    await api(
+      `/api/admin/accounts/${encodeURIComponent(accountEmail)}/plan`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ plan })
+      }
+    );
+
+    await loadData({ render: true });
+    return;
+  }
+
+  const copyButton = event.target.closest(".copy-account-key");
+
+  if (copyButton) {
+    await navigator.clipboard.writeText(copyButton.dataset.key);
+    copyButton.textContent = "Copiado";
+    setTimeout(() => {
+      copyButton.textContent = "Copiar";
+    }, 1200);
+    return;
+  }
+
+  const releaseButton = event.target.closest(".release-account-device");
+
+  if (releaseButton) {
+    const confirmed = confirm(
+      "Liberar o computador vinculado a esta chave?"
+    );
+
+    if (!confirmed) return;
+
+    await api(
+      `/api/admin/licenses/${releaseButton.dataset.licenseId}/release-device`,
+      { method: "POST" }
+    );
+
+    await loadData({ render: true });
+  }
+});
+
+elements.nav.addEventListener("click", event => {
+  const button = event.target.closest("[data-page]");
+  if (button) setPage(button.dataset.page);
+});
+
+elements.enter.onclick = async () => {
+  try {
+    elements.loginMessage.textContent = "Entrando...";
+    const cleanBase = window.location.pathname.replace(/\/+$/, "");
+    const loginUrl = `${cleanBase}/api/admin/login`;
+
+    const response = await fetch(loginUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: elements.user.value.trim(),
+        password: elements.password.value
+      })
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "Não foi possível entrar.");
+
+    state.token = result.token;
+    state.role = result.role || "admin";
+    state.page = state.role === "moderator" ? "licenses" : "dashboard";
+    sessionStorage.setItem("liveInfinityAdminSession", state.token);
+    sessionStorage.setItem("liveInfinityAdminRole", state.role);
+    showApp();
+    await loadData();
+    startAutoRefresh();
+  } catch (error) {
+    elements.loginMessage.textContent = error.message;
+  }
+};
+
+elements.logout.onclick = () => {
+  clearInterval(state.refreshTimer);
+  state.token = "";
+  state.role = "admin";
+  sessionStorage.removeItem("liveInfinityAdminSession");
+  sessionStorage.removeItem("liveInfinityAdminRole");
+  showLogin();
+};
+
+elements.refresh.onclick = () => loadData({ render: true });
+
+function startAutoRefresh() {
+  clearInterval(state.refreshTimer);
+
+  state.refreshTimer = setInterval(() => {
+    if (!state.token) return;
+
+    // Não recarrega enquanto o usuário está em páginas com formulários
+    const pageHasForm =
+      state.page === "licenses" ||
+      state.page === "support"  ||
+      state.page === "updates";
+
+    loadData({
+      silent: true,
+      render: !pageHasForm
+    });
+  }, 60000); // 60 segundos — evita interromper formulários
+}
+
+(async () => {
+  if (!state.token) return showLogin();
+
+  try {
+    showApp();
+    await loadData();
+    startAutoRefresh();
+  } catch {
+    state.token = "";
+    sessionStorage.removeItem("liveInfinityAdminSession");
+    showLogin();
+  }
+})();
