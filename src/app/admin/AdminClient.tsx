@@ -153,7 +153,7 @@ export function AdminClient({ initialUsers, currentUserId }: { initialUsers: Use
     setTimeout(() => setCopiedChave(false), 2000);
   };
 
-  const enviarWhatsApp = (telefone: string | null, email: string, chave: string, plano: string) => {
+  const enviarWhatsApp = (telefone: string | null | undefined, email: string, chave: string, plano: string) => {
     const mensagem = `Olá! Segue sua chave de acesso exclusiva da extensão Live Infinity:
 
 🔑 *Chave:* ${chave}
