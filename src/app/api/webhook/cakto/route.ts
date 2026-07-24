@@ -4,42 +4,49 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("[WEBHOOK CAKTO] Recebido:", JSON.stringify(body, null, 2));
+    console.log("[WEBHOOK CAKTO] Payload Recebido:", JSON.stringify(body, null, 2));
 
-    // Suporta tanto payloads planos (raiz) quanto payloads aninhados no formato Cakto ({ event, data: { ... } })
+    // Suporta tanto payloads na raiz quanto payloads aninhados no formato Cakto ({ event, data: { ... } })
     const data = body.data || body;
     const customer = data.customer || body.customer || {};
     const email = (customer.email || data.email || body.email || "").trim().toLowerCase();
+
+    // Eventos e Status da Cakto (subscription_created, purchase_approved, paid, approved, completed)
+    const eventRaw = String(body.event || body.event_type || data.event || "").toLowerCase();
+    const statusRaw = String(data.status || body.status || "").toLowerCase();
     
-    // Status do evento (paid, approved, completed, purchase.approved, etc.)
-    const statusRaw = (data.status || body.status || body.event || body.event_type || "").toLowerCase();
     const isApproved = 
       statusRaw.includes("paid") || 
       statusRaw.includes("approved") || 
       statusRaw.includes("completed") || 
-      statusRaw === "purchase.approved";
+      eventRaw.includes("purchase_approved") ||
+      eventRaw.includes("subscription_created") ||
+      eventRaw.includes("approved") ||
+      eventRaw.includes("paid");
 
     if (!email) {
-      console.warn("[WEBHOOK CAKTO] E-mail não encontrado no payload.");
+      console.warn("[WEBHOOK CAKTO] E-mail não informado no payload.");
       return NextResponse.json({ received: true, warning: "E-mail não informado" }, { status: 200 });
     }
 
-    // Identificação de ofertas e planos da Cakto
-    const offerId = (data.offer?.id || data.offer_id || body.offer_id || data.plan_id || "").toLowerCase();
-    const offerName = (data.offer?.name || data.plan_name || data.product?.name || "").toLowerCase();
-    
-    let planType = "starter"; // Padrão
-    let maxKeys = 1;
+    // Identificação inteligente de ofertas e valores
+    const offerId = String(data.offer?.id || data.offer_id || body.offer_id || data.plan_id || data.product?.id || data.product_id || "").toLowerCase();
+    const offerName = String(data.offer?.name || data.plan_name || data.plan?.name || data.product?.name || "").toLowerCase();
+    const amountVal = Number(data.amount || data.price || body.amount || body.price || 0);
 
-    if (offerId.includes("mdz39dg") || offerName.includes("infinity") || offerName.includes("vip") || offerName.includes("147")) {
+    // Mapeia o plano. Se não identificar pelo ID/Nome/Valor, assume 'pro' por padrão para NUNCA ignorar o cliente!
+    let planType = "pro";
+    let maxKeys = 2;
+
+    if (offerId.includes("mdz39dg") || offerName.includes("infinity") || offerName.includes("vip") || offerName.includes("147") || amountVal >= 140) {
       planType = "infinity_vip";
       maxKeys = 999999; // Chaves Infinitas
-    } else if (offerId.includes("3477jz3") || offerName.includes("pro") || offerName.includes("97")) {
-      planType = "pro";
-      maxKeys = 2;
-    } else if (offerId.includes("xd4yj7y") || offerName.includes("starter") || offerName.includes("67")) {
+    } else if (offerId.includes("xd4yj7y") || offerName.includes("starter") || offerName.includes("67") || (amountVal > 0 && amountVal <= 70)) {
       planType = "starter";
       maxKeys = 1;
+    } else if (offerId.includes("3477jz3") || offerName.includes("pro") || offerName.includes("97") || (amountVal > 70 && amountVal < 140)) {
+      planType = "pro";
+      maxKeys = 2;
     }
 
     const method = data.payment_method || body.payment_method || "card";
@@ -66,7 +73,7 @@ export async function POST(request: Request) {
       // 2. Busca ou cria a empresa vinculada
       let empresaId = user.empresa?.id;
       const novaExpiracao = new Date();
-      novaExpiracao.setDate(novaExpiracao.getDate() + 30); // 30 dias de acesso renováveis
+      novaExpiracao.setDate(novaExpiracao.getDate() + 30); // 30 dias de acesso
 
       if (empresaId) {
         await prisma.empresa.update({
@@ -93,16 +100,20 @@ export async function POST(request: Request) {
           }
         });
         
-        // Atualiza a referência da empresa no usuário
         await prisma.user.update({
           where: { id: user.id },
           data: { empresaId: novaEmpresa.id }
         });
       }
 
-      console.log(`✅ [WEBHOOK CAKTO SUCESSO] Plano ${planType} (${maxKeys} chaves) ativado com sucesso para ${email}!`);
+      const chaveGerada = `LIVEINF-${planType.toUpperCase()}-${user.id.substring(0, 5).toUpperCase()}-${user.id.substring(5, 10).toUpperCase()}`;
+
+      console.log(`=================================================`);
+      console.log(`✅ [WEBHOOK CAKTO ATIVADO] E-mail: ${email}`);
+      console.log(`🔑 Plano: ${planType} (${maxKeys} chaves) | Chave: ${chaveGerada}`);
+      console.log(`=================================================`);
     } else {
-      console.log(`ℹ️ [WEBHOOK CAKTO] Evento recebido sem aprovação de pagamento (status: ${statusRaw})`);
+      console.log(`ℹ️ [WEBHOOK CAKTO] Evento não financeiro (evento: ${eventRaw}, status: ${statusRaw})`);
     }
 
     return NextResponse.json({ received: true, status: "processed" }, { status: 200 });
