@@ -470,15 +470,16 @@ function modOrAdminAuthorized(request) {
   return adminAuthorized(request);
 }
 
-function generateKey(plan) {
+function generateKey(plan, product = "liveinfinity") {
   const random = crypto.randomBytes(10).toString("hex").toUpperCase();
-  const prefix =
+  const prodPrefix = String(product).toLowerCase() === "livecam" ? "LIVECAM" : "LIVEINF";
+  const planPrefix =
     plan === "premium"
-      ? "LIVEINF-PREMIUM"
+      ? "PREMIUM"
       : plan === "pro"
-        ? "LIVEINF-PRO"
-        : "LIVEINF-BASIC";
-  return `${prefix}-${random.slice(0,5)}-${random.slice(5,10)}-${random.slice(10,15)}-${random.slice(15,20)}`;
+        ? "PRO"
+        : "BASIC";
+  return `${prodPrefix}-${planPrefix}-${random.slice(0,5)}-${random.slice(5,10)}-${random.slice(10,15)}-${random.slice(15,20)}`;
 }
 
 function nowIso() {
@@ -501,12 +502,16 @@ function rowToLicense(row) {
   else if (row.activated_at) status = "active";
   else status = "pending";
 
+  const isLiveCam = String(row.license_key || "").startsWith("LIVECAM");
+
   return {
     id: row.id,
     email: row.access_email || row.email,
     accountEmail: row.account_email || row.email,
     accessEmail: row.access_email || row.email,
     key: row.license_key,
+    product: isLiveCam ? "Live Cam" : "Live Infinity",
+    productCode: isLiveCam ? "livecam" : "liveinfinity",
     plan: row.plan,
     durationDays: Number(row.duration_days),
     active: Boolean(row.active),
@@ -1047,33 +1052,39 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === "/api/public/claim-license" && request.method === "POST") {
       const body = await readBody(request);
       const email = normalizeEmail(body.email);
+      const requestedProduct = String(body.product || "liveinfinity").toLowerCase();
 
       if (!email || !email.includes("@")) {
         json(response, 400, { ok: false, error: "Por favor, informe um e-mail válido." });
         return;
       }
 
-      // 1. Procura se o cliente já possui uma chave cadastrada no banco
-      const [licenses] = await pool.execute(
-        `SELECT * FROM licenses WHERE access_email=? OR account_email=? OR email=? ORDER BY created_at DESC LIMIT 1`,
+      // 1. Procura se o cliente já possui a chave cadastrada no banco para o produto solicitado
+      const [allLicenses] = await pool.execute(
+        `SELECT * FROM licenses WHERE access_email=? OR account_email=? OR email=? ORDER BY created_at DESC`,
         [email, email, email]
       );
 
-      if (licenses.length > 0) {
-        const lic = licenses[0];
+      const existingProdLicense = allLicenses.find(lic => {
+        const isCam = String(lic.license_key || "").startsWith("LIVECAM");
+        return requestedProduct === "livecam" ? isCam : !isCam;
+      });
+
+      if (existingProdLicense) {
         json(response, 200, {
           ok: true,
           found: true,
-          key: lic.license_key,
-          plan: lic.plan,
-          status: lic.status,
-          expiresAt: lic.expires_at,
-          message: "Sua chave de acesso foi encontrada com sucesso!"
+          key: existingProdLicense.license_key,
+          plan: existingProdLicense.plan,
+          product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
+          status: existingProdLicense.status,
+          expiresAt: existingProdLicense.expires_at,
+          message: `Sua chave do ${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"} foi encontrada com sucesso!`
         });
         return;
       }
 
-      // 2. Se não encontrou chave, verifica se existe evento pago de compra na Cakto
+      // 2. Se não encontrou chave para este produto, verifica se existe compra paga na Cakto
       const [events] = await pool.execute(
         `SELECT * FROM cakto_webhook_events WHERE customer_email=? AND (payment_status='paid' OR payment_status='approved' OR event_type='purchase_approved' OR event_type='subscription_created') ORDER BY created_at DESC LIMIT 1`,
         [email]
@@ -1085,7 +1096,7 @@ const server = http.createServer(async (request, response) => {
         const plan = ev.mapped_plan || findPlanInPayload(payload) || "basic";
         
         const id = crypto.randomUUID();
-        const key = generateKey(plan);
+        const key = generateKey(plan, requestedProduct);
         const durationDays = 30;
         const expiresAt = new Date(Date.now() + durationDays * 86400000);
         const amountPaid = plan === "premium" ? 147.00 : plan === "pro" ? 97.00 : 67.00;
@@ -1097,7 +1108,7 @@ const server = http.createServer(async (request, response) => {
            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
           [
             id, email, email, email, key, plan, durationDays,
-            "Gerado via autoatendimento do cliente",
+            `Gerado via autoatendimento (${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"})`,
             amountPaid, amountPaid * 0.92, "Cakto Self-Service",
             expiresAt, "pending", 1
           ]
@@ -1108,9 +1119,9 @@ const server = http.createServer(async (request, response) => {
           created: true,
           key: key,
           plan: plan,
-          status: "pending",
+          product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
           expiresAt: expiresAt,
-          message: "Sua chave foi gerada e ativada com sucesso!"
+          message: `Sua chave do ${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"} foi gerada com sucesso!`
         });
         return;
       }

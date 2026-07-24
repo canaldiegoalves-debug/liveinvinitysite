@@ -475,8 +475,13 @@ function licenseCard(license) {
   const node = elements.template.content.cloneNode(true);
   const status = statusOf(license);
 
+  const isCam = String(license.key || "").startsWith("LIVECAM");
+  const productBadge = isCam
+    ? `<span style="background:#0284c7;color:#fff;font-size:11px;font-weight:bold;padding:3px 8px;border-radius:6px;margin-left:8px;display:inline-block;letter-spacing:0.5px;">🔵 LIVE CAM</span>`
+    : `<span style="background:#e50914;color:#fff;font-size:11px;font-weight:bold;padding:3px 8px;border-radius:6px;margin-left:8px;display:inline-block;letter-spacing:0.5px;">🔴 LIVE INFINITY</span>`;
+
   const planEl = node.querySelector(".license-plan");
-  planEl.textContent = `PLANO ${planMeta(license.plan).name.toUpperCase()}`;
+  planEl.innerHTML = `PLANO ${planMeta(license.plan).name.toUpperCase()} ${productBadge}`;
   planEl.className = `license-plan ${license.plan}`;
   node.querySelector(".license-email").textContent = `Acesso: ${license.accessEmail || license.email}`;
   const accountEl = node.querySelector(".license-account-email");
@@ -484,12 +489,23 @@ function licenseCard(license) {
   node.querySelector(".license-key").textContent = license.key;
 
   const statusElement = node.querySelector(".license-status");
-  statusElement.textContent = statusText(status);
-  statusElement.classList.add(status);
+  const isActivated = status === "active" || Boolean(license.activatedAt);
+  if (statusElement) {
+    if (status === "revoked") {
+      statusElement.style.color = "#ff4d4d";
+      statusElement.textContent = "🔴 BLOQUEADO / REVOGADO";
+    } else if (isActivated) {
+      statusElement.style.color = "#1ed760";
+      statusElement.textContent = "🟢 ATIVADO";
+    } else {
+      statusElement.style.color = "#ffc107";
+      statusElement.textContent = "🟡 AGUARDANDO ATIVAÇÃO";
+    }
+  }
 
   node.querySelector(".license-duration").textContent = `${license.durationDays} dias`;
   node.querySelector(".license-remaining").textContent =
-    status === "pending" ? "Ainda não iniciou" : `${license.remainingDays} dias`;
+    !isActivated ? "Ainda não iniciou" : `${license.remainingDays} dias`;
   node.querySelector(".license-activated").textContent = date(license.activatedAt);
   node.querySelector(".license-expires").textContent = date(license.expiresAt);
   node.querySelector(".license-note").textContent =
