@@ -1,0 +1,147 @@
+const fs = require('fs');
+
+const bashCmd = `cat << 'EOF' > /var/www/liveinfinity/LIVE-INFINITY-v2-mysql/license-server/server.js
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const mysql = require('mysql2/promise');
+
+const PORT = process.env.PORT || 8787;
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Valora2024SaaS!';
+const SERVER_VERSION = '5.0.5';
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || '127.0.0.1',
+  user: process.env.DB_USER || 'liveinfinity',
+  password: process.env.DB_PASSWORD || 'Valora2024SaaS!',
+  database: process.env.DB_NAME || 'liveinfinity',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+function safeEqual(a, b) {
+  try {
+    const bufA = Buffer.from(String(a));
+    const bufB = Buffer.from(String(b));
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+  } catch (e) { return false; }
+}
+
+function adminToken() {
+  return Buffer.from(\`\${ADMIN_USER}:\${ADMIN_PASSWORD}\`).toString('base64');
+}
+
+function moderatorToken() {
+  return Buffer.from('moderador:ValoraMod2024!').toString('base64');
+}
+
+function adminAuthorized(request) {
+  const authorization = String(request.headers.authorization || '');
+  if (!authorization.startsWith('Bearer ')) return false;
+  return safeEqual(authorization.slice(7).trim(), adminToken());
+}
+
+function modOrAdminAuthorized(request) {
+  const authorization = String(request.headers.authorization || '');
+  if (!authorization.startsWith('Bearer ')) return false;
+  const tok = authorization.slice(7).trim();
+  return safeEqual(tok, adminToken()) || safeEqual(tok, moderatorToken());
+}
+
+function json(res, status, data) {
+  res.writeHead(status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+  res.end(JSON.stringify(data));
+}
+
+function readBody(req) {
+  return new Promise((resolve) => {
+    let data = '';
+    req.on('data', chunk => data += chunk);
+    req.on('end', () => {
+      try { resolve(JSON.parse(data || '{}')); } catch (e) { resolve({}); }
+    });
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url, \`http://\${req.headers.host || 'localhost'}\`);
+  
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    });
+    res.end();
+    return;
+  }
+
+  if (url.pathname === '/api/health') {
+    json(res, 200, { ok: true, version: SERVER_VERSION });
+    return;
+  }
+
+  if (url.pathname === '/api/admin/login' && req.method === 'POST') {
+    const body = await readBody(req);
+    const userIn = String(body.username || '').trim().toLowerCase();
+    const passIn = String(body.password || '');
+
+    const isMod = (userIn === 'moderador' || userIn === 'mod') && (passIn === 'ValoraMod2024!' || passIn === ADMIN_PASSWORD);
+    const isAdmin = safeEqual(body.username || '', ADMIN_USER) && safeEqual(body.password || '', ADMIN_PASSWORD);
+
+    if (!isAdmin && !isMod) {
+      json(res, 401, { ok: false, error: 'Usuário ou senha incorretos.' });
+      return;
+    }
+
+    const role = isAdmin ? 'admin' : 'moderator';
+    json(res, 200, { ok: true, token: isAdmin ? adminToken() : moderatorToken(), role: role });
+    return;
+  }
+
+  if (url.pathname.startsWith('/api/admin/')) {
+    const isAllowedForMod = url.pathname.startsWith('/api/admin/licenses') || url.pathname.startsWith('/api/admin/support') || url.pathname === '/api/admin/health';
+    const authorized = isAllowedForMod ? modOrAdminAuthorized(req) : adminAuthorized(req);
+    if (!authorized) {
+      json(res, 403, { ok: false, error: 'Acesso negado.' });
+      return;
+    }
+  }
+
+  // Remove o prefixo /painel-seguro-liveinfinity para servir CSS, JS e imagens corretamente
+  let relPath = url.pathname.replace(/^\\/painel-seguro-liveinfinity/, '');
+  if (!relPath || relPath === '/') relPath = '/index.html';
+
+  let filePath = path.join(__dirname, 'public', relPath);
+  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    filePath = path.join(__dirname, 'public', 'index.html');
+  }
+
+  const ext = path.extname(filePath);
+  const mimeTypes = {
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.svg': 'image/svg+xml'
+  };
+  
+  fs.readFile(filePath, (err, content) => {
+    if (err) { res.writeHead(404); res.end('Not found'); return; }
+    res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'text/plain' });
+    res.end(content);
+  });
+});
+
+server.listen(PORT, () => console.log(\`Live Infinity \${SERVER_VERSION} rodando na porta \${PORT}\`));
+EOF
+pm2 restart liveinfinity --update-env
+`;
+
+fs.writeFileSync('C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\VALORA\\vps_fix_css.txt', bashCmd, 'utf8');
+console.log("✅ vps_fix_css.txt criado com sucesso!");

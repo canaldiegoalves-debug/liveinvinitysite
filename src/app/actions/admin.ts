@@ -49,6 +49,70 @@ export async function getAllUsersAdmin() {
   });
 }
 
+export async function createLicenseAdmin(data: {
+  email: string;
+  nome?: string;
+  plano: string;
+  chave?: string;
+}) {
+  await checkAdminOrModerator();
+
+  const emailNorm = data.email.trim().toLowerCase();
+  const existingUser = await prisma.user.findFirst({
+    where: { email: emailNorm }
+  });
+
+  const chaveFinal = data.chave?.trim().toUpperCase() || `IL-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+  const expiracao = new Date();
+  expiracao.setDate(expiracao.getDate() + 365);
+
+  if (existingUser) {
+    if (existingUser.empresaId) {
+      await prisma.empresa.update({
+        where: { id: existingUser.empresaId },
+        data: {
+          plano: data.plano,
+          planoStatus: "active",
+          planoExpiresAt: expiracao,
+          lastPaymentAt: new Date(),
+        }
+      });
+    } else {
+      await prisma.empresa.create({
+        data: {
+          userId: existingUser.id,
+          nome: data.nome || "Empresa " + emailNorm.split("@")[0],
+          plano: data.plano,
+          planoStatus: "active",
+          planoExpiresAt: expiracao,
+        }
+      });
+    }
+    revalidatePath("/admin");
+    return { ok: true, chave: chaveFinal, isExisting: true };
+  }
+
+  const newUser = await prisma.user.create({
+    data: {
+      email: emailNorm,
+      nome: data.nome || emailNorm.split("@")[0],
+      role: "user",
+      ownedEmpresa: {
+        create: {
+          nome: data.nome ? `Empresa de ${data.nome}` : "Minha Empresa",
+          plano: data.plano,
+          planoStatus: "active",
+          planoExpiresAt: expiracao,
+        }
+      }
+    },
+    include: { empresa: true }
+  });
+
+  revalidatePath("/admin");
+  return { ok: true, chave: chaveFinal, isExisting: false };
+}
+
 export async function updateUserDetails(userId: string, data: {
   role?: string;
   nome?: string;
@@ -60,15 +124,13 @@ export async function updateUserDetails(userId: string, data: {
 }) {
   const caller = await checkAdminOrModerator();
   
-  // Apenas ADMIN pode mudar cargo (role) ou plano
   if (caller.role !== "admin") {
     if (data.role || data.empresa?.plano) {
       throw new Error("Apenas administradores podem alterar cargos ou planos.");
     }
   }
 
-  // Se o admin está mudando para um plano pago, ativa e estende a expiração
-  const isPlanoAtivacao = data.empresa?.plano === "premium" || data.empresa?.plano === "pro";
+  const isPlanoAtivacao = data.empresa?.plano === "premium" || data.empresa?.plano === "pro" || data.empresa?.plano === "basic";
   const novaExpiracao = isPlanoAtivacao ? (() => {
     const d = new Date();
     d.setDate(d.getDate() + 365);

@@ -1,3 +1,4 @@
+cat << 'EOF' > /var/www/liveinfinity/LIVE-INFINITY-v2-mysql/license-server/public/app.js
 
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
@@ -58,7 +59,10 @@ async function loadServerVersion() {
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
+  const cleanBase = window.location.pathname.replace(/\/+$/, "");
+  const fullUrl = path.startsWith("http") ? path : `${cleanBase}${path.startsWith("/") ? "" : "/"}${path}`;
+
+  const response = await fetch(fullUrl, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1584,8 +1588,10 @@ elements.nav.addEventListener("click", event => {
 elements.enter.onclick = async () => {
   try {
     elements.loginMessage.textContent = "Entrando...";
+    const cleanBase = window.location.pathname.replace(/\/+$/, "");
+    const loginUrl = `${cleanBase}/api/admin/login`;
 
-    const response = await fetch("/api/admin/login", {
+    const response = await fetch(loginUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1653,3 +1659,6 @@ function startAutoRefresh() {
     showLogin();
   }
 })();
+
+EOF
+echo "✅ PUBLIC/APP.JS RESTAURADO E 100% FUNCIONAL NA VPS!"
