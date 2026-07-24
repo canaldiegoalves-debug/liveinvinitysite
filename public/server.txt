@@ -1066,8 +1066,12 @@ const server = http.createServer(async (request, response) => {
       );
 
       const existingProdLicense = allLicenses.find(lic => {
-        const isCam = String(lic.license_key || "").startsWith("LIVECAM");
-        return requestedProduct === "livecam" ? isCam : !isCam;
+        const keyStr = String(lic.license_key || "").toUpperCase();
+        if (requestedProduct === "livecam") {
+          return keyStr.startsWith("LIVECAM-");
+        } else {
+          return keyStr.startsWith("LIVEINF-");
+        }
       });
 
       if (existingProdLicense) {
