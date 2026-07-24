@@ -1480,19 +1480,19 @@ const server = http.createServer(async (request, response) => {
 
       const lic = rows[0];
 
-      if (!lic.active || lic.status === "revoked") {
+      if (lic.status === "revoked" || lic.status === "disabled" || lic.status === "cancelled") {
         json(response, 403, { ok: false, reason: "blocked", error: "Assinatura inativa ou cancelada." });
         return;
       }
 
       const expiresAt = lic.expires_at ? new Date(lic.expires_at) : null;
       if (expiresAt && expiresAt.getTime() <= Date.now()) {
-        await pool.execute(`UPDATE licenses SET status='expired' WHERE id=?`, [lic.id]);
+        await pool.execute(`UPDATE licenses SET status='expired', active=0 WHERE id=?`, [lic.id]);
         json(response, 403, { ok: false, reason: "expired", error: "Sua chave de acesso expirou." });
         return;
       }
 
-      if (!lic.activated_at || lic.status === "pending") {
+      if (!lic.activated_at || lic.status === "pending" || !lic.active) {
         await pool.execute(
           `UPDATE licenses SET status='active', active=1, activated_at=NOW(), device_id=COALESCE(device_id, ?) WHERE id=?`,
           [dev || null, lic.id]
