@@ -1458,6 +1458,57 @@ const server = http.createServer(async (request, response) => {
 
     const pathNoPrefix = url.pathname.replace(/^\/painel-seguro-liveinfinity/, "");
 
+    if ((url.pathname === "/api/check" || pathNoPrefix === "/api/check") && request.method === "POST") {
+      const body = await readBody(request);
+      const key = String(body.key || body.licenseKey || "").trim().toUpperCase();
+      const dev = String(body.device || body.deviceId || "").trim();
+
+      if (!key) {
+        json(response, 400, { ok: false, reason: "bad_request", error: "Digite a sua chave." });
+        return;
+      }
+
+      const [rows] = await pool.execute(
+        `SELECT * FROM licenses WHERE license_key=? LIMIT 1`,
+        [key]
+      );
+
+      if (rows.length === 0) {
+        json(response, 404, { ok: false, reason: "invalid", error: "Chave inválida. Confira e tente novamente." });
+        return;
+      }
+
+      const lic = rows[0];
+
+      if (!lic.active || lic.status === "revoked") {
+        json(response, 403, { ok: false, reason: "blocked", error: "Assinatura inativa ou cancelada." });
+        return;
+      }
+
+      const expiresAt = lic.expires_at ? new Date(lic.expires_at) : null;
+      if (expiresAt && expiresAt.getTime() <= Date.now()) {
+        await pool.execute(`UPDATE licenses SET status='expired' WHERE id=?`, [lic.id]);
+        json(response, 403, { ok: false, reason: "expired", error: "Sua chave de acesso expirou." });
+        return;
+      }
+
+      if (!lic.activated_at || lic.status === "pending") {
+        await pool.execute(
+          `UPDATE licenses SET status='active', active=1, activated_at=NOW(), device_id=COALESCE(device_id, ?) WHERE id=?`,
+          [dev || null, lic.id]
+        );
+      }
+
+      json(response, 200, {
+        ok: true,
+        valid: true,
+        status: "active",
+        email: lic.access_email || lic.email,
+        expiresAt: lic.expires_at
+      });
+      return;
+    }
+
     if ((url.pathname === "/api/health" || pathNoPrefix === "/api/health") && request.method === "GET") {
       json(response, 200, {
         ok: true,
