@@ -1444,7 +1444,9 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (url.pathname === "/api/health" && request.method === "GET") {
+    const pathNoPrefix = url.pathname.replace(/^\/painel-seguro-liveinfinity/, "");
+
+    if ((url.pathname === "/api/health" || pathNoPrefix === "/api/health") && request.method === "GET") {
       json(response, 200, {
         ok: true,
         service: "live-infinity",
@@ -1456,7 +1458,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (url.pathname === "/api/admin/login" && request.method === "POST") {
+    if ((url.pathname === "/api/admin/login" || pathNoPrefix === "/api/admin/login") && request.method === "POST") {
       if (adminLoginBlocked(request)) {
         json(response, 429, {
           ok: false,
@@ -1909,10 +1911,11 @@ const server = http.createServer(async (request, response) => {
       }
     }
 
-    if (url.pathname.startsWith("/api/admin/")) {
-      const isAllowedForMod = url.pathname.startsWith("/api/admin/licenses") || 
-                             url.pathname.startsWith("/api/admin/support") ||
-                             url.pathname === "/api/admin/health";
+    if (url.pathname.startsWith("/api/admin/") || pathNoPrefix.startsWith("/api/admin/")) {
+      const p = pathNoPrefix.startsWith("/api/admin/") ? pathNoPrefix : url.pathname;
+      const isAllowedForMod = p.startsWith("/api/admin/licenses") || 
+                             p.startsWith("/api/admin/support") ||
+                             p === "/api/admin/health";
 
       const authorized = isAllowedForMod ? modOrAdminAuthorized(request) : adminAuthorized(request);
 
