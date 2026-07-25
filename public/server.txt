@@ -1059,7 +1059,12 @@ const server = http.createServer(async (request, response) => {
       try {
         const body = await readBody(request);
         const email = normalizeEmail(body.email);
-        const requestedProduct = String(body.product || "liveinfinity").toLowerCase() === "livecam" ? "livecam" : "liveinfinity";
+        
+        const referer = String(request.headers.referer || "").toLowerCase();
+        const bodyProd = String((body && body.product) || "").toLowerCase();
+        const urlProd = String(url.searchParams.get("product") || "").toLowerCase();
+        const isLiveCam = bodyProd === "livecam" || urlProd === "livecam" || referer.includes("livecam");
+        const requestedProduct = isLiveCam ? "livecam" : "liveinfinity";
 
         if (!email || !email.includes("@")) {
           json(response, 400, { ok: false, error: "Por favor, informe um e-mail válido." });
