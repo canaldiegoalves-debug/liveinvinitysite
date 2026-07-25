@@ -54,6 +54,31 @@ function clearAdminLoginFailures(request) {
   adminLoginAttempts.delete(requestIp(request));
 }
 
+function signJwt(payload, secret = process.env.JWT_SECRET || "valora_secret_jwt_2026_key", expiresInSeconds = 86400 * 30) {
+  const header = { alg: "HS256", typ: "JWT" };
+  const now = Math.floor(Date.now() / 1000);
+  const fullPayload = { ...payload, iat: now, exp: now + expiresInSeconds };
+  const b64Header = Buffer.from(JSON.stringify(header)).toString("base64url");
+  const b64Payload = Buffer.from(JSON.stringify(fullPayload)).toString("base64url");
+  const signature = crypto.createHmac("sha256", secret).update(`${b64Header}.${b64Payload}`).digest("base64url");
+  return `${b64Header}.${b64Payload}.${signature}`;
+}
+
+function verifyJwt(token, secret = process.env.JWT_SECRET || "valora_secret_jwt_2026_key") {
+  try {
+    const parts = String(token || "").split(".");
+    if (parts.length !== 3) return null;
+    const [b64Header, b64Payload, signature] = parts;
+    const expectedSig = crypto.createHmac("sha256", secret).update(`${b64Header}.${b64Payload}`).digest("base64url");
+    if (signature !== expectedSig) return null;
+    const payload = JSON.parse(Buffer.from(b64Payload, "base64url").toString("utf-8"));
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch (e) {
+    return null;
+  }
+}
+
 fs.mkdirSync(UPDATES_DIR, { recursive: true });
 
 const CAKTO_CAPTURE_ONLY =
@@ -1073,7 +1098,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if ((url.pathname === "/api/public/claim-license" || url.pathname === "/api/public/claim-livecam" || url.pathname === "/api/public/claim-liveinfinity") && request.method === "POST") {
+    if ((url.pathname === "/api/public/claim-license" || url.pathname === "/api/public/claim-livecam" || url.pathname === "/api/public/claim-liveinfinity" || url.pathname === "/api/gerar-chave") && request.method === "POST") {
       try {
         const body = await readBody(request);
         const email = normalizeEmail(body.email);
@@ -1109,6 +1134,7 @@ const server = http.createServer(async (request, response) => {
             ok: true,
             found: true,
             key: existingProdLicense.license_key,
+            chave: existingProdLicense.license_key,
             plan: existingProdLicense.plan,
             product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
             status: existingProdLicense.status,
@@ -1166,6 +1192,7 @@ const server = http.createServer(async (request, response) => {
             ok: true,
             created: true,
             key: key,
+            chave: key,
             plan: plan,
             product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
             expiresAt: expiresAt,
@@ -1511,10 +1538,11 @@ const server = http.createServer(async (request, response) => {
 
     const pathNoPrefix = url.pathname.replace(/^\/painel-seguro-liveinfinity/, "");
 
-    if ((url.pathname === "/api/check" || pathNoPrefix === "/api/check") && request.method === "POST") {
+    if ((url.pathname === "/api/check" || pathNoPrefix === "/api/check" || url.pathname === "/api/validar-chave" || pathNoPrefix === "/api/validar-chave") && request.method === "POST") {
       const body = await readBody(request);
-      const key = String(body.key || body.licenseKey || "").trim().toUpperCase();
-      const dev = String(body.device || body.deviceId || "").trim();
+      const key = String(body.key || body.licenseKey || body.chave || "").trim().toUpperCase();
+      const dev = String(body.device || body.deviceId || body.device_id || "").trim();
+      const product = String(body.produto || body.product || "").trim();
 
       if (!key) {
         json(response, 400, { ok: false, reason: "bad_request", error: "Digite a sua chave." });
@@ -1545,17 +1573,20 @@ const server = http.createServer(async (request, response) => {
         return;
       }
 
-      if (!lic.activated_at || lic.status === "pending" || !lic.active) {
+      if (!lic.activated_at || lic.status === "pending" || !lic.active || !lic.device_id) {
         await pool.execute(
           `UPDATE licenses SET status='active', active=1, activated_at=NOW(), device_id=COALESCE(device_id, ?) WHERE id=?`,
           [dev || null, lic.id]
         );
       }
 
+      const token = signJwt({ key: lic.license_key, email: lic.access_email || lic.email, product: product || (key.startsWith("LIVECAM") ? "livecam" : "liveinfinity") });
+
       json(response, 200, {
         ok: true,
         valid: true,
         status: "active",
+        token: token,
         email: lic.access_email || lic.email,
         expiresAt: lic.expires_at
       });
