@@ -789,8 +789,11 @@ function newKeyModalHtml() {
             <small>NOVA CHAVE</small>
             <h2>${account.email}</h2>
           </div>
-        <label style="color: #ffd000; font-weight: bold; margin-top: 6px; display: block;">Produto / Extensão da Chave</label>
-        <select id="modal-product" style="border: 2px solid #ffd000; background: #111; color: #ffd000; padding: 10px; border-radius: 6px; font-weight: bold; width: 100%; margin-bottom: 14px; font-size: 14px;">
+          <button class="secondary" id="close-new-key-modal">Fechar</button>
+        </div>
+
+        <label style="display: block; margin-top: 10px; margin-bottom: 4px; font-weight: bold; color: #ffd000; font-size: 13px;">Produto / Extensão da Chave</label>
+        <select id="modal-product" style="width: 100%; padding: 10px 12px; background: #111; color: #ffd000; border: 1.5px solid #ffd000; border-radius: 6px; font-weight: bold; font-size: 14px; margin-bottom: 14px;">
           <option value="liveinfinity" selected>🚀 Live Infinity (prefixo LIVEINF-)</option>
           <option value="livecam">📷 Live Cam (prefixo LIVECAM-)</option>
         </select>
