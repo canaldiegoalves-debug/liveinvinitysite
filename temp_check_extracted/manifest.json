@@ -1,0 +1,66 @@
+{
+  "manifest_version": 3,
+  "name": "LiveCam Infinity",
+  "version": "1.5.0",
+  "description": "LiveCam Infinity v1.5.0 — Câmera Virtual HD 1-Clique com Retomada Automática do Vídeo, Player de Looping e Transmissão Pós-F5.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://*.tiktok.com/*",
+    "https://*.tiktok.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://shop.tiktok.com/*",
+        "https://*.tiktok.com/*"
+      ],
+      "js": [
+        "gate.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://shop.tiktok.com/*",
+        "https://*.tiktok.com/*"
+      ],
+      "js": [
+        "injector.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LiveCam Infinity HD",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/icon128.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
