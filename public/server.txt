@@ -796,6 +796,20 @@ async function ensureSupportMessagesTable() {
   `);
 }
 
+async function ensureAccessEmailNotUnique() {
+  try {
+    const [indexes] = await pool.query("SHOW INDEX FROM licenses");
+    for (const idx of indexes) {
+      if (idx.Column_name === "access_email" && idx.Non_unique === 0) {
+        await pool.query(`ALTER TABLE licenses DROP INDEX \`${idx.Key_name}\``);
+        console.log(`[Banco de Dados] Removido índice UNIQUE '${idx.Key_name}' na tabela licenses para permitir múltiplas licenças por cliente.`);
+      }
+    }
+  } catch (err) {
+    console.warn("[Banco de Dados Migration] Drop unique index:", err.message);
+  }
+}
+
 async function ensurePhoneColumn() {
   try {
     const [columns] = await pool.query(
@@ -2771,6 +2785,7 @@ const licenseMatch = url.pathname.match(
   await ensureLiveSessionsTable();
   await ensureSupportMessagesTable();
   await ensurePhoneColumn();
+  await ensureAccessEmailNotUnique();
   await ensureUpdatesTable();
   await reprocessPendingWebhooks();
 
