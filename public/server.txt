@@ -1048,25 +1048,13 @@ const server = http.createServer(async (request, response) => {
 
   try {
 
-    if (url.pathname === "/downloads/live-infinity.zip") {
-      const zipPath = path.join(PUBLIC_DIR, "downloads", "live-infinity.zip");
-      if (fs.existsSync(zipPath)) {
+    if (url.pathname.startsWith("/downloads/")) {
+      const filename = path.basename(url.pathname);
+      const zipPath = path.join(PUBLIC_DIR, "downloads", filename);
+      if (fs.existsSync(zipPath) && filename.endsWith(".zip")) {
         response.writeHead(200, {
           "Content-Type": "application/zip",
-          "Content-Disposition": "attachment; filename=live-infinity.zip",
-          "Access-Control-Allow-Origin": "*"
-        });
-        response.end(fs.readFileSync(zipPath));
-        return;
-      }
-    }
-
-    if (url.pathname === "/downloads/livecam.zip") {
-      const zipPath = path.join(PUBLIC_DIR, "downloads", "livecam.zip");
-      if (fs.existsSync(zipPath)) {
-        response.writeHead(200, {
-          "Content-Type": "application/zip",
-          "Content-Disposition": "attachment; filename=livecam.zip",
+          "Content-Disposition": `attachment; filename="${filename}"`,
           "Access-Control-Allow-Origin": "*"
         });
         response.end(fs.readFileSync(zipPath));
