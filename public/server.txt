@@ -1052,7 +1052,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === "/api/public/claim-license" && request.method === "POST") {
       const body = await readBody(request);
       const email = normalizeEmail(body.email);
-      const requestedProduct = String(body.product || "liveinfinity").toLowerCase();
+      const requestedProduct = String(body.product || "liveinfinity").toLowerCase() === "livecam" ? "livecam" : "liveinfinity";
 
       if (!email || !email.includes("@")) {
         json(response, 400, { ok: false, error: "Por favor, informe um e-mail válido." });
@@ -1088,17 +1088,27 @@ const server = http.createServer(async (request, response) => {
         return;
       }
 
-      // 2. Se não encontrou chave para este produto, verifica se existe compra paga na Cakto
-      const [events] = await pool.execute(
-        `SELECT * FROM cakto_webhook_events WHERE customer_email=? AND (payment_status='paid' OR payment_status='approved' OR event_type='purchase_approved' OR event_type='subscription_created') ORDER BY created_at DESC LIMIT 1`,
-        [email]
-      );
+      // 2. Se não encontrou a chave do produto específico, verifica se o cliente possui compra (via licenses ou webhook Cakto)
+      let plan = "basic";
+      let hasPurchase = false;
 
-      if (events.length > 0) {
-        const ev = events[0];
-        const payload = typeof ev.payload === "string" ? JSON.parse(ev.payload) : ev.payload;
-        const plan = ev.mapped_plan || findPlanInPayload(payload) || "basic";
-        
+      if (allLicenses.length > 0) {
+        hasPurchase = true;
+        plan = allLicenses[0].plan || "basic";
+      } else {
+        const [events] = await pool.execute(
+          `SELECT * FROM cakto_webhook_events WHERE customer_email=? AND (payment_status='paid' OR payment_status='approved' OR event_type='purchase_approved' OR event_type='subscription_created') ORDER BY created_at DESC LIMIT 1`,
+          [email]
+        );
+        if (events.length > 0) {
+          hasPurchase = true;
+          const ev = events[0];
+          const payload = typeof ev.payload === "string" ? JSON.parse(ev.payload) : ev.payload;
+          plan = ev.mapped_plan || findPlanInPayload(payload) || "basic";
+        }
+      }
+
+      if (hasPurchase) {
         const id = crypto.randomUUID();
         const key = generateKey(plan, requestedProduct);
         const durationDays = 30;
