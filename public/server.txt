@@ -1055,7 +1055,7 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (url.pathname === "/api/public/claim-license" && request.method === "POST") {
+    if ((url.pathname === "/api/public/claim-license" || url.pathname === "/api/public/claim-livecam" || url.pathname === "/api/public/claim-liveinfinity") && request.method === "POST") {
       try {
         const body = await readBody(request);
         const email = normalizeEmail(body.email);
@@ -1063,7 +1063,7 @@ const server = http.createServer(async (request, response) => {
         const referer = String(request.headers.referer || "").toLowerCase();
         const bodyProd = String((body && body.product) || "").toLowerCase();
         const urlProd = String(url.searchParams.get("product") || "").toLowerCase();
-        const isLiveCam = bodyProd === "livecam" || urlProd === "livecam" || referer.includes("livecam");
+        const isLiveCam = url.pathname === "/api/public/claim-livecam" || bodyProd === "livecam" || urlProd === "livecam" || referer.includes("livecam");
         const requestedProduct = isLiveCam ? "livecam" : "liveinfinity";
 
         if (!email || !email.includes("@")) {
