@@ -798,16 +798,12 @@ async function ensureSupportMessagesTable() {
 
 async function ensureAccessEmailNotUnique() {
   try {
-    const [indexes] = await pool.query("SHOW INDEX FROM licenses");
+    const [indexes] = await pool.query("SHOW INDEX FROM licenses WHERE Non_unique = 0 AND Key_name != 'PRIMARY'");
     for (const idx of indexes) {
-      if (idx.Non_unique === 0 && idx.Key_name !== "PRIMARY") {
-        if (["access_email", "email"].includes(idx.Column_name) || idx.Key_name.includes("email") || idx.Key_name.includes("access")) {
-          try {
-            await pool.query(`ALTER TABLE licenses DROP INDEX \`${idx.Key_name}\``);
-            console.log(`[Banco de Dados] Removido índice UNIQUE: ${idx.Key_name}`);
-          } catch (e) {}
-        }
-      }
+      try {
+        await pool.query(`ALTER TABLE licenses DROP INDEX \`${idx.Key_name}\``);
+        console.log(`[Banco de Dados] Removido índice UNIQUE: ${idx.Key_name}`);
+      } catch (e) {}
     }
   } catch (err) {}
 }
