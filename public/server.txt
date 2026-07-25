@@ -1061,6 +1061,12 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (url.pathname === "/api/debug/indexes") {
+      const [indexes] = await pool.query("SHOW INDEX FROM licenses");
+      json(response, 200, { ok: true, indexes });
+      return;
+    }
+
     if (url.pathname === "/ativar-livecam" || url.pathname === "/gerar-chave-livecam") {
       const filePath = path.join(PUBLIC_DIR, "ativar-livecam.html");
       text(response, 200, fs.readFileSync(filePath), "text/html; charset=utf-8");
