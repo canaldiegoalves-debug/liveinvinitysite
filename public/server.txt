@@ -1061,8 +1061,8 @@ const server = http.createServer(async (request, response) => {
 
       // 1. Procura se o cliente já possui a chave cadastrada no banco para o produto solicitado
       const [allLicenses] = await pool.execute(
-        `SELECT * FROM licenses WHERE access_email=? OR account_email=? OR email=? ORDER BY created_at DESC`,
-        [email, email, email]
+        `SELECT * FROM licenses WHERE access_email=? OR email=? ORDER BY created_at DESC`,
+        [email, email]
       );
 
       const existingProdLicense = allLicenses.find(lic => {
