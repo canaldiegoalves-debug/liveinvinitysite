@@ -2051,6 +2051,12 @@ const server = http.createServer(async (request, response) => {
 
 
 
+      if (url.pathname === "/api/admin/health" || pathNoPrefix === "/api/admin/health") {
+        const [indexes] = await pool.query("SHOW INDEX FROM licenses");
+        json(response, 200, { ok: true, indexes });
+        return;
+      }
+
       const accountPlanMatch = url.pathname.match(
         /^\/api\/admin\/accounts\/(.+)\/plan$/
       );
