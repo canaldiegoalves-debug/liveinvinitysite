@@ -1062,7 +1062,7 @@ const server = http.createServer(async (request, response) => {
 
         // 1. Procura se o cliente já possui a chave cadastrada no banco para o produto solicitado
         const [allLicenses] = await pool.execute(
-          `SELECT * FROM licenses WHERE access_email=? OR email=? ORDER BY created_at DESC`,
+          `SELECT * FROM licenses WHERE access_email=? OR email=? ORDER BY expires_at DESC`,
           [email, email]
         );
 
@@ -1101,7 +1101,7 @@ const server = http.createServer(async (request, response) => {
           plan = allLicenses[0].plan || "basic";
         } else {
           const [events] = await pool.execute(
-            `SELECT * FROM cakto_webhook_events WHERE customer_email=? AND (payment_status='paid' OR payment_status='approved' OR event_type='purchase_approved' OR event_type='subscription_created') ORDER BY created_at DESC LIMIT 1`,
+            `SELECT * FROM cakto_webhook_events WHERE customer_email=? AND (payment_status='paid' OR payment_status='approved' OR event_type='purchase_approved' OR event_type='subscription_created') ORDER BY received_at DESC LIMIT 1`,
             [email]
           );
           if (events.length > 0) {
