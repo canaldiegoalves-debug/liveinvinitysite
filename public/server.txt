@@ -1050,101 +1050,107 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === "/api/public/claim-license" && request.method === "POST") {
-      const body = await readBody(request);
-      const email = normalizeEmail(body.email);
-      const requestedProduct = String(body.product || "liveinfinity").toLowerCase() === "livecam" ? "livecam" : "liveinfinity";
+      try {
+        const body = await readBody(request);
+        const email = normalizeEmail(body.email);
+        const requestedProduct = String(body.product || "liveinfinity").toLowerCase() === "livecam" ? "livecam" : "liveinfinity";
 
-      if (!email || !email.includes("@")) {
-        json(response, 400, { ok: false, error: "Por favor, informe um e-mail válido." });
-        return;
-      }
-
-      // 1. Procura se o cliente já possui a chave cadastrada no banco para o produto solicitado
-      const [allLicenses] = await pool.execute(
-        `SELECT * FROM licenses WHERE access_email=? OR email=? ORDER BY created_at DESC`,
-        [email, email]
-      );
-
-      const existingProdLicense = allLicenses.find(lic => {
-        const keyStr = String(lic.license_key || "").toUpperCase();
-        if (requestedProduct === "livecam") {
-          return keyStr.startsWith("LIVECAM-");
-        } else {
-          return keyStr.startsWith("LIVEINF-");
+        if (!email || !email.includes("@")) {
+          json(response, 400, { ok: false, error: "Por favor, informe um e-mail válido." });
+          return;
         }
-      });
 
-      if (existingProdLicense) {
-        json(response, 200, {
-          ok: true,
-          found: true,
-          key: existingProdLicense.license_key,
-          plan: existingProdLicense.plan,
-          product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
-          status: existingProdLicense.status,
-          expiresAt: existingProdLicense.expires_at,
-          message: `Sua chave do ${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"} foi encontrada com sucesso!`
-        });
-        return;
-      }
-
-      // 2. Se não encontrou a chave do produto específico, verifica se o cliente possui compra (via licenses ou webhook Cakto)
-      let plan = "basic";
-      let hasPurchase = false;
-
-      if (allLicenses.length > 0) {
-        hasPurchase = true;
-        plan = allLicenses[0].plan || "basic";
-      } else {
-        const [events] = await pool.execute(
-          `SELECT * FROM cakto_webhook_events WHERE customer_email=? AND (payment_status='paid' OR payment_status='approved' OR event_type='purchase_approved' OR event_type='subscription_created') ORDER BY created_at DESC LIMIT 1`,
-          [email]
+        // 1. Procura se o cliente já possui a chave cadastrada no banco para o produto solicitado
+        const [allLicenses] = await pool.execute(
+          `SELECT * FROM licenses WHERE access_email=? OR email=? ORDER BY created_at DESC`,
+          [email, email]
         );
-        if (events.length > 0) {
+
+        const existingProdLicense = allLicenses.find(lic => {
+          const keyStr = String(lic.license_key || "").toUpperCase();
+          if (requestedProduct === "livecam") {
+            return keyStr.startsWith("LIVECAM-");
+          } else {
+            return keyStr.startsWith("LIVEINF-");
+          }
+        });
+
+        if (existingProdLicense) {
+          json(response, 200, {
+            ok: true,
+            found: true,
+            key: existingProdLicense.license_key,
+            plan: existingProdLicense.plan,
+            product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
+            status: existingProdLicense.status,
+            expiresAt: existingProdLicense.expires_at,
+            message: `Sua chave do ${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"} foi encontrada com sucesso!`
+          });
+          return;
+        }
+
+        // 2. Se não encontrou a chave do produto específico, verifica se o cliente possui compra (via licenses ou webhook Cakto)
+        let plan = "basic";
+        let hasPurchase = false;
+
+        if (allLicenses.length > 0) {
           hasPurchase = true;
-          const ev = events[0];
-          const payload = typeof ev.payload === "string" ? JSON.parse(ev.payload) : ev.payload;
-          plan = ev.mapped_plan || findPlanInPayload(payload) || "basic";
+          plan = allLicenses[0].plan || "basic";
+        } else {
+          const [events] = await pool.execute(
+            `SELECT * FROM cakto_webhook_events WHERE customer_email=? AND (payment_status='paid' OR payment_status='approved' OR event_type='purchase_approved' OR event_type='subscription_created') ORDER BY created_at DESC LIMIT 1`,
+            [email]
+          );
+          if (events.length > 0) {
+            hasPurchase = true;
+            const ev = events[0];
+            const payload = typeof ev.payload === "string" ? JSON.parse(ev.payload) : ev.payload;
+            plan = ev.mapped_plan || findPlanInPayload(payload) || "basic";
+          }
         }
-      }
 
-      if (hasPurchase) {
-        const id = crypto.randomUUID();
-        const key = generateKey(plan, requestedProduct);
-        const durationDays = 30;
-        const expiresAt = new Date(Date.now() + durationDays * 86400000);
-        const amountPaid = plan === "premium" ? 147.00 : plan === "pro" ? 97.00 : 67.00;
+        if (hasPurchase) {
+          const id = crypto.randomUUID();
+          const key = generateKey(plan, requestedProduct);
+          const durationDays = 30;
+          const expiresAt = new Date(Date.now() + durationDays * 86400000);
+          const amountPaid = plan === "premium" ? 147.00 : plan === "pro" ? 97.00 : 67.00;
 
-        await upsertCustomerAccount(email, plan);
-        await pool.execute(
-          `INSERT INTO licenses
-           (id,account_email,access_email,email,license_key,plan,duration_days,note,amount_paid,net_amount,payment_method,expires_at,status,active)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-          [
-            id, email, email, email, key, plan, durationDays,
-            `Gerado via autoatendimento (${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"})`,
-            amountPaid, amountPaid * 0.92, "Cakto Self-Service",
-            expiresAt, "pending", 1
-          ]
-        );
+          await upsertCustomerAccount(email, plan);
+          await pool.execute(
+            `INSERT INTO licenses
+             (id,account_email,access_email,email,license_key,plan,duration_days,note,amount_paid,net_amount,payment_method,expires_at,status,active)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            [
+              id, email, email, email, key, plan, durationDays,
+              `Gerado via autoatendimento (${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"})`,
+              amountPaid, amountPaid * 0.92, "Cakto Self-Service",
+              expiresAt, "pending", 1
+            ]
+          );
 
-        json(response, 200, {
-          ok: true,
-          created: true,
-          key: key,
-          plan: plan,
-          product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
-          expiresAt: expiresAt,
-          message: `Sua chave do ${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"} foi gerada com sucesso!`
+          json(response, 200, {
+            ok: true,
+            created: true,
+            key: key,
+            plan: plan,
+            product: requestedProduct === "livecam" ? "Live Cam" : "Live Infinity",
+            expiresAt: expiresAt,
+            message: `Sua chave do ${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"} foi gerada com sucesso!`
+          });
+          return;
+        }
+
+        json(response, 404, {
+          ok: false,
+          error: "Nenhuma compra ativa foi encontrada para o e-mail informado. Certifique-se de utilizar exatamente o mesmo e-mail preenchido na compra na Cakto."
         });
         return;
+      } catch (err) {
+        console.error("[claim-license error]", err);
+        json(response, 500, { ok: false, error: err.message || String(err) });
+        return;
       }
-
-      json(response, 404, {
-        ok: false,
-        error: "Nenhuma compra ativa foi encontrada para o e-mail informado. Certifique-se de utilizar exatamente o mesmo e-mail preenchido na compra na Cakto."
-      });
-      return;
     }
 
     if (url.pathname === "/api/webhooks/cakto" && request.method === "POST") {
