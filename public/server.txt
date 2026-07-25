@@ -415,6 +415,12 @@ function readBody(request) {
       try {
         resolve(JSON.parse(data));
       } catch {
+        try {
+          const params = new URLSearchParams(data);
+          const obj = {};
+          for (const [k, v] of params.entries()) obj[k] = v;
+          if (Object.keys(obj).length > 0) return resolve(obj);
+        } catch (e2) {}
         reject(new Error("JSON inválido."));
       }
     });
