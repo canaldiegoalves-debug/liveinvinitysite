@@ -798,16 +798,12 @@ async function ensureSupportMessagesTable() {
 
 async function ensureAccessEmailNotUnique() {
   try {
-    const [indexes] = await pool.query("SHOW INDEX FROM licenses");
-    for (const idx of indexes) {
-      if (idx.Column_name === "access_email" && idx.Non_unique === 0) {
-        await pool.query(`ALTER TABLE licenses DROP INDEX \`${idx.Key_name}\``);
-        console.log(`[Banco de Dados] Removido índice UNIQUE '${idx.Key_name}' na tabela licenses para permitir múltiplas licenças por cliente.`);
-      }
-    }
-  } catch (err) {
-    console.warn("[Banco de Dados Migration] Drop unique index:", err.message);
-  }
+    await pool.query("ALTER TABLE licenses DROP INDEX uq_licenses_access_email");
+    console.log("[Banco de Dados] Removida restrição UNIQUE uq_licenses_access_email na tabela licenses.");
+  } catch (err) {}
+  try {
+    await pool.query("ALTER TABLE licenses DROP INDEX access_email");
+  } catch (err) {}
 }
 
 async function ensurePhoneColumn() {
