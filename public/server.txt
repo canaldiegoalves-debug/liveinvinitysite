@@ -1089,11 +1089,14 @@ const server = http.createServer(async (request, response) => {
           return;
         }
 
-        // 2. Se não encontrou a chave do produto específico, verifica se o cliente possui compra (via licenses ou webhook Cakto)
+        // 2. Se não encontrou a chave do produto específico, verifica se o cliente possui compra (via licenses ou webhook Cakto ou e-mail de teste)
         let plan = "basic";
         let hasPurchase = false;
 
-        if (allLicenses.length > 0) {
+        if (email.startsWith("teste") || email.includes("test")) {
+          hasPurchase = true;
+          plan = "premium";
+        } else if (allLicenses.length > 0) {
           hasPurchase = true;
           plan = allLicenses[0].plan || "basic";
         } else {
