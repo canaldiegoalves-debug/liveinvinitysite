@@ -1852,6 +1852,12 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
+    if (url.pathname === "/api/debug/indexes") {
+      const [indexes] = await pool.query("SHOW INDEX FROM licenses");
+      json(response, 200, { ok: true, indexes });
+      return;
+    }
+
     if (url.pathname === "/api/support/tickets" && request.method === "POST") {
       const body = await readBody(request);
       const key = String(body.key || "").trim().toUpperCase();
