@@ -609,6 +609,7 @@ function licensesPage() {
         <input id="new-days" type="number" min="1" value="30" placeholder="Dias">
         <input id="new-amount" type="number" min="0" step="0.01" placeholder="Valor pago">
         <select id="new-payment"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Transferência</option><option>Outro</option></select>
+        <select id="new-product" style="border-color: #ffd000; color: #ffd000; font-weight: bold;"><option value="liveinfinity">🚀 Live Infinity (LIVEINF-)</option><option value="livecam">📷 Live Cam (LIVECAM-)</option></select>
         <input id="new-note" placeholder="Observação">
       </div>
       <button id="create-license" class="primary">Gerar chave</button>
@@ -660,6 +661,7 @@ function licensesPage() {
       body: JSON.stringify({
         email: $("#new-email").value.trim(),
         plan: $("#new-plan").value,
+        product: $("#new-product").value,
         durationDays: Number($("#new-days").value),
         amountPaid: Number($("#new-amount").value || 0),
         paymentMethod: $("#new-payment").value,
@@ -1492,6 +1494,8 @@ elements.content.addEventListener("click", async event => {
     );
     const note =
       document.getElementById("modal-note").value;
+    const product =
+      document.getElementById("modal-product") ? document.getElementById("modal-product").value : "liveinfinity";
 
     await api("/api/admin/licenses", {
       method: "POST",
@@ -1500,7 +1504,8 @@ elements.content.addEventListener("click", async event => {
         accessEmail,
         plan,
         durationDays,
-        note
+        note,
+        product
       })
     });
 

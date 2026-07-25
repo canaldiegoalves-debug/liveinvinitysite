@@ -2383,6 +2383,7 @@ const server = http.createServer(async (request, response) => {
         const note = String(body.note || "").trim();
         const amountPaid = Math.max(0, Number(body.amountPaid || 0));
         const paymentMethod = String(body.paymentMethod || "").trim();
+        const requestedProduct = String(body.product || "liveinfinity").toLowerCase() === "livecam" ? "livecam" : "liveinfinity";
 
         if (!accountEmail || !accountEmail.includes("@")) {
           json(response, 400, { ok: false, error: "Digite um e-mail de compra válido." });
@@ -2432,13 +2433,14 @@ const server = http.createServer(async (request, response) => {
         let key;
 
         for (let attempt = 0; attempt < 10; attempt += 1) {
-          key = generateKey(plan);
+          key = generateKey(plan, requestedProduct);
+          const finalNote = note ? `${note} (${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"})` : `Gerado via Painel Admin (${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"})`;
           try {
             await pool.execute(
               `INSERT INTO licenses
                (id,account_email,access_email,email,license_key,plan,duration_days,note,amount_paid,net_amount,payment_method)
                VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-              [id,accountEmail,accessEmail,accessEmail,key,plan,durationDays,note || null,amountPaid,amountPaid,paymentMethod || null]
+              [id,accountEmail,accessEmail,accessEmail,key,plan,durationDays,finalNote,amountPaid,amountPaid,paymentMethod || null]
             );
             break;
           } catch (error) {
