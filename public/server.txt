@@ -1139,6 +1139,7 @@ const server = http.createServer(async (request, response) => {
           const durationDays = 30;
           const expiresAt = new Date(Date.now() + durationDays * 86400000);
           const amountPaid = plan === "premium" ? 147.00 : plan === "pro" ? 97.00 : 67.00;
+          const accessEmailVal = requestedProduct === "livecam" ? `livecam:${email}` : email;
 
           await upsertCustomerAccount(email, plan);
           await pool.execute(
@@ -1146,7 +1147,7 @@ const server = http.createServer(async (request, response) => {
              (id,account_email,access_email,email,license_key,plan,duration_days,note,amount_paid,net_amount,payment_method,expires_at,status,active)
              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
             [
-              id, email, email, email, key, plan, durationDays,
+              id, email, accessEmailVal, email, key, plan, durationDays,
               `Gerado via autoatendimento (${requestedProduct === "livecam" ? "Live Cam" : "Live Infinity"})`,
               amountPaid, amountPaid * 0.92, "Cakto Self-Service",
               expiresAt, "pending", 1
