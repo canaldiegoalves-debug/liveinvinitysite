@@ -2407,8 +2407,8 @@ const server = http.createServer(async (request, response) => {
         }
 
         const [existingAccess] = await pool.execute(
-          "SELECT id, license_key FROM licenses WHERE access_email=? OR email=?",
-          [accessEmail, accessEmail]
+          "SELECT id, license_key FROM licenses WHERE access_email=? OR access_email=? OR access_email=? OR email=?",
+          [accessEmail, `livecam:${accessEmail}`, `liveinfinity:${accessEmail}`, accessEmail]
         );
 
         const existingSameProduct = existingAccess.find(lic => {
@@ -2426,7 +2426,7 @@ const server = http.createServer(async (request, response) => {
 
         const id = crypto.randomUUID();
         let key;
-        const finalAccessEmail = requestedProduct === "livecam" ? `livecam:${accessEmail}` : accessEmail;
+        const finalAccessEmail = `${requestedProduct}:${accessEmail}`;
 
         for (let attempt = 0; attempt < 10; attempt += 1) {
           key = generateKey(plan, requestedProduct);
