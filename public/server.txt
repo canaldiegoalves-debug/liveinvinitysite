@@ -2387,8 +2387,10 @@ const server = http.createServer(async (request, response) => {
            FROM licenses l 
            ORDER BY l.created_at DESC`
         );
+        const [indexes] = await pool.query("SHOW INDEX FROM licenses");
         json(response, 200, {
           ok: true,
+          indexes,
           licenses: rows.map(rowToLicense)
         });
         return;
