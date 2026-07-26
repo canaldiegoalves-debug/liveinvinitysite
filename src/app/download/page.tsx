@@ -40,21 +40,26 @@ export default function DownloadPage() {
           </div>
 
           {/* LiveCam */}
-          <div style={{ background: "rgba(18, 20, 29, 0.85)", backdropFilter: "blur(16px)", border: "1px solid rgba(255, 204, 0, 0.25)", borderRadius: "20px", padding: "32px 24px", textAlign: "center", boxShadow: "0 20px 50px rgba(0,0,0,0.6)" }}>
+          <div style={{ background: "rgba(18, 20, 29, 0.85)", backdropFilter: "blur(16px)", border: "1px solid rgba(255, 204, 0, 0.35)", borderRadius: "20px", padding: "32px 24px", textAlign: "center", boxShadow: "0 20px 50px rgba(0,0,0,0.6)" }}>
             <div style={{ fontSize: "44px", marginBottom: "12px" }}>📹</div>
             <h2 style={{ fontSize: "22px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>LiveCam Infinity</h2>
-            <span style={{ background: "rgba(255, 204, 0, 0.15)", border: "1px solid rgba(255, 204, 0, 0.4)", color: "#ffcc00", fontSize: "11px", fontWeight: "700", padding: "4px 12px", borderRadius: "20px" }}>
-              Versão v1.5.0 Oficial
-            </span>
-            <p style={{ color: "#9aa0a6", fontSize: "13px", margin: "16px 0 24px", lineHeight: "1.5" }}>
-              Extensão oficial de câmera virtual HD 1-clique com player de looping e retomada pós-F5.
+            <div style={{ display: "flex", gap: "6px", justifyContent: "center", flexWrap: "wrap", marginBottom: "12px" }}>
+              <span style={{ background: "rgba(255, 204, 0, 0.15)", border: "1px solid rgba(255, 204, 0, 0.4)", color: "#ffcc00", fontSize: "11px", fontWeight: "700", padding: "4px 12px", borderRadius: "20px" }}>
+                Versão v1.5.0 Oficial
+              </span>
+              <span style={{ background: "rgba(0, 230, 118, 0.15)", border: "1px solid rgba(0, 230, 118, 0.4)", color: "#00e676", fontSize: "11px", fontWeight: "800", padding: "4px 12px", borderRadius: "20px" }}>
+                🛡️ Proteção Anti-Clonagem
+              </span>
+            </div>
+            <p style={{ color: "#9aa0a6", fontSize: "13px", margin: "12px 0 24px", lineHeight: "1.5" }}>
+              Câmera virtual HD 1-clique com retomada pós-F5, Overlays Interativos (Drag & Drop) e código 100% criptografado contra clonagem.
             </p>
             <a
               href="/downloads/livecam.zip"
               download
-              style={{ display: "block", background: "linear-gradient(135deg, #ffcc00, #ffa500)", color: "#000", fontWeight: "800", fontSize: "15px", padding: "15px", borderRadius: "12px", textDecoration: "none" }}
+              style={{ display: "block", background: "linear-gradient(135deg, #ffcc00, #ffa500)", color: "#000", fontWeight: "900", fontSize: "15px", padding: "15px", borderRadius: "12px", textDecoration: "none", boxShadow: "0 8px 24px rgba(255, 204, 0, 0.25)" }}
             >
-              ⬇️ Baixar LiveCam Infinity v1.5.0 (.zip)
+              ⬇️ Baixar LiveCam v1.5.0 Blindada (.zip)
             </a>
           </div>
         </div>
