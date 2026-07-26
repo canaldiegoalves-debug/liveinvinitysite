@@ -1578,14 +1578,20 @@ const server = http.createServer(async (request, response) => {
         );
       }
 
-      const token = signJwt({ key: lic.license_key, email: lic.access_email || lic.email, product: product || (key.startsWith("LIVECAM") ? "livecam" : "liveinfinity") });
+      let rawEm = lic.account_email || lic.access_email || lic.email || "";
+      if (!rawEm || rawEm === "cliente@email.com") {
+        rawEm = lic.access_email || lic.email || "";
+      }
+      const cleanEm = String(rawEm).replace(/^(liveinfinity|livecam):/i, "").trim();
+
+      const token = signJwt({ key: lic.license_key, email: cleanEm, product: product || (key.startsWith("LIVECAM") ? "livecam" : "liveinfinity") });
 
       json(response, 200, {
         ok: true,
         valid: true,
         status: "active",
         token: token,
-        email: lic.access_email || lic.email,
+        email: cleanEm,
         expiresAt: lic.expires_at
       });
       return;
