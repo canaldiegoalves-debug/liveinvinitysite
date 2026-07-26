@@ -667,6 +667,10 @@ function serveAdminStatic(requestPath, response) {
     filePath = path.join(filePath, "index.html");
   }
 
+  if (!fs.existsSync(filePath) && fs.existsSync(filePath + ".html")) {
+    filePath = filePath + ".html";
+  }
+
   if (!filePath.startsWith(PUBLIC_DIR) || !fs.existsSync(filePath)) {
     text(response, 404, "Página não encontrada.");
     return;
@@ -1064,6 +1068,12 @@ const server = http.createServer(async (request, response) => {
 
     if (url.pathname === "/download" || url.pathname === "/downloads") {
       const filePath = path.join(PUBLIC_DIR, "download.html");
+      text(response, 200, fs.readFileSync(filePath), "text/html; charset=utf-8");
+      return;
+    }
+
+    if (url.pathname === "/afiliados" || url.pathname === "/afiliado") {
+      const filePath = path.join(PUBLIC_DIR, "afiliados.html");
       text(response, 200, fs.readFileSync(filePath), "text/html; charset=utf-8");
       return;
     }

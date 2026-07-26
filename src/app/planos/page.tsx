@@ -131,7 +131,7 @@ export default async function PlanosPage() {
             </div>
 
             <a
-              href={plan.id === "pro" ? "https://pay.cakto.com.br/ngh5cw4_867592" : plan.id === "premium" ? "https://pay.cakto.com.br/hy29b5b_867594" : "#"}
+              href={plan.id === "free" ? "#" : "https://pay.cakto.com.br/xd4yj7y"}
               className={`${styles.planBtn} ${styles[plan.btnClass as keyof typeof styles]} ${plan.id === "free" ? styles.btnDisabled : ""}`}
               style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center" }}
             >

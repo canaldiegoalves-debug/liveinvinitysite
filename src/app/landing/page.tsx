@@ -692,7 +692,7 @@ export default function LandingPage() {
               <li><Check size={18} /> Sistema Anti-Ban integrado</li>
               <li><Check size={18} /> Suporte via WhatsApp</li>
             </ul>
-            <a href="https://pay.cakto.com.br/3477jz3_976117" className={`${styles.pricingBtn} ${styles.pricingBtnWhite}`}>
+            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnWhite}`}>
               Assinar por R$ 97/mês
             </a>
           </div>
@@ -716,7 +716,7 @@ export default function LandingPage() {
               <li><Check size={18} /> Automação Completa TikTok Shop</li>
               <li><Check size={18} /> Acesso prioritário a atualizações & betas</li>
             </ul>
-            <a href="https://pay.cakto.com.br/mdz39dg" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
+            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Quero Chaves Infinitas (R$ 147)
             </a>
           </div>
