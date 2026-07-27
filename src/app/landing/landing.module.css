@@ -793,21 +793,21 @@
 }
 
 .pricingCardWhite {
-  border: 2px solid #ffffff;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 20, 0.8) 100%);
-  box-shadow: 0 20px 40px rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0d111d;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .pricingCardGold {
   border: 2px solid #FFD700;
-  background: linear-gradient(180deg, rgba(255, 215, 0, 0.03) 0%, rgba(20, 20, 20, 0.8) 100%);
-  box-shadow: 0 20px 40px rgba(255, 215, 0, 0.06);
+  background: #0d111d;
+  box-shadow: 0 0 35px rgba(255, 215, 0, 0.35);
 }
 
 .pricingCard:hover {
   transform: translateY(-8px);
-  border-color: rgba(255, 255, 255, 0.15);
-  background: var(--color-bg-card-hover);
+  border-color: rgba(255, 215, 0, 0.4);
+  background: #101524;
 }
 
 .pricingCardFeatured:hover {
@@ -816,13 +816,13 @@
 }
 
 .pricingCardWhite:hover {
-  border-color: #ffffff;
-  box-shadow: 0 25px 45px rgba(255, 255, 255, 0.12);
+  border-color: #FFD700;
+  box-shadow: 0 15px 35px rgba(255, 215, 0, 0.25);
 }
 
 .pricingCardGold:hover {
   border-color: #FFD700;
-  box-shadow: 0 25px 45px rgba(255, 215, 0, 0.12);
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
 }
 
 .pricingBadge {
@@ -871,11 +871,12 @@
 }
 
 .pricingHeader h3 {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.6rem;
+  font-weight: 900;
   font-family: var(--font-title);
   margin-bottom: 0.75rem;
   letter-spacing: 0.02em;
+  color: #ffffff;
 }
 
 .pricingDesc {
@@ -894,13 +895,14 @@
 }
 
 .priceCurrency {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #FFD700;
+  margin-right: 2px;
 }
 
 .priceValue {
-  font-size: 3.2rem;
+  font-size: 3.4rem;
   font-weight: 900;
   font-family: var(--font-title);
   color: #fff;
@@ -931,7 +933,7 @@
 }
 
 .pricingFeatures li svg {
-  color: var(--color-primary);
+  color: #FFD700;
   flex-shrink: 0;
 }
 
@@ -939,66 +941,62 @@
   margin-top: auto;
   width: 100%;
   padding: 1rem;
-  border-radius: 12px;
-  font-weight: 800;
+  border-radius: 14px;
+  font-weight: 900;
   font-family: var(--font-title);
   font-size: 0.95rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: none;
 }
 
 .pricingBtnStandard {
-  background: rgba(255, 255, 255, 0.04);
-  color: #fff;
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.35);
 }
 
 .pricingBtnStandard:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
 }
 
 .pricingBtnWhite {
-  background: #ffffff;
+  background: linear-gradient(135deg, #ffd700, #ff9500);
   color: #000000;
-  border-color: #ffffff;
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.35);
 }
 
 .pricingBtnWhite:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.35);
-  background: #f0f0f0;
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #ffae00, #ffd700);
 }
 
 .pricingBtnFeatured {
-  background: linear-gradient(135deg, var(--color-primary), #d61414);
-  color: #fff;
-  box-shadow: 0 6px 20px rgba(255, 29, 29, 0.25);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #000;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.35);
 }
 
 .pricingBtnFeatured:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(255, 29, 29, 0.45);
-  background: linear-gradient(135deg, #ff3c3c, var(--color-primary));
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
 }
 
 .pricingBtnGold {
   background: linear-gradient(135deg, #ffd700, #ff9500);
   color: #000000;
-  border-color: #ffd700;
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.25);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.35);
 }
 
 .pricingBtnGold:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.45);
-  background: linear-gradient(135deg, #ffa600, #ffd700);
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #ffae00, #ffd700);
 }
 
 /* FAQ Section */

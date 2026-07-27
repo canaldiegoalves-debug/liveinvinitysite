@@ -651,11 +651,11 @@ export default function LandingPage() {
           </p>
         </div>
         <div className={styles.pricingGrid}>
-          {/* Plano 1: R$ 67/mês (Starter) */}
+          {/* Plano 1: R$ 67/mês (Plano Starter) */}
           <div className={`${styles.pricingCard} ${styles.pricingCardWhite}`}>
             <div className={styles.pricingHeader}>
-              <h3>Starter</h3>
-              <p className={styles.pricingDesc}>Ideal para quem está iniciando suas vendas no TikTok Shop com 1 conta principal.</p>
+              <h3>Plano Starter</h3>
+              <p className={styles.pricingDesc}>Ideal para quem está começando e quer automatizar a primeira conta no TikTok Shop.</p>
             </div>
             <div className={styles.pricingPrice}>
               <span className={styles.priceCurrency}>R$</span>
@@ -663,21 +663,22 @@ export default function LandingPage() {
               <span className={styles.pricePeriod}>/mês</span>
             </div>
             <ul className={styles.pricingFeatures}>
-              <li><Check size={18} /> 🔑 1 Chave de Licença liberada</li>
-              <li><Check size={18} /> 🎥 LiveCam Infinity Incluso (HD 1080p)</li>
-              <li><Check size={18} /> Automação Completa TikTok Shop</li>
-              <li><Check size={18} /> Sistema Anti-Ban integrado</li>
-              <li><Check size={18} /> Suporte via WhatsApp</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🔑</span> <strong style={{ color: '#ffd000' }}>1 Chave de Licença</strong></li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🎥</span> LiveCam Infinity Incluso (HD 1080p)</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>⚡</span> Automação Completa TikTok Shop</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🔄</span> Looping & Retomada Automática F5</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🎙️</span> VB-Audio CABLE Suite & FX</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>💬</span> Suporte via WhatsApp</li>
             </ul>
-            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnWhite}`}>
+            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Assinar por R$ 67/mês
             </a>
           </div>
 
-          {/* Plano 2: R$ 97/mês (Pro) */}
+          {/* Plano 2: R$ 97/mês (Plano Pro) */}
           <div className={`${styles.pricingCard} ${styles.pricingCardWhite}`}>
             <div className={styles.pricingHeader}>
-              <h3>Pro</h3>
+              <h3>Plano Pro</h3>
               <p className={styles.pricingDesc}>Perfeito para quem opera 2 contas em simultâneo com alta produtividade.</p>
             </div>
             <div className={styles.pricingPrice}>
@@ -686,22 +687,23 @@ export default function LandingPage() {
               <span className={styles.pricePeriod}>/mês</span>
             </div>
             <ul className={styles.pricingFeatures}>
-              <li><Check size={18} /> 🔑 2 Chaves de Licença liberadas</li>
-              <li><Check size={18} /> 🎥 LiveCam Infinity Incluso (HD 1080p)</li>
-              <li><Check size={18} /> Automação Completa TikTok Shop</li>
-              <li><Check size={18} /> Sistema Anti-Ban integrado</li>
-              <li><Check size={18} /> Suporte via WhatsApp</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🔑</span> <strong style={{ color: '#ffd000' }}>2 Chaves de Licença</strong></li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🎥</span> LiveCam Infinity Incluso (HD 1080p)</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>⚡</span> Automação Completa TikTok Shop</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🔄</span> Looping & Retomada Automática F5</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🎙️</span> VB-Audio CABLE Suite & FX</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>💬</span> Suporte via WhatsApp</li>
             </ul>
-            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnWhite}`}>
+            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Assinar por R$ 97/mês
             </a>
           </div>
 
-          {/* Plano 3: R$ 147/mês (Infinity VIP - Featured / Recommended) */}
+          {/* Plano 3: R$ 147/mês (Plano Infinity VIP) */}
           <div className={`${styles.pricingCard} ${styles.pricingCardGold}`}>
             <div className={`${styles.pricingBadge} ${styles.pricingBadgeGold}`}>🔥 MAIS POPULAR · RECOMENDADO</div>
             <div className={styles.pricingHeader}>
-              <h3>Infinity VIP</h3>
+              <h3>Plano Infinity VIP</h3>
               <p className={styles.pricingDesc}>Para operação profissional de grande escala sem limites de contas ou chaves.</p>
             </div>
             <div className={styles.pricingPrice}>
@@ -710,11 +712,12 @@ export default function LandingPage() {
               <span className={styles.pricePeriod}>/mês</span>
             </div>
             <ul className={styles.pricingFeatures}>
-              <li><Check size={18} /> ♾️ CHAVES INFINITAS LIBERADAS</li>
-              <li><Check size={18} /> 🎥 LiveCam Infinity Incluso (HD 1080p)</li>
-              <li><Check size={18} /> ⭐ Suporte Prioritário c/ Chamada de Vídeo</li>
-              <li><Check size={18} /> Automação Completa TikTok Shop</li>
-              <li><Check size={18} /> Acesso prioritário a atualizações & betas</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>♾️</span> <strong style={{ color: '#00ff88' }}>CHAVES INFINITAS LIBERADAS</strong></li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🎥</span> LiveCam Infinity Incluso (HD 1080p)</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>⚡</span> Automação Completa TikTok Shop</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🔄</span> Looping & Retomada Automática F5</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>🎙️</span> VB-Audio CABLE Suite & FX</li>
+              <li><span style={{ fontSize: '18px', width: '24px' }}>⭐</span> <strong style={{ color: '#ff3366' }}>Suporte Prioritário c/ Chamada de Vídeo</strong></li>
             </ul>
             <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Quero Chaves Infinitas (R$ 147)
