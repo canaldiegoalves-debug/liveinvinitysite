@@ -1,340 +1,183 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Central de Downloads Oficial — Live Infinity & LiveCam</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="description" content="Baixe os pacotes oficiais das extensões Live Infinity e LiveCam para o seu navegador." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
   <style>
-    :root {
-      --bg: #070a12;
-      --card-bg: rgba(13, 17, 29, 0.85);
-      --border: rgba(255, 208, 0, 0.25);
-      --red: #ff1717;
-      --red-glow: rgba(255, 23, 23, 0.4);
-      --gold: #ffd000;
-      --gold-glow: rgba(255, 208, 0, 0.35);
-      --text: #f0f2f5;
-      --text-dim: #9aa0a6;
-      --firefox: #ff7139;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
       min-height: 100vh;
+      background: #070a12;
+      color: #f0f2f5;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 40px 20px;
-      position: relative;
-      overflow-x: hidden;
     }
-
-    body::before {
-      content: '';
-      position: absolute;
-      top: -180px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, var(--red-glow) 0%, rgba(0,0,0,0) 70%);
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 960px;
-      position: relative;
-      z-index: 1;
-      text-align: center;
-    }
-
-    .header-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 38px;
+    .wrapper { width: 100%; max-width: 920px; text-align: center; }
+    h1 {
+      font-size: clamp(2rem, 4vw, 2.5rem);
       font-weight: 900;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, var(--red), #ff6b4a, var(--gold));
+      background: linear-gradient(135deg, #e50914, #ff4b2b, #ffcc00);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-    }
-
-    p.subtitle {
-      color: var(--text-dim);
-      font-size: 15px;
-      margin-bottom: 30px;
-    }
-
-    .browser-badges {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 36px;
-    }
-
-    .browser-badge {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 999px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .grid-download {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-
-    .download-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 30px 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px var(--gold-glow);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .download-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px var(--gold-glow);
-    }
-
-    .card-icon {
-      font-size: 40px;
       margin-bottom: 10px;
     }
-
-    .card-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-
-    .card-version {
-      background: rgba(255, 208, 0, 0.15);
-      border: 1px solid rgba(255, 208, 0, 0.4);
-      color: var(--gold);
-      font-size: 11px;
-      font-weight: 800;
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-bottom: 16px;
-    }
-
-    .card-desc {
-      color: var(--text-dim);
-      font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 24px;
-      flex-grow: 1;
-    }
-
-    .btn-download-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 100%;
-    }
-
-    .btn-download {
-      width: 100%;
-      background: linear-gradient(135deg, var(--red), #e10000);
-      color: #fff;
-      font-family: 'Outfit', sans-serif;
-      font-size: 14px;
-      font-weight: 800;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      box-shadow: 0 6px 20px var(--red-glow);
-      transition: all 0.25s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-download:hover {
-      transform: scale(1.02);
-      box-shadow: 0 10px 25px var(--red-glow);
-    }
-
-    .btn-download.gold {
-      background: linear-gradient(135deg, var(--gold), #ffaa00);
-      color: #000;
-      box-shadow: 0 6px 20px var(--gold-glow);
-    }
-
-    .btn-download.gold:hover {
-      box-shadow: 0 10px 25px var(--gold-glow);
-    }
-
-    .btn-download.firefox {
-      background: linear-gradient(135deg, #ff7139, #e03e00);
-      color: #fff;
-      box-shadow: 0 6px 20px rgba(255, 113, 57, 0.4);
-    }
-
-    .instructions-box {
-      background: rgba(13, 17, 29, 0.8);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 28px;
+    .sub { color: #94a3b8; font-size: 16px; margin-bottom: 40px; }
+    .card {
+      background: rgba(15, 20, 32, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 204, 0, 0.35);
+      border-radius: 24px;
+      padding: 36px 28px;
+      margin-bottom: 40px;
       text-align: left;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
     }
-
-    .instructions-box h3 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 18px;
-      color: var(--gold);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .step-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .step-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      font-size: 14px;
-      color: #d1d5db;
-      line-height: 1.5;
-    }
-
-    .step-num {
-      background: rgba(255, 23, 23, 0.2);
-      border: 1px solid var(--red);
-      color: #ff3355;
-      min-width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .card-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+    .card-title { font-size: 26px; font-weight: 900; color: #fff; }
+    .badge-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      background: rgba(255, 204, 0, 0.15);
+      border: 1px solid rgba(255, 204, 0, 0.4);
+      color: #ffcc00;
       font-size: 12px;
       font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .badge-green {
+      background: rgba(0, 230, 118, 0.15);
+      border: 1px solid rgba(0, 230, 118, 0.4);
+      color: #00e676;
+    }
+    .desc { color: #94a3b8; font-size: 14px; margin: 12px 0 24px; line-height: 1.6; }
+    .btn-label { font-size: 13px; font-weight: 800; color: #e2e8f0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+    
+    .browser-downloads {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
     }
 
-    code {
-      background: #000;
-      color: var(--gold);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-family: monospace;
+    @media (max-width: 900px) {
+      .browser-downloads { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+    @media (max-width: 600px) {
+      .browser-downloads { grid-template-columns: 1fr; }
+    }
+
+    .browser-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 20px;
+      min-height: 64px;
+      border-radius: 14px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
+    }
+    .browser-btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+    .browser-icon { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
   </style>
 </head>
 <body>
+  <div class="wrapper">
+    <h1>⚡ CENTRAL DE DOWNLOADS OFICIAL</h1>
+    <p class="sub">Baixe os pacotes oficiais das extensões para o seu navegador homologado.</p>
 
-  <div class="container">
-    <h1 class="header-title">⚡ CENTRAL DE DOWNLOADS OFICIAL</h1>
-    <p class="subtitle">Baixe o pacote otimizado da extensão para o seu navegador de preferência.</p>
-
-    <!-- BADGES DE NAVEGADORES SUPORTADOS -->
-    <div class="browser-badges">
-      <div class="browser-badge">🌐 Google Chrome</div>
-      <div class="browser-badge">🟦 Microsoft Edge</div>
-      <div class="browser-badge">🔴 Opera / Opera GX</div>
-      <div class="browser-badge">🦁 Brave Browser</div>
-      <div class="browser-badge">🟢 Vivaldi</div>
-      <div class="browser-badge">🦊 Mozilla Firefox</div>
-    </div>
-
-    <div class="grid-download">
-      <!-- LIVE INFINITY CARD -->
-      <div class="download-card">
-        <div class="card-icon">🚀</div>
-        <div class="card-title">Live Infinity</div>
-        <div class="card-version">Versão v10.2.0 (Mais Recente)</div>
-        <div class="card-desc">Automação inteligente, leitura de Vendas e GMV em tempo real, refixação de produtos e respostas automáticas no TikTok Shop.</div>
-        
-        <div class="btn-download-group">
-          <a href="/downloads/live-infinity.zip" download class="btn-download">
-            🌐 Baixar para Chrome, Edge, Opera, Brave (.zip)
-          </a>
-          <a href="/downloads/live-infinity-firefox.zip" download class="btn-download firefox">
-            🦊 Baixar para Mozilla Firefox (.zip)
-          </a>
+    <!-- LIVE INFINITY -->
+    <div class="card">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:32px">🚀</span>
+          <span class="card-title">LIVE INFINITY</span>
+        </div>
+        <div class="badge-wrap">
+          <span class="badge" id="version-badge">Versão v11.0.4 — Mais recente</span>
+          <span class="badge badge-green">🛡️ Proteção Anti-Clonagem</span>
         </div>
       </div>
+      <p class="desc">Automação inteligente de lives no TikTok Shop. Selecione abaixo o seu navegador para baixar o pacote oficial atualizado.</p>
 
-      <!-- LIVECAM INFINITY CARD -->
-      <div class="download-card">
-        <div class="card-icon">📹</div>
-        <div class="card-title">LiveCam Infinity</div>
-        <div class="card-version">Versão v1.7.0 (Mais Recente)</div>
-        <div class="card-desc">Câmera virtual HD com Suíte de Áudio 5 Cards (VB-Cable, Áudio Infinito, Trechos, Camada ao Vivo com Chave Master e Históricos).</div>
-        
-        <div class="btn-download-group">
-          <a href="/downloads/livecam.zip" download class="btn-download gold">
-            📹 Baixar para Chrome, Edge, Opera, Brave (.zip)
-          </a>
-          <a href="/downloads/livecam-firefox.zip" download class="btn-download firefox">
-            🦊 Baixar para Mozilla Firefox (.zip)
-          </a>
-        </div>
+      <p class="btn-label">Escolha seu navegador:</p>
+      <div class="browser-downloads">
+        <a href="/downloads/live-infinity/live-infinity-chrome.zip" download class="browser-btn" style="background: linear-gradient(135deg, #4285f4, #34a853); box-shadow: 0 8px 24px rgba(66, 133, 244, 0.35);">
+          <img src="/images/browsers/chrome.svg" alt="Chrome" class="browser-icon" />
+          <span>Baixar para Google Chrome</span>
+        </a>
+
+        <a href="/downloads/live-infinity/live-infinity-edge.zip" download class="browser-btn" style="background: linear-gradient(135deg, #0aa0f6, #0fc7b1); box-shadow: 0 8px 24px rgba(10, 160, 246, 0.35);">
+          <img src="/images/browsers/edge.svg" alt="Edge" class="browser-icon" />
+          <span>Baixar para Microsoft Edge</span>
+        </a>
+
+        <a href="/downloads/live-infinity/live-infinity-opera.zip" download class="browser-btn" style="background: linear-gradient(135deg, #ff1b2d, #b00020); box-shadow: 0 8px 24px rgba(255, 27, 45, 0.35);">
+          <img src="/images/browsers/opera.svg" alt="Opera" class="browser-icon" />
+          <span>Baixar para Opera</span>
+        </a>
+
+        <a href="/downloads/live-infinity/live-infinity-opera-gx.zip" download class="browser-btn" style="background: linear-gradient(135deg, #ff1744, #7b001c); box-shadow: 0 8px 24px rgba(255, 23, 68, 0.35);">
+          <img src="/images/browsers/opera-gx.svg" alt="Opera GX" class="browser-icon" />
+          <span>Baixar para Opera GX</span>
+        </a>
+
+        <a href="/downloads/live-infinity/live-infinity-brave.zip" download class="browser-btn" style="background: linear-gradient(135deg, #ff5f1f, #d93800); box-shadow: 0 8px 24px rgba(255, 95, 31, 0.35);">
+          <img src="/images/browsers/brave.svg" alt="Brave" class="browser-icon" />
+          <span>Baixar para Brave</span>
+        </a>
+
+        <a href="/downloads/live-infinity/live-infinity-vivaldi.zip" download class="browser-btn" style="background: linear-gradient(135deg, #ef3939, #b71328); box-shadow: 0 8px 24px rgba(239, 57, 57, 0.35);">
+          <img src="/images/browsers/vivaldi.svg" alt="Vivaldi" class="browser-icon" />
+          <span>Baixar para Vivaldi</span>
+        </a>
       </div>
     </div>
 
-    <!-- INSTRUÇÕES DE INSTALAÇÃO MULTI-NAVEGADOR -->
-    <div class="instructions-box">
-      <h3>🛠️ Como Instalar no seu Navegador:</h3>
-      <div class="step-list">
-        <div class="step-item">
-          <div class="step-num">1</div>
-          <div><strong>Chrome, Edge, Opera, Brave, Vivaldi</strong>: Baixe o pacote correspondente acima e descompacte a pasta <code>.zip</code>.</div>
+    <!-- LIVECAM INFINITY -->
+    <div class="card" style="border-color: rgba(255, 204, 0, 0.25);">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:32px">📹</span>
+          <span class="card-title">LiveCam Infinity</span>
         </div>
-        <div class="step-item">
-          <div class="step-num">2</div>
-          <div>No seu navegador, acesse o endereço de extensões (<code>chrome://extensions</code> ou <code>edge://extensions</code> ou <code>about:addons</code> no Firefox).</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">3</div>
-          <div>Ative a chave <strong>"Modo do Desenvolvedor"</strong> no canto superior direito.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">4</div>
-          <div>Clique em <strong>"Carregar sem compactação"</strong> (ou <em>Load Temporary Add-on</em> no Firefox) e selecione a pasta extraída. Pronto!</div>
+        <div class="badge-wrap">
+          <span class="badge">Versão v1.5.0 Oficial</span>
+          <span class="badge badge-green">🛡️ Proteção Anti-Clonagem</span>
         </div>
       </div>
+      <p class="desc">Câmera virtual HD 1-clique com retomada pós-F5, Overlays Interativos (Drag & Drop) e código 100% criptografado contra clonagem.</p>
+      <a href="/downloads/livecam.zip" download style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg, #ffcc00, #ffa500);color:#000;font-weight:900;font-size:15px;padding:16px 28px;border-radius:14px;text-decoration:none;box-shadow:0 8px 24px rgba(255, 204, 0, 0.25);">
+        <span>⬇️ Baixar LiveCam v1.5.0 Blindada (.zip)</span>
+      </a>
     </div>
+
+    <!-- INSTRUÇÕES -->
+    <div style="background: rgba(15, 20, 32, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 28px; text-align: left;">
+      <h3 style="font-size: 18px; color: #ffcc00; margin-bottom: 16px; font-weight: 800;">🛠️ Como Instalar as Extensões no seu Navegador:</h3>
+      <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #cbd5e1; line-height: 1.6;">
+        <div>1. Clique no botão correspondente ao seu navegador acima para baixar o arquivo <strong>.zip</strong> oficial.</div>
+        <div>2. Extraia/descompacte o arquivo <strong>.zip</strong> em uma pasta local do seu computador.</div>
+        <div>3. Acesse <code>chrome://extensions</code> ou <code>edge://extensions</code> no seu navegador.</div>
+        <div>4. No canto superior direito, ative a opção <strong>"Modo do Desenvolvedor"</strong>.</div>
+        <div>5. Clique em <strong>"Carregar sem compactação"</strong> e selecione a pasta descompactada. Pronto!</div>
+      </div>
+    </div>
+
   </div>
-
 </body>
 </html>

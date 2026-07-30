@@ -1,0 +1,102 @@
+{
+  "version": "11.0.4",
+  "updatedAt": "2026-07-30T21:11:39.684Z",
+  "browsers": {
+    "arc": {
+      "file": "live-infinity-arc.zip",
+      "title": "Arc Browser",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\ARC_BROWSER.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3120006,
+      "sha256": "f67c176bb697783f659d9499199395b3ff811bd65f2ac66040e1bfc840e3057a",
+      "updatedAt": "2026-07-30T21:11:30.536Z"
+    },
+    "brave": {
+      "file": "live-infinity-brave.zip",
+      "title": "Brave",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\BRAVE.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3120005,
+      "sha256": "acf334c9f652b9e46461da5f4d8e60517d3ffc1ac3adf09e6ba025bb37d1cbff",
+      "updatedAt": "2026-07-30T21:11:31.770Z"
+    },
+    "chromium": {
+      "file": "live-infinity-chromium.zip",
+      "title": "Chromium",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\CHROMIUM.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3119991,
+      "sha256": "138ebc8006c4ed65799b31eab8a2a84166efe36bcf864be7bf85cce834f099f0",
+      "updatedAt": "2026-07-30T21:11:33.020Z"
+    },
+    "chrome": {
+      "file": "live-infinity-chrome.zip",
+      "title": "Google Chrome",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\GOOGLE_CHROME.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3120021,
+      "sha256": "14f89d16a76002a798b378b20c724477a76ca8baeecb1f2c47cf953c4c84d43e",
+      "updatedAt": "2026-07-30T21:11:34.424Z"
+    },
+    "edge": {
+      "file": "live-infinity-edge.zip",
+      "title": "Microsoft Edge",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\MICROSOFT_EDGE.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3120011,
+      "sha256": "126f0188601a336c05330d5ff0b54db44ec3ff8c4f05bb2af54cb365161e9154",
+      "updatedAt": "2026-07-30T21:11:35.731Z"
+    },
+    "opera": {
+      "file": "live-infinity-opera.zip",
+      "title": "Opera",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\OPERA.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3120001,
+      "sha256": "5a4287989a5ae1a55e4d005b1c52039a8ddd6825669e131272217dbae799a788",
+      "updatedAt": "2026-07-30T21:11:37.011Z"
+    },
+    "opera-gx": {
+      "file": "live-infinity-opera-gx.zip",
+      "title": "Opera GX",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\OPERA.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3120001,
+      "sha256": "5a4287989a5ae1a55e4d005b1c52039a8ddd6825669e131272217dbae799a788",
+      "updatedAt": "2026-07-30T21:11:37.011Z"
+    },
+    "thorium": {
+      "file": "live-infinity-thorium.zip",
+      "title": "Thorium",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\THORIUM.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3120025,
+      "sha256": "df6ac7e81008f53881d95d09d44427da699b412fc6105a931a7c41a086c0eb1c",
+      "updatedAt": "2026-07-30T21:11:38.452Z"
+    },
+    "vivaldi": {
+      "file": "live-infinity-vivaldi.zip",
+      "title": "Vivaldi",
+      "sourcePath": "C:\\Users\\diegu\\OneDrive\\Área de Trabalho\\ARQUIVOS NAVEGADORES LIVE INFINITY\\VIVALDI.zip",
+      "version": "11.0.4",
+      "manifest_version": 3,
+      "size": 3119978,
+      "sha256": "66ba63ec3160f07e574759519e750a14b5fc47f615438a00d44b9a6e57c87b4e",
+      "updatedAt": "2026-07-30T21:11:39.682Z"
+    }
+  },
+  "pending": [
+    {
+      "file": "FIREFOX.zip",
+      "reason": "Firefox não possui pacote validado para comercialização (STATUS_FIREFOX.txt)"
+    }
+  ]
+}
