@@ -670,7 +670,7 @@ export default function LandingPage() {
               <li><span style={{ fontSize: '18px', width: '24px' }}>🎙️</span> VB-Audio CABLE Suite & FX</li>
               <li><span style={{ fontSize: '18px', width: '24px' }}>💬</span> Suporte via WhatsApp</li>
             </ul>
-            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
+            <a href="https://pay.cakto.com.br/xd4yj7y" target="_blank" rel="noopener noreferrer" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Assinar por R$ 67/mês
             </a>
           </div>
@@ -694,7 +694,7 @@ export default function LandingPage() {
               <li><span style={{ fontSize: '18px', width: '24px' }}>🎙️</span> VB-Audio CABLE Suite & FX</li>
               <li><span style={{ fontSize: '18px', width: '24px' }}>💬</span> Suporte via WhatsApp</li>
             </ul>
-            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
+            <a href="https://pay.cakto.com.br/3477jz3_976117" target="_blank" rel="noopener noreferrer" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Assinar por R$ 97/mês
             </a>
           </div>
@@ -719,7 +719,7 @@ export default function LandingPage() {
               <li><span style={{ fontSize: '18px', width: '24px' }}>🎙️</span> VB-Audio CABLE Suite & FX</li>
               <li><span style={{ fontSize: '18px', width: '24px' }}>⭐</span> <strong style={{ color: '#ff3366' }}>Suporte Prioritário c/ Chamada de Vídeo</strong></li>
             </ul>
-            <a href="https://pay.cakto.com.br/xd4yj7y" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
+            <a href="https://pay.cakto.com.br/mdz39dg" target="_blank" rel="noopener noreferrer" className={`${styles.pricingBtn} ${styles.pricingBtnGold}`}>
               Quero Chaves Infinitas (R$ 147)
             </a>
           </div>
