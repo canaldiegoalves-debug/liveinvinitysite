@@ -1,5 +1,6 @@
 export default function DownloadPage() {
   const version = "11.0.5";
+  const livecamVersion = "3.6.4";
 
   const browsers = [
     {
@@ -63,7 +64,7 @@ export default function DownloadPage() {
       minHeight: "100vh",
       background: "#070a12",
       color: "#f0f2f5",
-      fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+      fontFamily: "system-ui, -apple-system, sans-serif",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -75,7 +76,6 @@ export default function DownloadPage() {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 16px;
-          margin-top: 20px;
         }
 
         @media (max-width: 900px) {
@@ -122,8 +122,6 @@ export default function DownloadPage() {
       `}</style>
 
       <div style={{ width: "100%", maxWidth: "920px", textAlign: "center" }}>
-        
-        {/* CABEÇALHO */}
         <h1 style={{
           fontSize: "clamp(2rem, 4vw, 2.5rem)",
           fontWeight: "900",
@@ -165,7 +163,7 @@ export default function DownloadPage() {
                 padding: "6px 14px",
                 borderRadius: "20px"
               }}>
-                Versão v{version} — Mais recente
+                Versão v{version} OFFICIAL
               </span>
               <span style={{
                 background: "rgba(0, 230, 118, 0.15)",
@@ -186,11 +184,11 @@ export default function DownloadPage() {
           </p>
 
           <p style={{ fontSize: "13px", fontWeight: "800", color: "#e2e8f0", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "12px" }}>
-            Escolha seu navegador:
+            Escolha seu navegador (Chromium):
           </p>
 
           {/* GRADE DOS BOTÕES DOS NAVEGADORES */}
-          <div className="browser-downloads" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+          <div className="browser-downloads">
             {browsers.map((b) => (
               <a
                 key={b.id}
@@ -207,9 +205,30 @@ export default function DownloadPage() {
               </a>
             ))}
           </div>
+
+          {/* AVISO DO FIREFOX */}
+          <div style={{
+            background: "rgba(255, 35, 35, 0.08)",
+            border: "1px solid rgba(255, 35, 35, 0.25)",
+            borderRadius: "14px",
+            padding: "16px 20px",
+            marginTop: "24px",
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            color: "#f87171",
+            fontSize: "14px",
+            fontWeight: "600",
+            lineHeight: "1.5"
+          }}>
+            <span style={{ fontSize: "22px", flexShrink: 0 }}>🦊</span>
+            <div>
+              <strong>Mozilla Firefox:</strong> Ainda não liberado comercialmente. A extensão foi desenvolvida e homologada exclusivamente para navegadores baseados em Chromium.
+            </div>
+          </div>
         </div>
 
-        {/* CONTAINER DA SEÇÃO LIVECAM INFINITY (INTEGRAÇÃO E CÓDIGO PERMANECEM 100% INTACTOS) */}
+        {/* CONTAINER DA SEÇÃO LIVECAM INFINITY */}
         <div style={{
           background: "rgba(15, 20, 32, 0.85)",
           backdropFilter: "blur(16px)",
@@ -235,7 +254,7 @@ export default function DownloadPage() {
                 padding: "6px 14px",
                 borderRadius: "20px"
               }}>
-                Versão v1.5.0 Oficial
+                Versão v{livecamVersion} OFFICIAL
               </span>
               <span style={{
                 background: "rgba(0, 230, 118, 0.15)",
@@ -272,7 +291,7 @@ export default function DownloadPage() {
               boxShadow: "0 8px 24px rgba(255, 204, 0, 0.25)"
             }}
           >
-            <span>⬇️ Baixar LiveCam v1.5.0 Blindada (.zip)</span>
+            <span>⬇️ Baixar LiveCam v3.6.4 Blindada (.zip)</span>
           </a>
         </div>
 
@@ -285,14 +304,14 @@ export default function DownloadPage() {
           textAlign: "left"
         }}>
           <h3 style={{ fontSize: "18px", color: "#ffcc00", marginBottom: "16px", fontWeight: "800" }}>
-            🛠️ Como Instalar as Extensões no seu Navegador:
+            🛠️ Como Instalar as Extensões no seu Navegador Chromium:
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "14px", color: "#cbd5e1", lineHeight: "1.6" }}>
-            <div>1. Clique no botão correspondente ao seu navegador acima para baixar o arquivo <strong>.zip</strong> oficial.</div>
+            <div>1. Clique no botão correspondente ao seu navegador Chromium acima para baixar o arquivo <strong>.zip</strong> oficial.</div>
             <div>2. Extraia/descompacte o arquivo <strong>.zip</strong> em uma pasta local do seu computador.</div>
-            <div>3. Acesse <code>chrome://extensions</code> ou <code>edge://extensions</code> no seu navegador.</div>
-            <div>4. No canto superior direito, ative a opção <strong>"Modo do Desenvolvedor"</strong>.</div>
-            <div>5. Clique em <strong>"Carregar sem compactação"</strong> e selecione a pasta descompactada. Pronto!</div>
+            <div>3. Acesse a página de extensões do seu navegador (ex: <code>chrome://extensions</code> no Chrome/Brave/Opera ou <code>edge://extensions</code> no Edge).</div>
+            <div>4. No canto superior direito, ative a opção <strong>"Modo do Desenvolvedor"</strong> (Developer mode).</div>
+            <div>5. Clique no botão <strong>"Carregar sem compactação"</strong> (Load unpacked) e selecione a pasta descompactada. Pronto!</div>
           </div>
         </div>
 
