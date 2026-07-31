@@ -1,6 +1,6 @@
 {
   "version": "11.0.5",
-  "updatedAt": "2026-07-31T01:13:32.236Z",
+  "updatedAt": "2026-07-31T01:20:32.837Z",
   "browsers": {
     "arc": {
       "file": "live-infinity-arc.zip",
@@ -10,7 +10,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:25.782Z"
+      "updatedAt": "2026-07-31T01:20:26.676Z"
     },
     "brave": {
       "file": "live-infinity-brave.zip",
@@ -20,7 +20,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:27.006Z"
+      "updatedAt": "2026-07-31T01:20:27.451Z"
     },
     "chromium": {
       "file": "live-infinity-chromium.zip",
@@ -30,7 +30,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:27.748Z"
+      "updatedAt": "2026-07-31T01:20:28.156Z"
     },
     "chrome": {
       "file": "live-infinity-chrome.zip",
@@ -40,7 +40,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:28.423Z"
+      "updatedAt": "2026-07-31T01:20:29.025Z"
     },
     "edge": {
       "file": "live-infinity-edge.zip",
@@ -50,7 +50,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:29.351Z"
+      "updatedAt": "2026-07-31T01:20:29.862Z"
     },
     "opera": {
       "file": "live-infinity-opera.zip",
@@ -60,7 +60,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:30.553Z"
+      "updatedAt": "2026-07-31T01:20:30.943Z"
     },
     "opera-gx": {
       "file": "live-infinity-opera-gx.zip",
@@ -70,7 +70,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:30.554Z"
+      "updatedAt": "2026-07-31T01:20:30.943Z"
     },
     "thorium": {
       "file": "live-infinity-thorium.zip",
@@ -80,7 +80,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:31.352Z"
+      "updatedAt": "2026-07-31T01:20:31.842Z"
     },
     "vivaldi": {
       "file": "live-infinity-vivaldi.zip",
@@ -90,7 +90,7 @@
       "manifest_version": 3,
       "size": 612207,
       "sha256": "4575507afcc91192db2677bf116a700f281f982af3bf63887e2f58b73166622a",
-      "updatedAt": "2026-07-31T01:13:32.227Z"
+      "updatedAt": "2026-07-31T01:20:32.833Z"
     }
   },
   "pending": [
